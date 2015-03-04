@@ -1,22 +1,3 @@
-/**
- * jquery.keyJumper
- *
- * Version:     1.2.0
- * Last Update: 2013/06/26
- * Manuel Bitto (manuel.bitto@gmail.com)
- *
- * This plugin is intended to help keyboard navigation through html nodes.
- *
- * changelog:
- *
- * version 1.0.1 -> Skip visibility:hidden elements
- * version 1.0.2 -> Removed scanned area
- * version 1.1.0 -> Changed helper logic to be more intuitive
- * version 1.1.1 -> Fixed rendering bug on setCurrent
- * version 1.2.0 -> Refresh will take in account modifies to elements
- *
- */
-
 (function($) {
 
     var _options,

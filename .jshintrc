@@ -1,6 +1,9 @@
 {
     "node" : true,
     "curly": true,
+    "globals": {
+        "define": false
+    },
     "quotmark": "single",
     "debug": false,
     "validthis": true,
