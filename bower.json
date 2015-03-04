@@ -15,6 +15,7 @@
     "tests"
   ],
   "devDependencies": {
-    "requirejs": "~2.1.16"
+    "requirejs": "~2.1.16",
+    "lodash": "~3.3.1"
   }
 }

@@ -1,5 +1,6 @@
 var chai = require('chai'),
     Browser = require('zombie'),
+    _ = require('lodash'),
     expect = chai.expect,
     browser;
 
@@ -23,9 +24,20 @@ describe('Magic Focus Finder Tests', function() {
     });
 
     beforeEach(function(done) {
+        browser.open();
+
+        function requireJsLoaded(window) {
+            return 'true' === window.document.getElementById('requireJsLoaded').innerHTML;
+        }
+
+        browser.wait(requireJsLoaded, done);
+
         browser.visit('http://localhost:3000/')
-            .then(done)
             .catch(done);
+    });
+
+    afterEach(function() {
+        browser.close();
     });
 
     it('should render a page and make assertion with no errors', function() {
@@ -34,29 +46,56 @@ describe('Magic Focus Finder Tests', function() {
 
     describe('the configure method', function() {
         it('should exist on the module', function() {
-            expect(browser.window.magicFocusFinder).to.have.property('configure');
+            expect(browser.window.magicFocusFinder).itself.to.respondTo('configure');
         });
 
-        xit('should return the module instance for chaining', function() {
+        it('should return the module instance for chaining', function() {
             expect(browser.window.magicFocusFinder.configure()).to.equal(browser.window.magicFocusFinder);
         });
 
-        xit('should set the configuration on the module', function() {
+        it('should set the configuration on the module', function() {
+            var options = { keymap : {}, focusableAttribute : '', defaultFocusedElement : '', container : '', eventNamespace : '' };
 
+            browser.window.magicFocusFinder.configure(options);
+
+            expect(browser.window.magicFocusFinder.private.config).to.deep.equal(options);
         });
 
-        xit('should be able to be called at any time to change the configuration', function() {
+        it('should merge the passed configure with the current one, so as to support partial config updates', function() {
+            var originalOptions = browser.window.magicFocusFinder.private.config,
+                options = { keymap : {} };
+
+            browser.window.magicFocusFinder.configure(options);
+
+            expect(browser.window.magicFocusFinder.private.config).to.deep.equal(_.merge(originalOptions, options));
+        });
+
+        xit('should perform basic validation on the options object (keymap has all dirctions, that nothing required is blown out accidentally)', function() {
 
         });
     });
 
     describe('the getConfig method', function() {
-        xit('should return the current configuration', function() {
-
+        it('should exist on the module', function() {
+            expect(browser.window.magicFocusFinder).itself.to.respondTo('getConfig');
         });
 
-        xit('after updating the configuration, should return the new configuration', function() {
+        it('should return the current configuration', function() {
+            expect(browser.window.magicFocusFinder.getConfig()).to.deep.equal(browser.window.magicFocusFinder.private.config);
+        });
 
+        it('after updating the configuration, should return the new configuration', function() {
+            var options = { keymap : {}, focusableAttribute : '', defaultFocusedElement : '', container : '', eventNamespace : '' };
+
+            browser.window.magicFocusFinder.configure(options);
+
+            expect(browser.window.magicFocusFinder.getConfig()).to.deep.equal(options);
+        });
+    });
+
+    describe('the start method', function() {
+        it('should exist on the module', function() {
+            expect(browser.window.magicFocusFinder).itself.to.respondTo('start');
         });
     });
 });

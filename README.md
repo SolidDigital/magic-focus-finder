@@ -61,9 +61,14 @@ It will fire the following events.
 ### configure(options)
 configure the defaults, can be called at anytime to change the configuration
 ```javascript
-
+magicFocusFinder.configure(options)
 ```
 
+### getConfig()
+returns the current configuration
+```javascript
+magicFocusFinder.getConfig()
+```
 
 ### start()
 starts the dang thing, if start is called before configure, then default options will be used.

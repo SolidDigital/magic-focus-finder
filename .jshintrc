@@ -7,7 +7,9 @@
         "before" : false,
         "after" : false,
         "it" : false,
-        "beforeEach" : false
+        "beforeEach" : false,
+        "afterEach" : false,
+        "xit" : false
     },
     "quotmark": "single",
     "debug": false,
