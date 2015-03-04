@@ -42,7 +42,7 @@ Options Object
 ## Events
 It will fire the following events.
 
-# Element level
+### Element level
 1. `focus` normal focus event
 2. `blur` normal blur event
 3. `magicFocusFinder:focus` namespaced focus event
@@ -50,9 +50,11 @@ It will fire the following events.
 5. `magicFocusFinder:focus:from:<% direction %>` namespaced focus event telling you which direction the focus came from
 6. `magicFocusFinder:blur:to:<% direction %>` namespaced blur event telling you which direction the element was blurred to.
 
-# Container level
+### Container level
 1. `magicFocusFinder:elementAdded` event telling you a focusable element was added to the container.
 2. `magicFocusFinder:elementRemoved` event telling you a focusable element was removed from the container.
+
+
 ##Methods
 
 ### configure(options)
