@@ -3,6 +3,7 @@
 Intended to help keyboard navigation through html nodes.
 
 This is heavily influenced by (and sort of a rip off of) this repo: [jquery.keyJumper](https://github.com/mbitto/jquery.keyJumper)
+
 The diff will be
 
 1. no jquery

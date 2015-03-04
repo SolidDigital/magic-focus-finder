@@ -2,7 +2,12 @@
     "node" : true,
     "curly": true,
     "globals": {
-        "define": false
+        "define": false,
+        "describe" : false,
+        "before" : false,
+        "after" : false,
+        "it" : false,
+        "beforeEach" : false
     },
     "quotmark": "single",
     "debug": false,
