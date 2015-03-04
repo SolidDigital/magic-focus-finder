@@ -25,7 +25,7 @@ describe('Magic Focus Finder Tests', function() {
     });
 
     it('should render a page and make assertion with no errors', function(done) {
-        browser.visit('http://localhost:3000/')
+        browser.visit('http://localhost:3000/', { debug : true })
             .then(function() {
                 browser.text('title').should.equal('Magic Focus Finder Tests');
                 done();

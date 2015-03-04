@@ -3,12 +3,9 @@
   "version": "0.0.0",
   "description": "Intended to help keyboard navigation through html nodes.",
   "main": "index.js",
-  "directories": {
-    "example": "examples",
-    "test": "test"
-  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha test",
+    "foo" : "echo \"fooo\" && exit 0"
   },
   "repository": {
     "type": "git",
@@ -25,6 +22,11 @@
     "chai": "^2.1.0",
     "express": "^4.12.2",
     "mocha": "^2.1.0",
+    "pre-commit": "^1.0.5",
     "zombie": "^2.5.1"
-  }
+  },
+  "pre-commit" : [
+    "test",
+    "foo"  
+  ]
 }
