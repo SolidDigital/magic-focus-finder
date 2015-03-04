@@ -34,6 +34,7 @@ Options Object
 {
   keymap : {},  //override the default browser keymap
   focusableAttribute : '', //override the default data attribute used to denote focusability
+  focusedClass : '', // a focus class for non focusable elements
   defaultFocusedElement : '' // a element reference, or a selector
   container : '' //the container in which this thing lives, default to the document.,
   eventNamespace : '' //custom namespace for events, default to 'magicFocusFinder'

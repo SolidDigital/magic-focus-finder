@@ -16,6 +16,7 @@
   ],
   "devDependencies": {
     "requirejs": "~2.1.16",
-    "lodash": "~3.3.1"
+    "lodash": "~3.3.1",
+    "classListPolyfill" : "https://github.com/eligrey/classList.js.git"
   }
 }
