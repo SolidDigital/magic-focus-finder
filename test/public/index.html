@@ -1,10 +1,26 @@
 <html>
     <head>
         <title>Magic Focus Finder Tests</title>
+
+        <style>
+            .hidden {
+                visibility : hidden;
+            }
+        </style>
     </head>
     <body>
-        <input id='focusableInput'></input>
-        <div id='nonFocusableDiv'></div>
+        <input id='focusableInput' focusable></input>
+        <div id='nonFocusableDiv' focusable></div>
+        <div id='withNoFocusableAttribute'></div>
+        <div id='hiddenInputWithFocusableAttr' focusable class='hidden'></div>
+
+        <ul id='iContainMoreFocusables'>
+            <li focusable></li>
+            <li focusable></li>
+            <li focusable></li>
+            <li focusable></li>
+            <li focusable></li>
+        <ul>
 
     </body>
     <!-- will toggle to true when everything is loaded, used so zombie knows when require is done -->

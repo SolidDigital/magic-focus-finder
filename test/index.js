@@ -98,7 +98,57 @@ describe('Magic Focus Finder Tests', function() {
             expect(browser.window.magicFocusFinder).itself.to.respondTo('start');
         });
 
+        it('should set the default focused element if one was set', function() {
+            browser.window.magicFocusFinder
+                .configure({ defaultFocusedElement : '#focusableInput' })
+                .start();
 
+            expect(browser.document.querySelector('#focusableInput').classList.contains('focused')).to.be.true;
+        });
+
+        it('should ignore elements that are hidden', function() {
+            browser.window.magicFocusFinder.start();
+
+            expect(_.pluck(browser.window.magicFocusFinder.private.knownElements, 'id')).to.not.contain('hiddenInputWithFocusableAttr');
+        });
+
+        describe('the cached-position attribute added to each element', function() {
+            it('should add the attribute cached-position to each element', function() {
+                browser.window.magicFocusFinder.start();
+
+                expect(_.first(browser.window.magicFocusFinder.private.knownElements).getAttribute('position')).to.exist;
+            });
+
+            it('should have the properties, x, y, otx, oty, obx, oby, olx, oly, orx, ory', function() {
+                var position;
+
+                browser.window.magicFocusFinder.start();
+
+                position = _.first(browser.window.magicFocusFinder.private.knownElements).getAttribute('position');
+
+                position = JSON.parse(position);
+
+                expect(position).to.have.all.keys('x', 'y', 'otx', 'oty', 'obx', 'oby', 'olx', 'oly', 'orx', 'ory');
+            });
+        });
+
+        describe('when the config.container is set', function() {
+            it('should register every element descending from the container', function() {
+                browser.window.magicFocusFinder
+                    .configure({ container : '#iContainMoreFocusables'})
+                    .start();
+
+                expect(browser.window.magicFocusFinder.private.knownElements.length).to.equal(browser.document.querySelectorAll('#iContainMoreFocusables li').length);
+            });
+        });
+
+        describe('when the config.container is not set', function() {
+            it('should register every element with the default focusable attribute descending from the document', function() {
+                browser.window.magicFocusFinder.start();
+
+                expect(browser.window.magicFocusFinder.private.knownElements.length).to.equal(browser.document.querySelectorAll('[focusable]').length - browser.document.querySelectorAll('.hidden').length);
+            });
+        });
     });
 
     describe('the setCurrent method', function() {
@@ -106,51 +156,67 @@ describe('Magic Focus Finder Tests', function() {
             expect(browser.window.magicFocusFinder).itself.to.respondTo('setCurrent');
         });
 
-        it('should accept an element and give that element focus', function() {
-            browser.window.magicFocusFinder.setCurrent('#focusableInput');
-
-            expect(browser.document.querySelector(':focus').id).to.equal('focusableInput');
-        });
-
-        it('should give class and focus pseudo state to focusable elements', function() {
-            browser.window.magicFocusFinder.setCurrent('#focusableInput');
-
-            expect(browser.document.querySelector(':focus').id).to.equal('focusableInput');
-            expect(browser.document.querySelector('#focusableInput').classList.contains('focused')).to.be.true;
-        });
-
-        it('should give class to non focusable elements', function() {
-            browser.window.magicFocusFinder.setCurrent('#nonFocusableDiv');
-
-            expect(browser.document.querySelector('#nonFocusableDiv').classList.contains('focused')).to.be.true;
-        });
-
-        it('should return itself for chaining', function() {
-            expect(browser.window.magicFocusFinder.setCurrent('#nonFocusableDiv')).to.deep.equal(browser.window.magicFocusFinder);
-        });
-
-        it('should still return itself when called with nothing', function() {
-            expect(browser.window.magicFocusFinder.setCurrent()).to.deep.equal(browser.window.magicFocusFinder);
-        });
-
-        it('should not fail if that element does not exist', function() {
-            expect(browser.window.magicFocusFinder.setCurrent('#doesNotExist')).to.not.throw;
-        });
-
-        it('should update the currently focued element', function() {
-            browser.window.magicFocusFinder.setCurrent('#nonFocusableDiv');
-
-            expect(browser.window.magicFocusFinder.private.currentlyFocusedElement).to.deep.equal(browser.document.querySelector('#nonFocusableDiv'));
-        });
-
-        describe('given a previously focused element', function() {
-            it('should remove the focused class and pseudo state from the previous element', function() {
+        describe('given a selector', function() {
+            it('should accept an element and give that element focus', function() {
                 browser.window.magicFocusFinder.setCurrent('#focusableInput');
 
+                expect(browser.document.querySelector(':focus').id).to.equal('focusableInput');
+            });
+            it('should give class and focus pseudo state to focusable elements', function() {
+                browser.window.magicFocusFinder.setCurrent('#focusableInput');
+
+                expect(browser.document.querySelector(':focus').id).to.equal('focusableInput');
+                expect(browser.document.querySelector('#focusableInput').classList.contains('focused')).to.be.true;
+            });
+
+            it('should give class to non focusable elements', function() {
                 browser.window.magicFocusFinder.setCurrent('#nonFocusableDiv');
 
-                expect(browser.document.querySelector('#focusableInput').classList.contains('focused')).to.be.false;
+                expect(browser.document.querySelector('#nonFocusableDiv').classList.contains('focused')).to.be.true;
+            });
+
+            it('should return itself for chaining', function() {
+                expect(browser.window.magicFocusFinder.setCurrent('#nonFocusableDiv')).to.deep.equal(browser.window.magicFocusFinder);
+            });
+
+            it('should still return itself when called with nothing', function() {
+                expect(browser.window.magicFocusFinder.setCurrent()).to.deep.equal(browser.window.magicFocusFinder);
+            });
+
+            it('should not fail if that element does not exist', function() {
+                expect(browser.window.magicFocusFinder.setCurrent('#doesNotExist')).to.not.throw;
+            });
+
+            it('should update the currently focued element', function() {
+                browser.window.magicFocusFinder.setCurrent('#nonFocusableDiv');
+
+                expect(browser.window.magicFocusFinder.private.currentlyFocusedElement).to.deep.equal(browser.document.querySelector('#nonFocusableDiv'));
+            });
+
+            it('should focus and add the focus class to the element even if it does not have the focusable attribute', function() {
+                browser.window.magicFocusFinder.setCurrent('#withNoFocusableAttribute');
+
+                expect(browser.window.magicFocusFinder.private.currentlyFocusedElement).to.deep.equal(browser.document.querySelector('#withNoFocusableAttribute'));
+            });
+
+            describe('given a previously focused element', function() {
+                it('should remove the focused class and pseudo state from the previous element', function() {
+                    browser.window.magicFocusFinder.setCurrent('#focusableInput');
+
+                    browser.window.magicFocusFinder.setCurrent('#nonFocusableDiv');
+
+                    expect(browser.document.querySelector('#focusableInput').classList.contains('focused')).to.be.false;
+                });
             });
         });
+
+        describe('given a element reference', function() {
+            it('should accept a element reference', function() {
+                browser.window.magicFocusFinder.setCurrent(browser.document.querySelector('#focusableInput'));
+
+                expect(browser.document.querySelector(':focus').id).to.equal('focusableInput');
+            });
+        });
+
     });
 });
