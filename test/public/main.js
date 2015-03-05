@@ -1,8 +1,8 @@
 /*jslint browser: true*/
 require.config({
     paths : {
-        lodash : './vendor/lodash/lodash',
-        classListPolyFill : './vendor/classListPolyfill/classList'
+        lodash : './source/vendor/lodash/lodash',
+        classListPolyFill : './source/vendor/classListPolyfill/classList'
     }
 });
 

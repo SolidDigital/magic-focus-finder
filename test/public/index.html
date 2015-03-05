@@ -6,6 +6,24 @@
             .hidden {
                 visibility : hidden;
             }
+            #testContainer {
+                border: 2px solid blue;
+                height: 1000px;
+                width: 1000px;
+            }
+            .box {
+                background-color: lime;
+                width: 100px;
+                height: 100px;
+            }
+            .box.focused {
+                outline: 2px solid black;
+            }
+            #numberTwo {
+                position: relative;
+                left: 200px;
+                top: -100px;
+            }
         </style>
     </head>
     <body>
@@ -20,7 +38,13 @@
             <li focusable></li>
             <li focusable></li>
             <li focusable></li>
-        <ul>
+        </ul>
+
+        <!-- Real Click and nav tests in here -->
+        <section id='testContainer'>
+            <div id='numberOne' class='box' focusable>Number 1</div>
+            <div id='numberTwo' class='box' focusable>Number 2</div>
+        </section>
 
     </body>
     <!-- will toggle to true when everything is loaded, used so zombie knows when require is done -->

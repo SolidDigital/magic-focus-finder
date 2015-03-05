@@ -20,9 +20,9 @@
                 console.error('keyNavigator has no class name defined for active (on) element');
             }
             currentElement = $('.' + _options.onClass).filter(function(){
-                return $(this).not(":hidden") && $(this).css("visibility") === "visible";
+                return $(this).not(':hidden') && $(this).css('visibility') === 'visible';
             }).first()[0];
-            if(typeof currentElement === "undefined"){
+            if(typeof currentElement === 'undefined'){
                 currentElement = $('.' + _options.navigableClass).first();
                 currentElement.addClass(_options.onClass);
             }
@@ -48,7 +48,7 @@
         var $element = $(element);
 
         // If element is hidden
-        if($element.is(':hidden') || $element.css("visibility") === "hidden"){
+        if($element.is(':hidden') || $element.css('visibility') === 'hidden'){
             return false;
         }
 
@@ -98,13 +98,13 @@
     var findCloseElements = function(isClose){
 
         var closeElements = [];
-        var currentElementPosition = $currentElement.data("position");
+        var currentElementPosition = $currentElement.data('position');
 
         // Check within each known element
         for(var i = 0; i < knownElements.length; i++) {
 
             var $knownElement = $(knownElements[i]);
-            var knownElementPosition = $knownElement.data("position");
+            var knownElementPosition = $knownElement.data('position');
 
             // Check if known element is close to current element
             var isCloseElement = isClose(currentElementPosition, knownElementPosition);
@@ -119,12 +119,12 @@
 
     var findHelper = function(){
 
-        if(typeof $(currentElement).data("keynav-helper") === "undefined"){
+        if(typeof $(currentElement).data('keynav-helper') === 'undefined'){
             return { up: null, right: null, down: null, left: null };
         }
 
         // Parse helper content
-        var helperContentArray = $(currentElement).data("keynav-helper").split(" ");
+        var helperContentArray = $(currentElement).data('keynav-helper').split(' ');
         return{
             up: helperContentArray[0],
             right: helperContentArray[1],
@@ -141,24 +141,24 @@
             distance,
             closeElementsPosition,
             i,
-            currentElementPosition = $currentElement.data("position");
+            currentElementPosition = $currentElement.data('position');
 
         // Find closest element within the close elements
         for(i = 0; i < closeElements.length; i++) {
-            closeElementsPosition = $(closeElements[i]).data("position");
+            closeElementsPosition = $(closeElements[i]).data('position');
 
             // Find distance between 2 elements
             distance = getDistance(currentElementPosition, closeElementsPosition);
 
             // Check if is the closest found yet
-            if(typeof closestDistance === "undefined" || distance < closestDistance) {
+            if(typeof closestDistance === 'undefined' || distance < closestDistance) {
                 closestDistance = distance;
                 closestElement = closeElements[i];
             }
         }
 
         // If closest element is found activate it
-        if(typeof closestElement !== "undefined"){
+        if(typeof closestElement !== 'undefined'){
             setActive(closestElement);
         }
     };
@@ -172,7 +172,7 @@
             switch(event.keyCode){
                 case 37:    // Left
                     helper = findHelper().left;
-                    if(helper && typeof $(helper)[0] !== "undefined"){
+                    if(helper && typeof $(helper)[0] !== 'undefined'){
                         setActive($(helper));
                     }
                     else{
@@ -186,7 +186,7 @@
                     break;
                 case 38:    // Up
                     helper = findHelper().up;
-                    if(helper && typeof $(helper)[0] !== "undefined"){
+                    if(helper && typeof $(helper)[0] !== 'undefined'){
                         setActive($(helper));
                     }
                     else{
@@ -200,7 +200,7 @@
                     break;
                 case 39:    // Right
                     helper = findHelper().right;
-                    if(helper && typeof $(helper)[0] !== "undefined"){
+                    if(helper && typeof $(helper)[0] !== 'undefined'){
                         setActive($(helper));
                     }
                     else{
@@ -214,7 +214,7 @@
                     break;
                 case 40:    // Down
                     helper = findHelper().down;
-                    if(helper && typeof $(helper)[0] !== "undefined"){
+                    if(helper && typeof $(helper)[0] !== 'undefined'){
                         setActive($(helper));
                     }
                     else{
@@ -270,7 +270,7 @@
 
         // Set current element
         setCurrent : function(element, silently){
-            if(typeof element[0] !== "undefined"){
+            if(typeof element[0] !== 'undefined'){
                 element = element[0];
             }
             setTimeout(function(){
@@ -310,7 +310,7 @@
     // Plug keyJumper in
     $.fn.keyJumper = function(method){
 
-        // We have a method like $('page').keyJumper("setActive");
+        // We have a method like $('page').keyJumper('setActive');
         if ( publicMethods[method] ) {
             return publicMethods[method].apply( this, Array.prototype.slice.call( arguments, 1 ));
         }

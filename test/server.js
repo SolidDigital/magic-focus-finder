@@ -17,7 +17,7 @@ function start() {
         app.use(express.static(path.join(process.cwd(), 'test/public')));
 
         server = app.listen(3000, function(err) {
-            if(err) { reject(); };
+            if(err) { reject(); }
             resolve();
         });
     });

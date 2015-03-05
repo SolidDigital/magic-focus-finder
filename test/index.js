@@ -247,4 +247,8 @@ describe('Magic Focus Finder Tests', function() {
         });
 
     });
+
+    describe('the eventManager', function() {
+
+    });
 });
