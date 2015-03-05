@@ -54,7 +54,7 @@ describe('Magic Focus Finder Tests', function() {
         });
 
         it('should set the configuration on the module', function() {
-            var options = { keymap : {}, focusableAttribute : '', defaultFocusedElement : '', focusedClass : '', container : '', eventNamespace : '' };
+            var options = { keymap : {}, focusableAttribute : '', defaultFocusedElement : '', focusedClass : '', container : '', eventNamespace : '', overrideDirectionAttribute : '' };
 
             browser.window.magicFocusFinder.configure(options);
 
@@ -85,7 +85,7 @@ describe('Magic Focus Finder Tests', function() {
         });
 
         it('after updating the configuration, should return the new configuration', function() {
-            var options = { keymap : {}, focusableAttribute : '', focusedClass : '', defaultFocusedElement : '', container : '', eventNamespace : '' };
+            var options = { keymap : {}, focusableAttribute : '', overrideDirectionAttribute : '', focusedClass : '', defaultFocusedElement : '', container : '', eventNamespace : '' };
 
             browser.window.magicFocusFinder.configure(options);
 

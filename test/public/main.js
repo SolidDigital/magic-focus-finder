@@ -6,7 +6,7 @@ require.config({
     }
 });
 
-require(['./source/index', 'classListPolyFill'], function (magicFocusFinder, classListPolyFill) {
+require(['./source/magicFocusFinder', 'classListPolyFill'], function (magicFocusFinder, classListPolyFill) {
     'use strict';
 
     window.magicFocusFinder  = magicFocusFinder;

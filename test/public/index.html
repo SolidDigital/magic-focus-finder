@@ -1,28 +1,11 @@
 <html>
     <head>
         <title>Magic Focus Finder Tests</title>
-
+        <link rel='stylesheet' href='style.css'></link>
+        <!-- Inline Style because Zombie does not compute them. -->
         <style>
             .hidden {
                 visibility : hidden;
-            }
-            #testContainer {
-                border: 2px solid blue;
-                height: 1000px;
-                width: 1000px;
-            }
-            .box {
-                background-color: lime;
-                width: 100px;
-                height: 100px;
-            }
-            .box.focused {
-                outline: 2px solid black;
-            }
-            #numberTwo {
-                position: relative;
-                left: 200px;
-                top: -100px;
             }
         </style>
     </head>
@@ -30,7 +13,7 @@
         <input id='focusableInput' focusable></input>
         <div id='nonFocusableDiv' focusable></div>
         <div id='withNoFocusableAttribute'></div>
-        <div id='hiddenInputWithFocusableAttr' focusable class='hidden'></div>
+        <div id='hiddenInputWithFocusableAttr' class='hidden' focusable></div>
 
         <ul id='iContainMoreFocusables'>
             <li focusable></li>
@@ -44,6 +27,51 @@
         <section id='testContainer'>
             <div id='numberOne' class='box' focusable>Number 1</div>
             <div id='numberTwo' class='box' focusable>Number 2</div>
+            <div id='numberThree' class='box' focusable>Number 3</div>
+        </section>
+
+        <hr>
+        <section id='jquerykeyJumperExamples'>
+            <div class='container example1'>
+                <h2>Simple navigation</h2>
+                <div class='box block1' focusable>1</div>
+                <div class='box block2' focusable>2</div>
+                <div class='box block3' focusable>3</div>
+                <div class='box block4' focusable>4</div>
+                <div class='box block5' focusable>5</div>
+                <div class='box block6' focusable>6</div>
+                <div class='box block7' focusable>7</div>
+                <div class='box block8' focusable>8</div>
+                <div class='box block9' focusable>9</div>
+                <div class='box block10' focusable>10</div>
+            </div>
+            <div class='container example2'>
+                <h2>Navigation through sparse nodes</h2>
+                <div class='box block11' focusable>11</div>
+                <div class='box block12' focusable>12</div>
+                <div class='box block13' focusable>13</div>
+                <div class='box block14' focusable>14</div>
+                <div class='box block15' focusable>15</div>
+                <div class='box block16' focusable>16</div>
+                <div class='box block17' focusable>17</div>
+                <div class='box block18' focusable>18</div>
+                <div class='box block19' focusable>19</div>
+                <div class='box block20' focusable>20</div>
+            </div>
+            <div class='container example3'>
+                <h2>Forced navigation</h2>
+                <div class='box block21' id='block21' focus-overrides='null #block23 null null' focusable>21</div>
+                <div class='box block22' focus-overrides='null null null null' focusable>22</div>
+                <div class='box block23' id='block23' focus-overrides='null #block25 null #block21' focusable>23</div>
+                <div class='box block24' focusable>24</div>
+                <div class='box block25' id='block25' focus-overrides='null null null #block23' focusable>25</div>
+                <div class='box block26' focusable>26</div>
+                <div class='box block27' focusable>27</div>
+                <div class='box block28' id='block28' focus-overrides='null null null .block26' focusable>28</div>
+                <div class='box block29' focusable>29</div>
+                <div class='box block30' id='block30' focus-overrides='null null null #block28' focusable>30</div>
+            </div>
+
         </section>
 
     </body>

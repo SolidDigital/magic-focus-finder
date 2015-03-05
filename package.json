@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "cp -R source test/public && mocha test",
-    "jshint": "jshint *"
+    "jshint": "jshint source/magicFocusFinder.js"
   },
   "repository": {
     "type": "git",

@@ -1,0 +1,62 @@
+.hidden {
+    visibility : hidden;
+}
+#testContainer {
+    position: relative;
+    border: 2px solid blue;
+    height: 500px;
+    width: 500px;
+}
+.box {
+    position: absolute;
+    background-color: lime;
+    width: 50px;
+    height: 50px;
+}
+.box.focused {
+    outline: 2px solid black;
+}
+#numberTwo {
+    left: 200px;
+    top: -50px;
+}
+#numberThree {
+    left: 50px;
+}
+
+.example1{position: relative; height: 200px;}
+.example2{position: relative; height: 300px;}
+.example3{position: relative; height: 300px;}
+
+.block1{top:50px; left:70px;}
+.block2{top:50px; left:130px;}
+.block3{top:50px; left:190px;}
+.block4{top:50px; left:250px;}
+.block5{top:50px; left:310px;}
+.block6{top:120px; left:70px;}
+.block7{top:120px; left:130px;}
+.block8{top:120px; left:190px;}
+.block9{top:120px; left:250px;}
+.block10{top:120px; left:310px;}
+
+.block11{top:50px; left:50px;}
+.block12{top:100px; left:150px;}
+.block13{top:50px; left:300px;}
+.block14{top:130px; left:420px;}
+.block15{top:50px; left:580px;}
+.block16{top:140px; left:50px;}
+.block17{top:200px; left:150px;}
+.block18{top:160px; left:310px;}
+.block19{top:230px; left:480px;}
+.block20{top:180px; left:550px;}
+
+.block21{top:50px; left:50px;}
+.block22{top:100px; left:150px;}
+.block23{top:50px; left:300px;}
+.block24{top:130px; left:420px;}
+.block25{top:50px; left:580px;}
+.block26{top:140px; left:50px;}
+.block27{top:200px; left:150px;}
+.block28{top:160px; left:310px;}
+.block29{top:230px; left:480px;}
+.block30{top:170px; left:550px;}
