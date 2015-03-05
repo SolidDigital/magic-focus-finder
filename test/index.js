@@ -151,6 +151,34 @@ describe('Magic Focus Finder Tests', function() {
         });
     });
 
+    describe('the refresh method', function() {
+        it('should exist on the module', function() {
+            expect(browser.window.magicFocusFinder).itself.to.respondTo('refresh');
+        });
+
+        it('will refresh the known elements collection', function() {
+            browser.window.magicFocusFinder.start();
+
+            expect(browser.window.magicFocusFinder.private.knownElements.length).to.equal(browser.document.querySelectorAll('[focusable]').length - browser.document.querySelectorAll('.hidden').length);
+
+            browser.window.magicFocusFinder.refresh();
+
+            expect(browser.window.magicFocusFinder.private.knownElements.length).to.equal(browser.document.querySelectorAll('[focusable]').length - browser.document.querySelectorAll('.hidden').length);
+        });
+
+        it('will respect and changed config values', function() {
+            browser.window.magicFocusFinder.start();
+
+            expect(browser.window.magicFocusFinder.private.knownElements.length).to.equal(browser.document.querySelectorAll('[focusable]').length - browser.document.querySelectorAll('.hidden').length);
+
+            browser.window.magicFocusFinder
+                .configure({ container : '#iContainMoreFocusables'})
+                .refresh();
+
+            expect(browser.window.magicFocusFinder.private.knownElements.length).to.equal(browser.document.querySelectorAll('#iContainMoreFocusables li').length);
+        });
+    });
+
     describe('the setCurrent method', function() {
         it('should exist on the module', function() {
             expect(browser.window.magicFocusFinder).itself.to.respondTo('setCurrent');
