@@ -50,7 +50,8 @@ define(['lodash'], function (_) {
                 right : _moveRight,
                 enter : _fireEnter
             },
-            listenerAdded : false
+            listenerAdded : false,
+            domObserver : null
         }
     };
 
@@ -70,6 +71,8 @@ define(['lodash'], function (_) {
         }
 
         this.refresh();
+
+        _setupAndStartWatchingMutations.call(this);
     }
 
     function setCurrent(querySelector) {
@@ -277,4 +280,17 @@ define(['lodash'], function (_) {
         }
     }
 
+    function _setupAndStartWatchingMutations() {
+        this.private.domObserver = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                _.each(mutation.addedNodes, function(addedNode) {
+                    if(addedNode.hasAttribute(this.private.config.focusableAttribute)) {
+                        _registerElement.call(this, addedNode);
+                    }
+                }.bind(this));
+            }.bind(this));
+        }.bind(this));
+
+        this.private.domObserver.observe(document, { childList: true, subtree : true });
+    }
 });
