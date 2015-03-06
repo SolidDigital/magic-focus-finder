@@ -1,12 +1,12 @@
 /*jslint browser: true*/
 require.config({
     paths : {
-        lodash : './source/vendor/lodash/lodash',
-        classListPolyFill : './source/vendor/classListPolyfill/classList'
+        lodash : './bower_components/lodash/lodash',
+        classListPolyFill : './bower_components/classListPolyfill/classList'
     }
 });
 
-require(['./source/magicFocusFinder', 'classListPolyFill'], function (magicFocusFinder, classListPolyFill) {
+require(['./source/main', 'classListPolyFill'], function (magicFocusFinder) {
     'use strict';
 
     window.magicFocusFinder  = magicFocusFinder;

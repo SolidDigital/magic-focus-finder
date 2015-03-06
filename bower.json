@@ -5,16 +5,20 @@
   "authors": [
     "Greg Larrenaga <greg.larrenaga@thinksolid.com>"
   ],
-  "main" : "source/main.js",
+  "main": "source/main.js",
   "license": "MIT",
   "ignore": [
     "**/.*",
     "node_modules",
+    "bower_components",
     "package.json",
     "test"
   ],
   "dependencies": {
-    "lodash": "3.3.1",
+    "lodash": "3.3.1"
+  },
+  "devDependencies": {
+    "requirejs": "2.1.16",
     "classListPolyfill" : "https://github.com/eligrey/classList.js.git"
   }
 }
