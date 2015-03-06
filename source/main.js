@@ -38,7 +38,8 @@ define(['lodash'], function (_) {
                 container : 'document',
                 eventNamespace : 'magicFocusFinder',
                 focusedClass : 'focused',
-                overrideDirectionAttribute : 'focus-overrides'
+                overrideDirectionAttribute : 'focus-overrides',
+                captureFocusAttribute : 'capture-focus'
             },
             canMove : true,
             currentlyFocusedElement : null,
@@ -146,6 +147,10 @@ define(['lodash'], function (_) {
         }
 
         element.setAttribute('position', JSON.stringify(_getPosition(element)));
+
+        if(element.hasAttribute(this.private.config.captureFocusAttribute)) {
+            this.setCurrent(element);
+        }
 
         this.private.knownElements.push(element);
     }
