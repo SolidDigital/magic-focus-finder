@@ -240,7 +240,7 @@ define(['lodash'], function (_) {
             var thisElementsPosition = JSON.parse(element.getAttribute('position')),
                 isCloseElement = isClose(currentElementsPosition, thisElementsPosition);
 
-            return isCloseElement && this.private.currentlyFocusedElement !== element;
+            return isCloseElement && !this.private.currentlyFocusedElement.isEqualNode(element);
         }.bind(this));
     }
 
@@ -258,9 +258,13 @@ define(['lodash'], function (_) {
             currentDistance = getDistance(currentElementsPosition, closeElementsPosition);
 
             // Check if is the closest found yet
-            if(!closestDistance || currentDistance < closestDistance) {
+            if(_.isUndefined(closestDistance) || currentDistance < closestDistance) {
                 closestDistance = currentDistance;
                 closestElement = closeElement;
+            }
+
+            if(currentDistance === 0) {
+                return false; // exit early for speed.
             }
         });
 
