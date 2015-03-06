@@ -132,7 +132,13 @@ define(['lodash'], function (_) {
             } else if(mappedKey) {
                 this.private.move[mappedKey.direction].call(this);
             }
-        } else if(this.private.config.defaultFocusedElement) {
+        } else {
+            _setDefaultFocus.call(this);
+        }
+    }
+
+    function _setDefaultFocus() {
+        if(this.private.config.defaultFocusedElement) {
             this.setCurrent(this.private.config.defaultFocusedElement);
         } else {
             this.setCurrent(_.first(this.private.knownElements));
@@ -153,6 +159,10 @@ define(['lodash'], function (_) {
         }
 
         this.private.knownElements.push(element);
+    }
+
+    function _unregisterElement(element) {
+        console.log('UNREGISTER BRAH');
     }
 
     function _getPosition(element) {
@@ -286,15 +296,26 @@ define(['lodash'], function (_) {
     }
 
     function _setupAndStartWatchingMutations() {
+        var self = this;
+
         this.private.domObserver = new MutationObserver(function(mutations) {
             mutations.forEach(function(mutation) {
                 _.each(mutation.addedNodes, function(addedNode) {
-                    if(addedNode.hasAttribute(this.private.config.focusableAttribute)) {
-                        _registerElement.call(this, addedNode);
+                    if(addedNode.hasAttribute(self.private.config.focusableAttribute)) {
+                        _registerElement.call(self, addedNode);
                     }
-                }.bind(this));
-            }.bind(this));
-        }.bind(this));
+                });
+
+                _.each(mutation.removedNodes, function(removedNode) {
+                    if(removedNode.hasAttribute(self.private.config.focusableAttribute)) {
+                        _unregisterElement.call(self, removedNode);
+                    }
+                    if(self.private.currentlyFocusedElement.isEqualNode(removedNode)) {
+                        _setDefaultFocus.call(self);
+                    }
+                });
+            });
+        });
 
         this.private.domObserver.observe(document, { childList: true, subtree : true });
     }
