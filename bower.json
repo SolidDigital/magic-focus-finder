@@ -5,8 +5,8 @@
   "authors": [
     "Greg Larrenaga <greg.larrenaga@thinksolid.com>"
   ],
+  "main" : "source/main.js",
   "license": "MIT",
-  "private": false,
   "ignore": [
     "**/.*",
     "node_modules",
