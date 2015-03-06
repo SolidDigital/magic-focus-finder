@@ -49,7 +49,8 @@ define(['lodash'], function (_) {
                 left : _moveLeft,
                 right : _moveRight,
                 enter : _fireEnter
-            }
+            },
+            listenerAdded : false
         }
     };
 
@@ -102,7 +103,10 @@ define(['lodash'], function (_) {
             container = document.querySelector(this.private.config.container);
         }
 
-        document.addEventListener('keyup', _eventManager.bind(this));
+        if(!this.private.listenerAdded) {
+            document.addEventListener('keyup', _eventManager.bind(this));
+            this.private.listenerAdded = true;
+        }
 
         this.private.knownElements = [];
 
