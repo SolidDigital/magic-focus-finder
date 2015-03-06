@@ -162,7 +162,9 @@ define(['lodash'], function (_) {
     }
 
     function _unregisterElement(element) {
-        console.log('UNREGISTER BRAH');
+        this.private.knownElements = _.reject(this.private.knownElements, function(knownElement) {
+            return knownElement.isEqualNode(element);
+        });
     }
 
     function _getPosition(element) {
