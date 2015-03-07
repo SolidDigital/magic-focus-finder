@@ -108,7 +108,7 @@ define(['lodash'], function (_) {
         }
 
         if(!this.private.listenerAdded) {
-            document.addEventListener('keyup', _eventManager.bind(this));
+            document.querySelector('body').addEventListener('keyup', _eventManager.bind(this));
             this.private.listenerAdded = true;
         }
 
@@ -148,8 +148,10 @@ define(['lodash'], function (_) {
     function _registerElement(element) {
         var computedStyle = window.getComputedStyle(element);
 
-        if(computedStyle.display === 'none' || computedStyle.visibility === 'hidden') {
-            return false;
+        if(computedStyle) { // Sometimes computed style is undefined....
+            if(computedStyle.display === 'none' || computedStyle.visibility === 'hidden') {
+                return false;
+            }
         }
 
         element.setAttribute('position', JSON.stringify(_getPosition(element)));
@@ -303,7 +305,7 @@ define(['lodash'], function (_) {
         this.private.domObserver = new MutationObserver(function(mutations) {
             mutations.forEach(function(mutation) {
                 _.each(mutation.addedNodes, function(addedNode) {
-                    if(addedNode.hasAttribute(self.private.config.focusableAttribute)) {
+                    if(addedNode.hasAttribute(self.private.config.focusableAttribute) && addedNode.nodeName !== '#comment') {
                         _registerElement.call(self, addedNode);
                     }
                 });
