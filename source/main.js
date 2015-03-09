@@ -44,6 +44,9 @@ define(['lodash'], function (_) {
             canMove : true,
             currentlyFocusedElement : null,
             knownElements : [],
+                // Each element will get the following properties when registered:
+                // magicFocusFinderPosition = the elements position.
+                // magicFocusFinderDirectionOverrides = if the element had any direction overrides.
             move : {
                 up : _moveUp,
                 down : _moveDown,
@@ -51,7 +54,6 @@ define(['lodash'], function (_) {
                 right : _moveRight,
                 enter : _fireEnter
             },
-            listenerAdded : false,
             domObserver : null
         }
     };
@@ -89,7 +91,6 @@ define(['lodash'], function (_) {
             }
 
             element.classList.add(this.private.config.focusedClass);
-
             element.focus();
 
             this.private.currentlyFocusedElement = element;
@@ -107,10 +108,7 @@ define(['lodash'], function (_) {
             container = document.querySelector(this.private.config.container);
         }
 
-        if(!this.private.listenerAdded) {
-            document.querySelector('body').addEventListener('keyup', _eventManager.bind(this));
-            this.private.listenerAdded = true;
-        }
+        _.once(_setupBodyKeypressListener.bind(this))();
 
         this.private.knownElements = [];
 
@@ -127,8 +125,8 @@ define(['lodash'], function (_) {
         if(this.private.currentlyFocusedElement) {
             mappedKey = _.findWhere(this.private.config.keymap, { code : event.keyCode });
 
-            if(mappedKey && _currentElementHasThisDirectionsOverride.call(this, mappedKey.direction)) {
-                this.setCurrent(_getCurrentElementsOverrideByDirection.call(this, mappedKey.direction));
+            if(mappedKey && this.private.currentlyFocusedElement.magicFocusFinderDirectionOverrides[mappedKey.direction]) {
+                this.setCurrent(this.private.currentlyFocusedElement.magicFocusFinderDirectionOverrides[mappedKey.direction]);
             } else if(mappedKey) {
                 this.private.move[mappedKey.direction].call(this);
             }
@@ -148,13 +146,12 @@ define(['lodash'], function (_) {
     function _registerElement(element) {
         var computedStyle = window.getComputedStyle(element);
 
-        if(computedStyle) { // Sometimes computed style is undefined....
-            if(computedStyle.display === 'none' || computedStyle.visibility === 'hidden') {
-                return false;
-            }
+        if(computedStyle.display === 'none' || computedStyle.visibility === 'hidden') {
+            return false;
         }
 
-        element.setAttribute('position', JSON.stringify(_getPosition(element)));
+        element.magicFocusFinderPosition = _getPosition(element);
+        element.magicFocusFinderDirectionOverrides = _getDirectionOverrides.call(this, element);
 
         if(element.hasAttribute(this.private.config.captureFocusAttribute)) {
             this.setCurrent(element);
@@ -243,28 +240,21 @@ define(['lodash'], function (_) {
         this.private.currentlyFocusedElement.dispatchEvent(event);
     }
 
-    function _currentElementHasThisDirectionsOverride(direction) {
-        var index = _.indexOf(['up', 'right', 'down', 'left'], direction);
-
-        if(this.private.currentlyFocusedElement.hasAttribute(this.private.config.overrideDirectionAttribute)) {
-            return 'null' !== this.private.currentlyFocusedElement.getAttribute(this.private.config.overrideDirectionAttribute).split(' ')[index];
+    function _getDirectionOverrides(element) {
+        if(element.hasAttribute(this.private.config.overrideDirectionAttribute)) {
+            return _.zipObject(['up', 'right', 'down', 'left'], _.map(element.getAttribute(this.private.config.overrideDirectionAttribute).split(' '), function(direction) {
+                return direction !== 'null' ? direction : null;
+            }));
+        } else {
+            return {};
         }
-
-        return false;
-    }
-
-    function _getCurrentElementsOverrideByDirection(direction) {
-        var index = _.indexOf(['up', 'right', 'down', 'left'], direction);
-
-        return this.private.currentlyFocusedElement.getAttribute(this.private.config.overrideDirectionAttribute).split(' ')[index];
     }
 
     function _findCloseElements(isClose) {
-        var currentElementsPosition = JSON.parse(this.private.currentlyFocusedElement.getAttribute('position'));
+        var currentElementsPosition = this.private.currentlyFocusedElement.magicFocusFinderPosition;
 
         return _.filter(this.private.knownElements, function(element) {
-            var thisElementsPosition = JSON.parse(element.getAttribute('position')),
-                isCloseElement = isClose(currentElementsPosition, thisElementsPosition);
+            var isCloseElement = isClose(currentElementsPosition, element.magicFocusFinderPosition);
 
             return isCloseElement && !this.private.currentlyFocusedElement.isEqualNode(element);
         }.bind(this));
@@ -273,11 +263,11 @@ define(['lodash'], function (_) {
     function _activateClosest(closeElements, direction, getDistance) {
         var closestElement,
             closestDistance,
-            currentElementsPosition = JSON.parse(this.private.currentlyFocusedElement.getAttribute('position'));
+            currentElementsPosition = this.private.currentlyFocusedElement.magicFocusFinderPosition;
 
         // Find closest element within the close elements
         _.each(closeElements, function(closeElement) {
-            var closeElementsPosition = JSON.parse(closeElement.getAttribute('position')),
+            var closeElementsPosition = closeElement.magicFocusFinderPosition,
                 currentDistance;
 
             // Find distance between 2 elements
@@ -299,28 +289,50 @@ define(['lodash'], function (_) {
         }
     }
 
+    function _setupBodyKeypressListener() {
+        document.querySelector('body').addEventListener('keydown', _eventManager.bind(this));
+    }
+
     function _setupAndStartWatchingMutations() {
         var self = this;
 
-        this.private.domObserver = new MutationObserver(function(mutations) {
-            mutations.forEach(function(mutation) {
-                _.each(mutation.addedNodes, function(addedNode) {
-                    if(addedNode.hasAttribute(self.private.config.focusableAttribute) && addedNode.nodeName !== '#comment') {
-                        _registerElement.call(self, addedNode);
-                    }
-                });
+        // Home baked mutation observer. The shim was VERY slow. This is much faster.
+        if(window.MutationObserver || window.WebKitMutationObserver) {
+            this.private.domObserver = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    _.each(mutation.addedNodes, function(addedNode) {
+                        if(addedNode.hasAttribute(self.private.config.focusableAttribute) && addedNode.nodeName !== '#comment') {
+                            _registerElement.call(self, addedNode);
+                        }
+                    });
 
-                _.each(mutation.removedNodes, function(removedNode) {
-                    if(removedNode.hasAttribute(self.private.config.focusableAttribute)) {
-                        _unregisterElement.call(self, removedNode);
-                    }
-                    if(self.private.currentlyFocusedElement.isEqualNode(removedNode)) {
-                        _setDefaultFocus.call(self);
-                    }
+                    _.each(mutation.removedNodes, function(removedNode) {
+                        if(removedNode.hasAttribute(self.private.config.focusableAttribute)) {
+                            _unregisterElement.call(self, removedNode);
+                        }
+                        if(self.private.currentlyFocusedElement.isEqualNode(removedNode)) {
+                            _setDefaultFocus.call(self);
+                        }
+                    });
                 });
             });
-        });
 
-        this.private.domObserver.observe(document, { childList: true, subtree : true });
+            this.private.domObserver.observe(document, { childList: true, subtree : true });
+        } else {
+            document.querySelector('body').addEventListener('DOMNodeInserted', function(event) {
+                if(event.target.hasAttribute(self.private.config.focusableAttribute) && event.target.nodeName !== '#comment') {
+                    _registerElement.call(self, event.target);
+                }
+            });
+
+            document.querySelector('body').addEventListener('DOMNodeRemoves', function(event) {
+                if(event.target.hasAttribute(self.private.config.focusableAttribute) && event.target.nodeName !== '#comment') {
+                    _unregisterElement.call(self, event.target);
+                }
+                if(self.private.currentlyFocusedElement.isEqualNode(event.target)) {
+                    _setDefaultFocus.call(self);
+                }
+            });
+        }
     }
 });

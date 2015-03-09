@@ -112,11 +112,11 @@ describe('Magic Focus Finder Tests', function() {
             expect(_.pluck(browser.window.magicFocusFinder.private.knownElements, 'id')).to.not.contain('hiddenInputWithFocusableAttr');
         });
 
-        describe('the cached-position attribute added to each element', function() {
-            it('should add the attribute cached-position to each element', function() {
+        describe('the cached-position added to each element', function() {
+            it('should add the cached-position to each element', function() {
                 browser.window.magicFocusFinder.start();
 
-                expect(_.first(browser.window.magicFocusFinder.private.knownElements).getAttribute('position')).to.exist;
+                expect(_.first(browser.window.magicFocusFinder.private.knownElements).magicFocusFinderPosition).to.exist;
             });
 
             it('should have the properties, x, y, otx, oty, obx, oby, olx, oly, orx, ory', function() {
@@ -124,9 +124,7 @@ describe('Magic Focus Finder Tests', function() {
 
                 browser.window.magicFocusFinder.start();
 
-                position = _.first(browser.window.magicFocusFinder.private.knownElements).getAttribute('position');
-
-                position = JSON.parse(position);
+                position = _.first(browser.window.magicFocusFinder.private.knownElements).magicFocusFinderPosition;
 
                 expect(position).to.have.all.keys('x', 'y', 'otx', 'oty', 'obx', 'oby', 'olx', 'oly', 'orx', 'ory');
             });
