@@ -1,6 +1,6 @@
 {
   "name": "magic-focus-finder",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "homepage": "https://github.com/Duder-onomy/magic-focus-finder",
   "authors": [
     "Greg Larrenaga <greg.larrenaga@thinksolid.com>"
@@ -19,8 +19,6 @@
   },
   "devDependencies": {
     "requirejs": "2.1.16",
-    "classListPolyfill": "https://github.com/eligrey/classList.js.git",
-    "MutationObserver": "~0.2.0",
-    "WeakMap": "~0.2.1"
+    "classListPolyfill": "https://github.com/eligrey/classList.js.git"
   }
 }
