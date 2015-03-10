@@ -331,7 +331,7 @@ define(['lodash'], function (_) {
                 }
             });
 
-            document.querySelector('body').addEventListener('DOMNodeRemoves', function(event) {
+            document.querySelector('body').addEventListener('DOMNodeRemoved', function(event) {
                 if(event.target.hasAttribute(self.private.config.focusableAttribute) && event.target.nodeName !== '#comment') {
                     _unregisterElement.call(self, event.target);
                 }
