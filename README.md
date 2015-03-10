@@ -2,6 +2,8 @@
 
 Intended to help keyboard navigation through html nodes.
 
+### This is currently not a complete readme, I wrote this for a project I am on, will flesh out the details this weekend with example page and Travis-ci integration.
+
 This is heavily influenced by (and sort of a rip off of) this repo: [jquery.keyJumper](https://github.com/mbitto/jquery.keyJumper)
 
 The diff will be
@@ -45,14 +47,22 @@ Options Object
 It will fire the following events.
 
 ### Element level
+Implemented
+1. `losing-focus` before the element loses focus.
+1. `focus-lost` when the focus is lost on an element.
+1. `gaining-focus` before the next element gains focus.
+1. `focus-gained` when the element actually gains focus.
+
+Not Implemented:
 1. `focus` normal focus event
 2. `blur` normal blur event
-3. `magicFocusFinder:focus` namespaced focus event
-4. `magicFocusFinder:blur` namespaced blur event
-5. `magicFocusFinder:focus:from:<% direction %>` namespaced focus event telling you which direction the focus came from
+5. `magicFocusFinder:focus:from:<% direction %>` namespaced focus event telling you which direction the focus came  from
 6. `magicFocusFinder:blur:to:<% direction %>` namespaced blur event telling you which direction the element was blurred to.
 
 ### Container level
+Implemented
+
+Not Implemented:
 1. `magicFocusFinder:elementAdded` event telling you a focusable element was added to the container.
 2. `magicFocusFinder:elementRemoved` event telling you a focusable element was removed from the container.
 

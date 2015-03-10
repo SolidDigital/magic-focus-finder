@@ -86,12 +86,18 @@ define(['lodash'], function (_) {
 
         if(element) {
             if(currentlyFocusedElement) {
+
+                _fireEvent(currentlyFocusedElement, 'losing-focus');
                 currentlyFocusedElement.classList.remove(this.private.config.focusedClass);
                 currentlyFocusedElement.blur();
+                _fireEvent(currentlyFocusedElement, 'focus-lost');
             }
 
+
+            _fireEvent(element, 'gaining-focus');
             element.classList.add(this.private.config.focusedClass);
             element.focus();
+            _fireEvent(element, 'focus-gained');
 
             this.private.currentlyFocusedElement = element;
         }
@@ -334,5 +340,11 @@ define(['lodash'], function (_) {
                 }
             });
         }
+    }
+
+    function _fireEvent(element, eventName) {
+        var event = document.createEvent('Event');
+        event.initEvent(eventName, true, true);
+        element.dispatchEvent(event);
     }
 });
