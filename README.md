@@ -4,6 +4,11 @@ Intended to help keyboard navigation through html nodes.
 
 ### This is currently not a complete readme, I wrote this for a project I am on, will flesh out the details this weekend with example page and Travis-ci integration.
 
+---
+---
+---
+
+
 This is heavily influenced by (and sort of a rip off of) this repo: [jquery.keyJumper](https://github.com/mbitto/jquery.keyJumper)
 
 The diff will be
@@ -37,9 +42,12 @@ Options Object
   keymap : {},  //override the default browser keymap
   focusableAttribute : '', //override the default data attribute used to denote focusability
   focusedClass : '', // a focus class for non focusable elements
-  defaultFocusedElement : '' // a element reference, or a selector
-  container : '' //the container in which this thing lives, default to the document.,
-  eventNamespace : '' //custom namespace for events, default to 'magicFocusFinder'
+  defaultFocusedElement : '', // a element reference, or a selector
+  container : '', //the container in which this thing lives, default to the document.,
+  eventNamespace : '', //custom namespace for events, default to 'magicFocusFinder'
+  overrideDirectionAttribute : 'focus-overrides',
+  captureFocusAttribute : 'capture-focus',
+  dynamicPositionAttribute : 'dynamic-position'
 }
 ```
 

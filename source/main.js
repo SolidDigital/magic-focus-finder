@@ -39,7 +39,8 @@ define(['lodash'], function (_) {
                 eventNamespace : 'magicFocusFinder',
                 focusedClass : 'focused',
                 overrideDirectionAttribute : 'focus-overrides',
-                captureFocusAttribute : 'capture-focus'
+                captureFocusAttribute : 'capture-focus',
+                dynamicPositionAttribute : 'dynamic-position'
             },
             canMove : true,
             currentlyFocusedElement : null,
@@ -128,6 +129,8 @@ define(['lodash'], function (_) {
             return;
         }
 
+        _recalculateDynamicElementPositions.call(this);
+
         if(this.private.currentlyFocusedElement) {
             mappedKey = _.findWhere(this.private.config.keymap, { code : event.keyCode });
 
@@ -194,6 +197,14 @@ define(['lodash'], function (_) {
             orx : boundingRect.right,
             ory : centerY
         };
+    }
+
+    function _recalculateDynamicElementPositions() {
+        _.each(this.private.knownElements, function(knownElement) {
+            if(knownElement.hasAttribute(this.private.config.dynamicPositionAttribute)) {
+                knownElement.magicFocusFinderPosition = _getPosition(knownElement);
+            }
+        }, this);
     }
 
     function _moveUp() {
