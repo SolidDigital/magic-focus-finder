@@ -1,0 +1,33 @@
+{
+  "name": "magic-focus-finder",
+  "version": "1.0.10",
+  "homepage": "https://github.com/Duder-onomy/magic-focus-finder",
+  "authors": [
+    "Greg Larrenaga <greg.larrenaga@thinksolid.com>"
+  ],
+  "main": "source/main.js",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "package.json",
+    "test"
+  ],
+  "dependencies": {
+    "lodash": "3.3.1"
+  },
+  "devDependencies": {
+    "requirejs": "2.1.16",
+    "classListPolyfill": "https://github.com/eligrey/classList.js.git"
+  },
+  "_release": "1.0.10",
+  "_resolution": {
+    "type": "version",
+    "tag": "1.0.10",
+    "commit": "788bc179b19023b6db27381a916ac7bbf09340c5"
+  },
+  "_source": "git://github.com/Duder-onomy/magic-focus-finder.git",
+  "_target": "1.0.10",
+  "_originalSource": "magic-focus-finder"
+}
