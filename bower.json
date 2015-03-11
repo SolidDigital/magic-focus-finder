@@ -1,7 +1,7 @@
 {
   "name": "magic-focus-finder sample",
   "dependencies" : {
-    "magic-focus-finder" : "1.0.10",
+    "magic-focus-finder" : "1.1.0",
     "requirejs" : "2.1.16"
   }
 }
