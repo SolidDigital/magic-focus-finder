@@ -2,6 +2,8 @@
 
 Intended to help keyboard navigation through html nodes.
 
+[Try out the demo](http://duder-onomy.github.io/magic-focus-finder/)
+
 ### This is currently not a complete readme, I wrote this for a project I am on, will flesh out the details this weekend with example page and Travis-ci integration.
 
 ---
@@ -50,6 +52,10 @@ Options Object
   dynamicPositionAttribute : 'dynamic-position'
 }
 ```
+
+All elements with `config.focusableAttribute` can be given focus to. After starting and a key press, focus is given to
+`config.defaultFocusedElement`, or the first element found with `config.focusdClass`, or the first element found with
+the focusable attribute.
 
 ## Events
 It will fire the following events.
