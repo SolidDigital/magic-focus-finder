@@ -30,8 +30,8 @@
 
         _
             .range(config.numberoOfDivs)
-            .map(function() {
-                return draw({
+            .forEach(function() {
+                draw({
                     x : _.random(0, size.width - config.size),
                     y : _.random(0, size.height - config.size),
                     color : config.colors[_.random(0, config.colors.length - 1)],
