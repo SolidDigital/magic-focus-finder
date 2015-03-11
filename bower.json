@@ -1,0 +1,6 @@
+{
+  "name": "magic-focus-finder sample",
+  "dependencies" : {
+    "magic-focus-finder" : "1.0.10"
+  }
+}
