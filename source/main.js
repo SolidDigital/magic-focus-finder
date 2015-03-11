@@ -70,9 +70,10 @@ define(['lodash'], function (_) {
     }
 
     function start() {
-        if(this.private.config.defaultFocusedElement) {
-            this.setCurrent(this.private.config.defaultFocusedElement);
-        }
+        var config = this.private.config,
+            focusedElement = config.defaultFocusedElement || document.querySelectorAll('.' + config.focusedClass)[0];
+
+        this.setCurrent(focusedElement);
 
         this.refresh();
 
@@ -82,6 +83,10 @@ define(['lodash'], function (_) {
     function setCurrent(querySelector) {
         var currentlyFocusedElement = this.private.currentlyFocusedElement,
             element;
+
+        if (!querySelector) {
+            return;
+        }
 
         element = querySelector && querySelector.nodeName ? querySelector : document.querySelector(querySelector);
 

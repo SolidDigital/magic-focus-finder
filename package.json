@@ -1,6 +1,6 @@
 {
   "name": "magic-focus-finder",
-  "version": "0.0.0",
+  "version": "1.1.0",
   "description": "Intended to help keyboard navigation through html nodes.",
   "main": "index.js",
   "scripts": {
@@ -12,7 +12,7 @@
     "url": "https://github.com/Duder-onomy/magic-focus-finder.git"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/Duder-onomy/magic-focus-finder/issues"
   },

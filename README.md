@@ -53,6 +53,10 @@ Options Object
 }
 ```
 
+All elements with `config.focusableAttribute` can be given focus to. After starting and a key press, focus is given to
+`config.defaultFocusedElement`, or the first element found with `config.focusdClass`, or the first element found with
+the focusable attribute.
+
 ## Events
 It will fire the following events.
 
