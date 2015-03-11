@@ -26,12 +26,14 @@
                     'violet'
                 ]
             },
-                size = getWindowSize();
+                size = getWindowSize(),
+                elements;
 
-        _
+
+        elements = _
             .range(config.numberoOfDivs)
-            .forEach(function() {
-                draw({
+            .map(function() {
+                return draw({
                     x : _.random(0, size.width - config.size),
                     y : _.random(0, size.height - config.size),
                     color : config.colors[_.random(0, config.colors.length - 1)],
@@ -39,8 +41,15 @@
                 });
             });
 
+        addClass('focused', elements.pop());
+
         mff.start();
     });
+
+    function addClass(className, element) {
+        element.className += ' ' + className;
+        return element;
+    }
 
     function draw(div) {
         var element = document.createElement('div');
