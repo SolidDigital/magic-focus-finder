@@ -1,3 +1,6 @@
+/**
+ * Demo - use 'python -m SimpleHTTPServer' to test locally
+ */
 (function() {
     'use strict';
 
@@ -23,11 +26,9 @@
                     'violet'
                 ]
             },
-                size = getWindowSize(),
-                elements;
+                size = getWindowSize();
 
-
-        elements = _
+        _
             .range(config.numberoOfDivs)
             .map(function() {
                 return draw({
@@ -38,15 +39,8 @@
                 });
             });
 
-        addClass('focused', elements[0]);
-
         mff.start();
     });
-
-    function addClass(className, element) {
-        element.className += ' ' + className;
-        return element;
-    }
 
     function draw(div) {
         var element = document.createElement('div');
@@ -56,7 +50,7 @@
         element.style.left      = px(div.x);
         element.style.width     = px(div.size);
         element.style.height    = px(div.size);
-        addClass('focusable', element);
+        element.setAttribute('focusable', true);
 
         document.body.appendChild(element);
         return element;
