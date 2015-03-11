@@ -1,4 +1,3 @@
-/*jslint browser: true*/
 define(['lodash'], function (_) {
     'use strict';
 
@@ -73,6 +72,8 @@ define(['lodash'], function (_) {
         if(this.private.config.defaultFocusedElement) {
             this.setCurrent(this.private.config.defaultFocusedElement);
         }
+
+
 
         this.refresh();
 

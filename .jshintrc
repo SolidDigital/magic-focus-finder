@@ -2,7 +2,8 @@
     "browser" : true,
     "curly": true,
     "globals": {
-      "require": false
+      "require": false,
+      "define": false
     },
     "quotmark": "single",
     "debug": false,
