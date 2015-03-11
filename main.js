@@ -9,7 +9,7 @@
         }
     );
 
-    require(['lodash'], function (_) {
+    require(['lodash', 'magicFocusFinder'], function (_, mff) {
 
         var config = {
                 numberoOfDivs : 50,
@@ -23,20 +23,30 @@
                     'violet'
                 ]
             },
-                size = getWindowSize();
+                size = getWindowSize(),
+                elements;
 
 
-        _
+        elements = _
             .range(config.numberoOfDivs)
-            .forEach(function() {
-                draw({
+            .map(function() {
+                return draw({
                     x : _.random(0, size.width - config.size),
                     y : _.random(0, size.height - config.size),
                     color : config.colors[_.random(0, config.colors.length - 1)],
                     size : config.size
                 });
             });
+
+        addClass('focused', elements[0]);
+
+        mff.start();
     });
+
+    function addClass(className, element) {
+        element.className += ' ' + className;
+        return element;
+    }
 
     function draw(div) {
         var element = document.createElement('div');
@@ -46,8 +56,10 @@
         element.style.left      = px(div.x);
         element.style.width     = px(div.size);
         element.style.height    = px(div.size);
+        addClass('focusable', element);
 
         document.body.appendChild(element);
+        return element;
     }
 
     function px(pixels) {
