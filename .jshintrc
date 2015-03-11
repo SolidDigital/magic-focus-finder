@@ -1,15 +1,8 @@
 {
-    "node" : true,
+    "browser" : true,
     "curly": true,
     "globals": {
-        "define": false,
-        "describe" : false,
-        "before" : false,
-        "after" : false,
-        "it" : false,
-        "beforeEach" : false,
-        "afterEach" : false,
-        "xit" : false
+      "require": false
     },
     "quotmark": "single",
     "debug": false,
