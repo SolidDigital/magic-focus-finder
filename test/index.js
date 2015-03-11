@@ -202,7 +202,7 @@ describe('Magic Focus Finder Tests', function() {
             });
 
             it('should return itself for chaining', function() {
-                expect(browser.window.magicFocusFinder.setCurrent('#nonFocusableDiv')).to.deep.equal(browser.window.magicFocusFinder);
+                expect(browser.window.magicFocusFinder.setCurrent('#nonFocusableDiv')).to.equal(browser.window.magicFocusFinder);
             });
 
             it('should still return itself when called with nothing', function() {

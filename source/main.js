@@ -85,7 +85,7 @@ define(['lodash'], function (_) {
             element;
 
         if (!querySelector) {
-            return;
+            return this;
         }
 
         element = querySelector && querySelector.nodeName ? querySelector : document.querySelector(querySelector);
