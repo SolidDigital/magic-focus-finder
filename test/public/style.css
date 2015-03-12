@@ -27,6 +27,7 @@
 .example1{position: relative; height: 200px;}
 .example2{position: relative; height: 300px;}
 .example3{position: relative; height: 300px;}
+.example4{position: relative; height: 300px;}
 
 .block1{top:50px; left:70px;}
 .block2{top:50px; left:130px;}
@@ -60,3 +61,14 @@
 .block28{top:160px; left:310px;}
 .block29{top:230px; left:480px;}
 .block30{top:170px; left:550px;}
+
+.block31{top:50px; left:50px;}
+.block32{top:100px; left:210px;}
+.block33{top:50px; left:300px;}
+.block34{top:130px; left:420px;}
+.block35{top:50px; left:580px;}
+.block36{top:140px; left:50px;}
+.block37{top:200px; left:150px;}
+.block38{top:200px; left:310px;}
+.block39{top:230px; left:480px;}
+.block40{top:170px; left:550px;}

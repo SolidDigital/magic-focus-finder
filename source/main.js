@@ -1,4 +1,3 @@
-/*jslint browser: true*/
 define(['lodash'], function (_) {
     'use strict';
 
@@ -6,6 +5,7 @@ define(['lodash'], function (_) {
         configure : configure,
         getConfig : getConfig,
         start : start,
+        getCurrent : getCurrent,
         setCurrent : setCurrent,
         refresh : refresh,
 
@@ -109,6 +109,10 @@ define(['lodash'], function (_) {
         }
 
         return this;
+    }
+
+    function getCurrent() {
+        return this.private.currentlyFocusedElement;
     }
 
     function refresh() {
