@@ -145,7 +145,7 @@ define(['lodash'], function (_) {
             mappedKey = _.findWhere(internal.config.keymap, { code : event.keyCode });
 
             if(mappedKey && internal.currentlyFocusedElement.magicFocusFinderDirectionOverrides[mappedKey.direction]) {
-                this.setCurrent(internal.currentlyFocusedElement.magicFocusFinderDirectionOverrides[mappedKey.direction]);
+                setCurrent(internal.currentlyFocusedElement.magicFocusFinderDirectionOverrides[mappedKey.direction]);
             } else if(mappedKey) {
                 internal.move[mappedKey.direction]();
             }
