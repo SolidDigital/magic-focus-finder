@@ -75,16 +75,16 @@ describe('Magic Focus Finder Tests', function() {
 
             mff.configure(options);
 
-            expect(mff.private.config).to.deep.equal(options);
+            expect(mff.getConfig()).to.deep.equal(options);
         });
 
         it('should merge the passed configure with the current one, so as to support partial config updates', function() {
-            var originalOptions = mff.private.config,
+            var originalOptions = mff.getConfig(),
                 options = { keymap : {} };
 
             mff.configure(options);
 
-            expect(mff.private.config).to.deep.equal(_.merge(originalOptions, options));
+            expect(mff.getConfig()).to.deep.equal(_.merge(originalOptions, options));
         });
 
         xit('should perform basic validation on the options object (keymap has all dirctions, that nothing required is blown out accidentally)', function() {
@@ -98,7 +98,19 @@ describe('Magic Focus Finder Tests', function() {
         });
 
         it('should return the current configuration', function() {
-            expect(mff.getConfig()).to.deep.equal(mff.private.config);
+            var keys = [
+                'keymap',
+                'focusableAttribute',
+                'defaultFocusedElement',
+                'dynamicPositionAttribute',
+                'captureFocusAttribute',
+                'focusedClass',
+                'container',
+                'eventNamespace',
+                'overrideDirectionAttribute'
+            ];
+
+            expect(mff.getConfig()).to.have.all.keys(keys);
         });
 
         it('after updating the configuration, should return the new configuration', function() {
@@ -139,14 +151,14 @@ describe('Magic Focus Finder Tests', function() {
         it('should ignore elements that are hidden', function() {
             mff.start();
 
-            expect(_.pluck(mff.private.knownElements, 'id')).to.not.contain('hiddenInputWithFocusableAttr');
+            expect(_.pluck(mff.getKnownElements(), 'id')).to.not.contain('hiddenInputWithFocusableAttr');
         });
 
         describe('the cached-position added to each element', function() {
             it('should add the cached-position to each element', function() {
                 mff.start();
 
-                expect(_.first(mff.private.knownElements).magicFocusFinderPosition).to.exist;
+                expect(_.first(mff.getKnownElements()).magicFocusFinderPosition).to.exist;
             });
 
             it('should have the properties, x, y, otx, oty, obx, oby, olx, oly, orx, ory', function() {
@@ -154,7 +166,7 @@ describe('Magic Focus Finder Tests', function() {
 
                 mff.start();
 
-                position = _.first(mff.private.knownElements).magicFocusFinderPosition;
+                position = _.first(mff.getKnownElements()).magicFocusFinderPosition;
 
                 expect(position).to.have.all.keys('x', 'y', 'otx', 'oty', 'obx', 'oby', 'olx', 'oly', 'orx', 'ory');
             });
@@ -166,7 +178,7 @@ describe('Magic Focus Finder Tests', function() {
                     .configure({ container : '#iContainMoreFocusables'})
                     .start();
 
-                expect(mff.private.knownElements.length).to.equal(document.querySelectorAll('#iContainMoreFocusables li').length);
+                expect(mff.getKnownElements().length).to.equal(document.querySelectorAll('#iContainMoreFocusables li').length);
             });
         });
 
@@ -174,7 +186,7 @@ describe('Magic Focus Finder Tests', function() {
             it('should register every element with the default focusable attribute descending from the document', function() {
                 mff.start();
 
-                expect(mff.private.knownElements.length).to.equal(document.querySelectorAll('[focusable]').length - document.querySelectorAll('.hidden').length);
+                expect(mff.getKnownElements().length).to.equal(document.querySelectorAll('[focusable]').length - document.querySelectorAll('.hidden').length);
             });
         });
     });
@@ -187,23 +199,23 @@ describe('Magic Focus Finder Tests', function() {
         it('will refresh the known elements collection', function() {
             mff.start();
 
-            expect(mff.private.knownElements.length).to.equal(document.querySelectorAll('[focusable]').length - document.querySelectorAll('.hidden').length);
+            expect(mff.getKnownElements().length).to.equal(document.querySelectorAll('[focusable]').length - document.querySelectorAll('.hidden').length);
 
             mff.refresh();
 
-            expect(mff.private.knownElements.length).to.equal(document.querySelectorAll('[focusable]').length - document.querySelectorAll('.hidden').length);
+            expect(mff.getKnownElements().length).to.equal(document.querySelectorAll('[focusable]').length - document.querySelectorAll('.hidden').length);
         });
 
         it('will respect and changed config values', function() {
             mff.start();
 
-            expect(mff.private.knownElements.length).to.equal(document.querySelectorAll('[focusable]').length - document.querySelectorAll('.hidden').length);
+            expect(mff.getKnownElements().length).to.equal(document.querySelectorAll('[focusable]').length - document.querySelectorAll('.hidden').length);
 
             mff
                 .configure({ container : '#iContainMoreFocusables'})
                 .refresh();
 
-            expect(mff.private.knownElements.length).to.equal(document.querySelectorAll('#iContainMoreFocusables li').length);
+            expect(mff.getKnownElements().length).to.equal(document.querySelectorAll('#iContainMoreFocusables li').length);
         });
     });
 
@@ -246,13 +258,13 @@ describe('Magic Focus Finder Tests', function() {
             it('should update the currently focued element', function() {
                 mff.setCurrent('#nonFocusableDiv');
 
-                expect(mff.private.currentlyFocusedElement).to.equal(document.querySelector('#nonFocusableDiv'));
+                expect(mff.getCurrent()).to.equal(document.querySelector('#nonFocusableDiv'));
             });
 
             it('should focus and add the focus class to the element even if it does not have the focusable attribute', function() {
                 mff.setCurrent('#withNoFocusableAttribute');
 
-                expect(mff.private.currentlyFocusedElement).to.equal(document.querySelector('#withNoFocusableAttribute'));
+                expect(mff.getCurrent()).to.equal(document.querySelector('#withNoFocusableAttribute'));
             });
 
             describe('given a previously focused element', function() {
@@ -274,6 +286,26 @@ describe('Magic Focus Finder Tests', function() {
             });
         });
 
+    });
+
+    describe('the getCurrent method', function() {
+        it('should exist on the module', function() {
+            expect(mff).itself.to.respondTo('getCurrent');
+        });
+
+        xit('should return the currently focused element', function() {
+
+        });
+    });
+
+    describe('the getKnownElements method', function() {
+        it('should exist on the module', function() {
+            expect(mff).itself.to.respondTo('getKnownElements');
+        });
+
+        xit('should return the knownElements array', function() {
+
+        });
     });
 
     describe('the eventManager', function() {

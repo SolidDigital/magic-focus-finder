@@ -1,9 +1,10 @@
 {
   "name": "magic-focus-finder",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "homepage": "https://github.com/Duder-onomy/magic-focus-finder",
   "authors": [
-    "Greg Larrenaga <greg.larrenaga@thinksolid.com>"
+    "Greg Larrenaga <greg.larrenaga@thinksolid.com>",
+    "Peter Ajtai <peter.ajtai@thinksolid.com>"
   ],
   "main": "source/main.js",
   "license": "MIT",

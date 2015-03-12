@@ -109,7 +109,7 @@ locks it up
 
 ### refresh()
 will refresh the element mapping (should only be used if your browser does not support mutation observers)
-Otherwise it will watch the dom for new elements.
+Otherwise it will watch the DOM for new elements.
 ```javascript
 
 ```
@@ -121,7 +121,7 @@ set the current focused element, element ref or selector
 ```
 
 ### getCurrent()
-get the current focues element, element ref of selector
+get the current focused element, element ref of selector
 ```javascript
 
 ```
