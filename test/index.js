@@ -285,9 +285,7 @@ describe('Magic Focus Finder Tests', function() {
                 .configure({
                     container: '#example4'
                 })
-                .refresh();
-
-            mff.setCurrent('.block37');
+                .start();
 
             expect(mff.getCurrent().className).to.equal('box block37 focused');
 
