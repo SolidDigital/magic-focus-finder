@@ -54,7 +54,17 @@ describe('Magic Focus Finder Tests', function() {
         });
 
         it('should set the configuration on the module', function() {
-            var options = { keymap : {}, focusableAttribute : '', defaultFocusedElement : '', dynamicPositionAttribute : '', captureFocusAttribute: '', focusedClass : '', container : '', eventNamespace : '', overrideDirectionAttribute : '' };
+            var options = {
+                keymap : {},
+                focusableAttribute : '',
+                defaultFocusedElement : '',
+                dynamicPositionAttribute : '',
+                captureFocusAttribute: '',
+                focusedClass : '',
+                container : '',
+                eventNamespace : '',
+                overrideDirectionAttribute : ''
+            };
 
             browser.window.magicFocusFinder.configure(options);
 
@@ -85,7 +95,17 @@ describe('Magic Focus Finder Tests', function() {
         });
 
         it('after updating the configuration, should return the new configuration', function() {
-            var options = { keymap : {}, focusableAttribute : '', overrideDirectionAttribute : '', dynamicPositionAttribute : '', captureFocusAttribute: '', focusedClass : '', defaultFocusedElement : '', container : '', eventNamespace : '' };
+            var options = {
+                keymap : {},
+                focusableAttribute : '',
+                overrideDirectionAttribute : '',
+                dynamicPositionAttribute : '',
+                captureFocusAttribute: '',
+                focusedClass : '',
+                defaultFocusedElement : '',
+                container : '',
+                eventNamespace : ''
+            };
 
             browser.window.magicFocusFinder.configure(options);
 
@@ -216,13 +236,13 @@ describe('Magic Focus Finder Tests', function() {
             it('should update the currently focued element', function() {
                 browser.window.magicFocusFinder.setCurrent('#nonFocusableDiv');
 
-                expect(browser.window.magicFocusFinder.private.currentlyFocusedElement).to.deep.equal(browser.document.querySelector('#nonFocusableDiv'));
+                expect(browser.window.magicFocusFinder.private.currentlyFocusedElement).to.equal(browser.document.querySelector('#nonFocusableDiv'));
             });
 
             it('should focus and add the focus class to the element even if it does not have the focusable attribute', function() {
                 browser.window.magicFocusFinder.setCurrent('#withNoFocusableAttribute');
 
-                expect(browser.window.magicFocusFinder.private.currentlyFocusedElement).to.deep.equal(browser.document.querySelector('#withNoFocusableAttribute'));
+                expect(browser.window.magicFocusFinder.private.currentlyFocusedElement).to.equal(browser.document.querySelector('#withNoFocusableAttribute'));
             });
 
             describe('given a previously focused element', function() {
@@ -248,5 +268,25 @@ describe('Magic Focus Finder Tests', function() {
 
     describe('the eventManager', function() {
 
+    });
+
+    describe('focus change logic', function() {
+
+        it.only('should move directly to the right even if there is somethin closer to the right but more above', function() {
+            var mff = browser.window.magicFocusFinder;
+
+            mff
+                .configure({
+                    container: '#example4'
+                })
+                .refresh();
+
+            mff.setCurrent('.block37');
+
+            expect(mff.getCurrent().className).to.equal('box block37 focused');
+            
+            mff.private.move.right.call(mff);
+            expect(mff.getCurrent().className).to.equal('box block38 focused');
+        });
     });
 });
