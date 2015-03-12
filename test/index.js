@@ -127,7 +127,10 @@ describe('Magic Focus Finder Tests', function() {
 
         it('should set the default focused element if one was set', function() {
             mff
-                .configure({ defaultFocusedElement : '#focusableInput' })
+                .configure({
+                    defaultFocusedElement : '#focusableInput',
+                    container : '#something'
+                })
                 .start();
 
             expect(document.querySelector('#focusableInput').classList.contains('focused')).to.be.true;
