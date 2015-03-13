@@ -20,6 +20,7 @@
   },
   "devDependencies": {
     "requirejs": "2.1.16",
-    "classListPolyfill": "https://github.com/eligrey/classList.js.git"
+    "classListPolyfill": "https://github.com/eligrey/classList.js.git",
+    "happen": "~0.1.3"
   }
 }

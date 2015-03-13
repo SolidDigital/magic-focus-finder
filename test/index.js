@@ -6,7 +6,8 @@ var chai = require('chai'),
     expect = chai.expect,
     browser,
     mff,
-    document;
+    document,
+    happen;
 
 chai.config.includeStack = true;
 
@@ -34,6 +35,9 @@ describe('Magic Focus Finder Tests', function() {
 
         browser.wait(requireJsLoaded, function() {
             mff = browser.window.magicFocusFinder;
+            console.log('got here');
+            console.log(browser.window.happen);
+            happen = browser.window.happen;
             document = browser.document;
             done();
         });
@@ -89,6 +93,16 @@ describe('Magic Focus Finder Tests', function() {
 
         xit('should perform basic validation on the options object (keymap has all dirctions, that nothing required is blown out accidentally)', function() {
 
+        });
+
+        it('should use the element from the config when the container is set as an element reference and not a selector', function() {
+            var options = {
+                container : document.querySelector('#example1')
+            };
+
+            mff.configure(options);
+
+            expect(mff.getConfig().container.isEqualNode(options.container)).to.be.true;
         });
     });
 
@@ -312,7 +326,46 @@ describe('Magic Focus Finder Tests', function() {
 
     });
 
+    describe('the key listener functionality', function() {
+        xit('it listens for the keydown event', function() {
+
+        });
+    });
+
     describe('focus change logic', function() {
+
+        describe('movement in a grid', function() {
+            it.only('should move from the top left to the top middle by hitting the right arrow once', function() {
+                var container = document.querySelector('#example1');
+
+                mff
+                    .configure({
+                        container: container,
+                        defaultFocusedElement : '.block1'
+                    })
+                    .start();
+
+                expect(container.querySelector('.block1').classList.contains('focused')).to.be.true;
+
+                // Right arrow keypress
+                happen.keyDown(container.querySelector('.block1'), {
+                    /*type : 'keydown',*/
+                    keyCode : 39
+                });
+
+                expect(container.querySelector('.block1').classList.contains('focused')).to.be.false;
+                expect(container.querySelector('.block2').classList.contains('focused')).to.be.true;
+
+            });
+        });
+
+        describe('movement in sparse nodes', function() {
+
+        });
+
+        describe('movement in dynamicly positioned nodes', function() {
+
+        });
 
         xit('should move directly to the right even if there is somethin closer to the right but more above', function() {
 

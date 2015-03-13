@@ -121,6 +121,8 @@ define(['lodash'], function (_) {
 
         if(internal.config.container === 'document') {
             container = document;
+        } else if(internal.config.container.nodeName){
+            container = internal.config.container;
         } else {
             container = document.querySelector(internal.config.container);
         }
