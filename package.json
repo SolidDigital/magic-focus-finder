@@ -4,7 +4,7 @@
   "description": "Intended to help keyboard navigation through html nodes.",
   "main": "index.js",
   "scripts": {
-    "test": "cp -R source test/public && cp -R bower_components test/public && mocha test",
+    "test": "cp -R source test/public && mocha test",
     "jshint": "jshint source/main.js"
   },
   "repository": {
