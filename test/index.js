@@ -90,6 +90,16 @@ describe('Magic Focus Finder Tests', function() {
         xit('should perform basic validation on the options object (keymap has all dirctions, that nothing required is blown out accidentally)', function() {
 
         });
+
+        it('should use the element from the config when the container is set as an element reference and not a selector', function() {
+            var options = {
+                container : document.querySelector('#example1')
+            };
+
+            mff.configure(options);
+
+            expect(mff.getConfig().container.isEqualNode(options.container)).to.be.true;
+        });
     });
 
     describe('the getConfig method', function() {
