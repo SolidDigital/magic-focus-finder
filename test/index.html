@@ -1,7 +1,8 @@
 <html>
     <head>
         <title>Magic Focus Finder Tests</title>
-        <link rel='stylesheet' href='style.css'></link>
+        <link rel='stylesheet' href='style.css'/>
+        <link rel="stylesheet" href="bower_components/mocha/mocha.css"/>
         <!-- Inline Style because Zombie does not compute them. -->
         <style>
             .hidden {
@@ -89,8 +90,7 @@
 
         </section>
 
+        <div id="mocha"></div>
+        <script data-main='main.js' src='bower_components/requirejs/require.js'></script>
     </body>
-    <!-- will toggle to true when everything is loaded, used so zombie knows when require is done -->
-    <div id='requireJsLoaded'>false</div>
-    <script data-main='main.js' src='bower_components/requirejs/require.js'></script>
 </html>

@@ -4,7 +4,7 @@
   "description": "Intended to help keyboard navigation through html nodes.",
   "main": "index.js",
   "scripts": {
-    "test": "cp -R source test/public && mocha test",
+    "test": "mocha-phantomjs test/index.html",
     "jshint": "jshint source/main.js"
   },
   "repository": {
@@ -23,8 +23,9 @@
     "express": "^4.12.2",
     "lodash": "^3.3.1",
     "mocha": "^2.1.0",
-    "pre-commit": "^1.0.5",
-    "zombie": "^2.5.1"
+    "mocha-phantomjs": "^3.5.3",
+    "phantomjs": "^1.9.16",
+    "pre-commit": "^1.0.5"
   },
   "pre-commit": [
     "test",
