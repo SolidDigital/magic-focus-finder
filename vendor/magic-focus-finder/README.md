@@ -1,15 +1,17 @@
-# Magic Focus Finder
+# Magic Focus Finder [![Bower version](https://badge.fury.io/bo/magic-focus-finder.png)](http://badge.fury.io/bo/magic-focus-finder) [![Build Status](https://travis-ci.org/Duder-onomy/magic-focus-finder.png?branch=bower)](https://travis-ci.org/Duder-onomy/magic-focus-finder)
 
 Intended to help keyboard navigation through html nodes.
 
 [Try out the demo](http://duder-onomy.github.io/magic-focus-finder/)
 
+Tests can be run in a browser. `python -m SimpleHTTPServer` from the project root, then visit: http://0.0.0.0:8000/test/ .
+Should do a bower install first.
+
+To run the test via CLI: `npm test` after doing a bower and npm install.
+
 ### This is currently not a complete readme, I wrote this for a project I am on, will flesh out the details this weekend with example page and Travis-ci integration.
 
 ---
----
----
-
 
 This is heavily influenced by (and sort of a rip off of) this repo: [jquery.keyJumper](https://github.com/mbitto/jquery.keyJumper)
 
@@ -109,7 +111,7 @@ locks it up
 
 ### refresh()
 will refresh the element mapping (should only be used if your browser does not support mutation observers)
-Otherwise it will watch the dom for new elements.
+Otherwise it will watch the DOM for new elements.
 ```javascript
 
 ```
@@ -121,7 +123,7 @@ set the current focused element, element ref or selector
 ```
 
 ### getCurrent()
-get the current focues element, element ref of selector
+get the current focused element, element ref of selector
 ```javascript
 
 ```

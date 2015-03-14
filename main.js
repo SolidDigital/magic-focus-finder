@@ -41,7 +41,8 @@
                 });
             });
 
-        addClass('focused', elements.pop());
+        // TODO: this broke, initially set focused class is no longer respected
+        //addClass('focused', elements.pop());
 
         mff.start();
     });
