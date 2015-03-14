@@ -2,17 +2,12 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder'], function(chai, mocha, _,
     'use strict';
 
     var expect = chai.expect,
-        browser,
         document = window.document;
 
     mocha.setup('bdd');
     chai.config.includeStack = true;
 
     describe('Magic Focus Finder Tests', function() {
-
-        it('should render a page and make assertion with no errors', function() {
-            expect(browser.text('title')).to.equal('Magic Focus Finder Tests');
-        });
 
         describe('the configure method', function() {
             it('should exist on the module', function() {
@@ -47,7 +42,7 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder'], function(chai, mocha, _,
 
                 mff.configure(options);
 
-                expect(mff.getConfig()).to.deep.equal(_.merge(originalOptions, options));
+                expect(mff.getConfig()).to.deep.equal(_.merge(getOriginalOptions(), options));
             });
 
             xit('should perform basic validation on the options object (keymap has all dirctions, that nothing required is blown out accidentally)', function() {
@@ -199,14 +194,19 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder'], function(chai, mocha, _,
 
             describe('given a selector', function() {
                 it('should accept an element and give that element focus', function() {
-                    mff.setCurrent('#focusableInput');
+                    mff
+                        .configure({
+                            container: '#something'
+                        })
+                        .start()
+                        .setCurrent('#focusableInput');
 
-                    expect(document.querySelector(':focus').id).to.equal('focusableInput');
+                    expect(document.querySelector('.focused').id).to.equal('focusableInput');
                 });
                 it('should give class and focus pseudo state to focusable elements', function() {
                     mff.setCurrent('#focusableInput');
 
-                    expect(document.querySelector(':focus').id).to.equal('focusableInput');
+                    expect(document.querySelector('.focused').id).to.equal('focusableInput');
                     expect(document.querySelector('#focusableInput').classList.contains('focused')).to.be.true;
                 });
 
@@ -255,7 +255,7 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder'], function(chai, mocha, _,
                 it('should accept a element reference', function() {
                     mff.setCurrent(document.querySelector('#focusableInput'));
 
-                    expect(document.querySelector(':focus').id).to.equal('focusableInput');
+                    expect(document.querySelector('.focused').id).to.equal('focusableInput');
                 });
             });
 
@@ -303,4 +303,39 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder'], function(chai, mocha, _,
             });
         });
     });
+
+    function getOriginalOptions() {
+        return {
+            keymap : [
+                {
+                    direction : 'up',
+                    code : 38
+                },
+                {
+                    direction : 'down',
+                    code : 40
+                },
+                {
+                    direction : 'left',
+                    code : 37
+                },
+                {
+                    direction : 'right',
+                    code : 39
+                },
+                {
+                    direction : 'enter',
+                    code : 13
+                }
+            ],
+            focusableAttribute : 'focusable',
+            defaultFocusedElement : null,
+            container : 'document',
+            eventNamespace : 'magicFocusFinder',
+            focusedClass : 'focused',
+            overrideDirectionAttribute : 'focus-overrides',
+            captureFocusAttribute : 'capture-focus',
+            dynamicPositionAttribute : 'dynamic-position'
+        };
+    }
 });

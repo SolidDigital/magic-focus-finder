@@ -1,8 +1,7 @@
 define(['lodash'], function (_) {
     'use strict';
 
-    var internal = {
-        config : {
+    var   defaultConfig = {
             keymap : [
                 {
                     direction : 'up',
@@ -34,36 +33,40 @@ define(['lodash'], function (_) {
             captureFocusAttribute : 'capture-focus',
             dynamicPositionAttribute : 'dynamic-position'
         },
-        canMove : true,
-        currentlyFocusedElement : null,
-        knownElements : [],
+        internal = {
+            configured: false,
+            canMove : true,
+            currentlyFocusedElement : null,
+            knownElements : [],
             // Each element will get the following properties when registered:
             // magicFocusFinderPosition = the elements position.
             // magicFocusFinderDirectionOverrides = if the element had any direction overrides.
-        move : {
-            up : _moveUp,
-            down : _moveDown,
-            left : _moveLeft,
-            right : _moveRight,
-            enter : _fireEnter
+            move : {
+                up : _moveUp,
+                down : _moveDown,
+                left : _moveLeft,
+                right : _moveRight,
+                enter : _fireEnter
+            },
+            domObserver : null
         },
-        domObserver : null
-    };
+        mff = {
+            configure : configure,
+            getConfig : getConfig,
+            start : start,
+            setCurrent : setCurrent,
+            getCurrent : getCurrent,
+            getKnownElements : getKnownElements,
+            refresh : refresh
+        };
 
-    return {
-        configure : configure,
-        getConfig : getConfig,
-        start : start,
-        setCurrent : setCurrent,
-        getCurrent : getCurrent,
-        getKnownElements : getKnownElements,
-        refresh : refresh
-    };
+    // for now mff is a singleton
+    return mff;
 
     function configure(options) {
-        _.merge(internal.config, options);
-
-        return this;
+        internal.config = _.extend(_.cloneDeep(defaultConfig), options);
+        internal.configured = true;
+        return mff;
     }
 
     function getConfig() {
@@ -71,13 +74,21 @@ define(['lodash'], function (_) {
     }
 
     function start() {
-        if(internal.config.defaultFocusedElement) {
+        if (!internal.configured) {
+            internal.config = _.cloneDeep(defaultConfig);
+        } else {
+            internal.configured = false;
+        }
+
+
+        if (internal.config.defaultFocusedElement) {
             setCurrent(internal.config.defaultFocusedElement);
         }
 
         refresh();
 
         _setupAndStartWatchingMutations();
+        return mff;
     }
 
     function setCurrent(querySelector) {
@@ -104,7 +115,7 @@ define(['lodash'], function (_) {
             internal.currentlyFocusedElement = element;
         }
 
-        return this;
+        return mff;
     }
 
     function getCurrent() {
@@ -131,6 +142,8 @@ define(['lodash'], function (_) {
         internal.knownElements = [];
 
         [].forEach.call(container.querySelectorAll('['+ internal.config.focusableAttribute +']'), _registerElement);
+
+        return mff;
     }
 
     function _eventManager(event) {
