@@ -36,6 +36,26 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder'], function(chai, mocha, _,
                 expect(mff.getConfig()).to.deep.equal(options);
             });
 
+            it('should merge onto the original configs if run more than once', function() {
+                var options = {
+                    keymap : {},
+                    focusableAttribute : '',
+                    defaultFocusedElement : '',
+                    dynamicPositionAttribute : '',
+                    captureFocusAttribute: '',
+                    focusedClass : '',
+                    container : '',
+                    eventNamespace : '',
+                    overrideDirectionAttribute : ''
+                };
+
+                mff.configure(options);
+
+                mff.configure();
+
+                expect(mff.getConfig()).to.deep.equal(getOriginalOptions());
+            });
+
             it('should merge the passed configure with the current one, so as to support partial config updates', function() {
                 var originalOptions = mff.getConfig(),
                     options = { keymap : {} };
