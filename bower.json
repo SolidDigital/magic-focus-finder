@@ -20,6 +20,10 @@
   },
   "devDependencies": {
     "requirejs": "2.1.16",
-    "classListPolyfill": "https://github.com/eligrey/classList.js.git"
+    "classListPolyfill": "https://github.com/eligrey/classList.js.git",
+    "mocha": "2.2.1",
+    "chai": "2.1.1",
+    "sinon": "1.14.0",
+    "sinon-chai": "2.7.0"
   }
 }

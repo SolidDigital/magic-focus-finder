@@ -1,4 +1,5 @@
 /node_modules/
 /source/vendor/
-/bower_components/
+/test/public/source
+bower_components/
 .idea/
