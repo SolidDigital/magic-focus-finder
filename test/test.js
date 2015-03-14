@@ -287,7 +287,7 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder'], function(chai, mocha, _,
 
         describe('focus change logic', function() {
 
-            xit('should move directly to the right even if there is somethin closer to the right but more above', function() {
+            it.only('should move directly to the right even if there is somethin closer to the right but more above', function() {
 
                 mff
                     .configure({
@@ -297,7 +297,7 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder'], function(chai, mocha, _,
 
                 expect(mff.getCurrent().className).to.equal('box block37 focused');
 
-                mff.private.move.right.call(mff);
+                mff.move.right.call(mff);
                 // looks like zombie has all bounding client rectangles as 0 0
                 expect(mff.getCurrent().className).to.equal('box block38 focused');
             });

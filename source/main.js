@@ -41,13 +41,6 @@ define(['lodash'], function (_) {
             // Each element will get the following properties when registered:
             // magicFocusFinderPosition = the elements position.
             // magicFocusFinderDirectionOverrides = if the element had any direction overrides.
-            move : {
-                up : _moveUp,
-                down : _moveDown,
-                left : _moveLeft,
-                right : _moveRight,
-                enter : _fireEnter
-            },
             domObserver : null
         },
         mff = {
@@ -57,7 +50,14 @@ define(['lodash'], function (_) {
             setCurrent : setCurrent,
             getCurrent : getCurrent,
             getKnownElements : getKnownElements,
-            refresh : refresh
+            refresh : refresh,
+            move : {
+                up : _moveUp,
+                down : _moveDown,
+                left : _moveLeft,
+                right : _moveRight,
+                enter : _fireEnter
+            }
         };
 
     // for now mff is a singleton
@@ -161,7 +161,7 @@ define(['lodash'], function (_) {
             if(mappedKey && internal.currentlyFocusedElement.magicFocusFinderDirectionOverrides[mappedKey.direction]) {
                 setCurrent(internal.currentlyFocusedElement.magicFocusFinderDirectionOverrides[mappedKey.direction]);
             } else if(mappedKey) {
-                internal.move[mappedKey.direction]();
+                mff.move[mappedKey.direction]();
             }
         } else {
             _setDefaultFocus();
