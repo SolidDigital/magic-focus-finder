@@ -1,7 +1,7 @@
 define(['lodash'], function (_) {
     'use strict';
 
-    var   defaultConfig = {
+    var defaultConfig = {
             keymap : [
                 {
                     direction : 'up',
@@ -31,7 +31,8 @@ define(['lodash'], function (_) {
             focusedClass : 'focused',
             overrideDirectionAttribute : 'focus-overrides',
             captureFocusAttribute : 'capture-focus',
-            dynamicPositionAttribute : 'dynamic-position'
+            dynamicPositionAttribute : 'dynamic-position',
+            watchDomMutations : true
         },
         internal = {
             configured: false,
@@ -41,13 +42,6 @@ define(['lodash'], function (_) {
             // Each element will get the following properties when registered:
             // magicFocusFinderPosition = the elements position.
             // magicFocusFinderDirectionOverrides = if the element had any direction overrides.
-            move : {
-                up : _moveUp,
-                down : _moveDown,
-                left : _moveLeft,
-                right : _moveRight,
-                enter : _fireEnter
-            },
             domObserver : null
         },
         mff = {
@@ -57,7 +51,15 @@ define(['lodash'], function (_) {
             setCurrent : setCurrent,
             getCurrent : getCurrent,
             getKnownElements : getKnownElements,
-            refresh : refresh
+            refresh : refresh,
+            destroy : destroy,
+            move : {
+                up : _moveUp,
+                down : _moveDown,
+                left : _moveLeft,
+                right : _moveRight,
+                enter : _fireEnter
+            }
         };
 
     // for now mff is a singleton
@@ -80,14 +82,16 @@ define(['lodash'], function (_) {
             internal.configured = false;
         }
 
-
         if (internal.config.defaultFocusedElement) {
             setCurrent(internal.config.defaultFocusedElement);
         }
 
         refresh();
 
-        _setupAndStartWatchingMutations();
+        if(internal.config.watchDomMutations) {
+            _setupAndStartWatchingMutations();
+        }
+
         return mff;
     }
 
@@ -146,6 +150,16 @@ define(['lodash'], function (_) {
         return mff;
     }
 
+    function destroy() {
+        internal.knownElements = [];
+        internal.configured = false;
+        internal.canMode = true;
+        internal.currentlyFocusedElement = null;
+        configure(defaultConfig);
+        _removeBodyKeypressListener();
+        _removeMutationObservers();
+    }
+
     function _eventManager(event) {
         var mappedKey;
 
@@ -161,7 +175,7 @@ define(['lodash'], function (_) {
             if(mappedKey && internal.currentlyFocusedElement.magicFocusFinderDirectionOverrides[mappedKey.direction]) {
                 setCurrent(internal.currentlyFocusedElement.magicFocusFinderDirectionOverrides[mappedKey.direction]);
             } else if(mappedKey) {
-                internal.move[mappedKey.direction]();
+                mff.move[mappedKey.direction]();
             }
         } else {
             _setDefaultFocus();
@@ -328,44 +342,66 @@ define(['lodash'], function (_) {
         document.querySelector('body').addEventListener('keydown', _eventManager);
     }
 
+    function _removeBodyKeypressListener() {
+        document.querySelector('body').removeEventListener('keydown', _eventManager);
+    }
+
     function _setupAndStartWatchingMutations() {
         // Home baked mutation observer. The shim was VERY slow. This is much faster.
         if(window.MutationObserver || window.WebKitMutationObserver) {
             internal.domObserver = new MutationObserver(function(mutations) {
                 mutations.forEach(function(mutation) {
-                    _.each(mutation.addedNodes, function(addedNode) {
-                        if(addedNode.hasAttribute(internal.config.focusableAttribute) && addedNode.nodeName !== '#comment') {
-                            _registerElement(addedNode);
-                        }
-                    });
+                    _.each(mutation.addedNodes, _addNodeFromMutationEvent);
 
-                    _.each(mutation.removedNodes, function(removedNode) {
-                        if(removedNode.hasAttribute(internal.config.focusableAttribute)) {
-                            _unregisterElement(removedNode);
-                        }
-                        if(internal.currentlyFocusedElement.isEqualNode(removedNode)) {
-                            _setDefaultFocus();
-                        }
-                    });
+                    _.each(mutation.removedNodes, _removeNodeFromMutationEvent);
                 });
             });
 
             internal.domObserver.observe(document, { childList: true, subtree : true });
         } else {
-            document.querySelector('body').addEventListener('DOMNodeInserted', function(event) {
-                if(event.target.hasAttribute(internal.config.focusableAttribute) && event.target.nodeName !== '#comment') {
-                    _registerElement(event.target);
-                }
-            });
+            document.querySelector('body').addEventListener('DOMNodeInserted', _addNodeFromDomNodeAddedEvent);
 
-            document.querySelector('body').addEventListener('DOMNodeRemoved', function(event) {
-                if(event.target.hasAttribute(internal.config.focusableAttribute) && event.target.nodeName !== '#comment') {
-                    _unregisterElement(event.target);
-                }
-                if(internal.currentlyFocusedElement.isEqualNode(event.target)) {
-                    _setDefaultFocus();
-                }
-            });
+            document.querySelector('body').addEventListener('DOMNodeRemoved', _removeNodeFromDomNodeAddedEvent);
+        }
+    }
+
+    function _addNodeFromMutationEvent(node) {
+        if(node.nodeType === 1 && node.hasAttribute(internal.config.focusableAttribute) && node.nodeName !== '#comment') {
+            _registerElement(node);
+        }
+    }
+
+    function _removeNodeFromMutationEvent(node) {
+        if(node.nodeType === 1 && node.hasAttribute(internal.config.focusableAttribute)) {
+            _unregisterElement(node);
+        }
+        if(internal.currentlyFocusedElement.isEqualNode(node)) {
+            _setDefaultFocus();
+        }
+    }
+
+    function _addNodeFromDomNodeAddedEvent(event) {
+        if(event.target.nodeType === 1 && event.target.hasAttribute(internal.config.focusableAttribute) && event.target.nodeName !== '#comment') {
+            _registerElement(event.target);
+        }
+    }
+
+    function _removeNodeFromDomNodeAddedEvent(event) {
+        if(event.target.nodeType === 1 && event.target.hasAttribute(internal.config.focusableAttribute) && event.target.nodeName !== '#comment') {
+            _unregisterElement(event.target);
+        }
+        if(internal.currentlyFocusedElement.isEqualNode(event.target)) {
+            _setDefaultFocus();
+        }
+    }
+
+    function _removeMutationObservers() {
+        if(window.MutationObserver || window.WebKitMutationObserver) {
+            internal.domObserver && internal.domObserver.disconnect();
+            internal.domObserver = null;
+        } else {
+            document.querySelector('body').removeEventListener('DOMNodeInserted', _addNodeFromDomNodeAddedEvent);
+            document.querySelector('body').removeEventListener('DOMNodeRemoved', _removeNodeFromDomNodeAddedEvent);
         }
     }
 

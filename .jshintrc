@@ -6,7 +6,9 @@
         "describe": false,
         "it": false,
         "xit": false,
-        "require": false
+        "require": false,
+        "beforeEach" : false,
+        "afterEach" : false
     },
     "quotmark": "single",
     "debug": false,

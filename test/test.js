@@ -9,6 +9,10 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder'], function(chai, mocha, _,
 
     describe('Magic Focus Finder Tests', function() {
 
+        afterEach(function() {
+            mff.destroy();
+        });
+
         describe('the configure method', function() {
             it('should exist on the module', function() {
                 expect(mff).itself.to.respondTo('configure');
@@ -28,7 +32,8 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder'], function(chai, mocha, _,
                     focusedClass : '',
                     container : '',
                     eventNamespace : '',
-                    overrideDirectionAttribute : ''
+                    overrideDirectionAttribute : '',
+                    watchDomMutations: true
                 };
 
                 mff.configure(options);
@@ -46,7 +51,8 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder'], function(chai, mocha, _,
                     focusedClass : '',
                     container : '',
                     eventNamespace : '',
-                    overrideDirectionAttribute : ''
+                    overrideDirectionAttribute : '',
+                    watchDomMutations: true
                 };
 
                 mff.configure(options);
@@ -57,8 +63,7 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder'], function(chai, mocha, _,
             });
 
             it('should merge the passed configure with the current one, so as to support partial config updates', function() {
-                var originalOptions = mff.getConfig(),
-                    options = { keymap : {} };
+                var options = { keymap : {} };
 
                 mff.configure(options);
 
@@ -95,7 +100,8 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder'], function(chai, mocha, _,
                     'focusedClass',
                     'container',
                     'eventNamespace',
-                    'overrideDirectionAttribute'
+                    'overrideDirectionAttribute',
+                    'watchDomMutations'
                 ];
 
                 expect(mff.getConfig()).to.have.all.keys(keys);
@@ -111,7 +117,8 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder'], function(chai, mocha, _,
                     focusedClass : '',
                     defaultFocusedElement : '',
                     container : '',
-                    eventNamespace : ''
+                    eventNamespace : '',
+                    watchDomMutations : true
                 };
 
                 mff.configure(options);
@@ -301,13 +308,52 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder'], function(chai, mocha, _,
             });
         });
 
+        describe('the destroy method', function() {
+            it('should exist on the module', function() {
+                expect(mff).itself.to.respondTo('destroy');
+            });
+
+            xit('should reset the config options', function() {
+
+            });
+
+            xit('should clear out the known elements', function() {
+
+            });
+
+            xit('should remove event listeners that were added', function() {
+
+            });
+
+            xit('should stop watching the DOM for changes', function() {
+
+            });
+        });
+
         describe('the eventManager', function() {
 
         });
 
         describe('focus change logic', function() {
 
-            xit('should move directly to the right even if there is somethin closer to the right but more above', function() {
+            describe('in a simple grid', function() {
+                it('should move to the right one node when moving right', function() {
+                    mff
+                        .configure({
+                            container: '#example1',
+                            defaultFocusedElement : '.box.block1'
+                        })
+                        .start();
+
+                    expect(mff.getCurrent().className).to.equal('box block1 focused');
+
+                    mff.move.right();
+
+                    expect(mff.getCurrent().className).to.equal('box block2 focused');
+                });
+            });
+
+            xit('should move directly to the right even if there is something closer to the right but more above', function() {
 
                 mff
                     .configure({
@@ -317,9 +363,65 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder'], function(chai, mocha, _,
 
                 expect(mff.getCurrent().className).to.equal('box block37 focused');
 
-                mff.private.move.right.call(mff);
+                mff.move.right();
+                // mff.private.move.right.call(mff);
                 // looks like zombie has all bounding client rectangles as 0 0
                 expect(mff.getCurrent().className).to.equal('box block38 focused');
+            });
+        });
+
+        describe('the mutation observer features', function() {
+            it('should be able to be turned off for crappy browsers', function() {
+                var appendee = document.createElement('div'),
+                    initialFocusableCount = document.querySelector('#iContainMoreFocusables').querySelectorAll('[focusable]').length;
+
+                appendee.setAttribute('focusable', 'focusable');
+
+                mff
+                    .configure({
+                        watchDomMutations : false,
+                        container : '#iContainMoreFocusables'
+                    })
+                    .start();
+
+                expect(mff.getKnownElements().length).to.equal(initialFocusableCount);
+
+                document.querySelector('#iContainMoreFocusables').appendChild(appendee);
+
+                expect(mff.getKnownElements().length).to.equal(initialFocusableCount);
+            });
+
+            xit('should add an element to the knownElements collection when added to the dom', function(done) {
+                var appendee = document.createElement('div'),
+                    initialFocusableCount = document.querySelectorAll('[focusable]').length - document.querySelectorAll('.hidden').length;
+
+                appendee.setAttribute('focusable', 'focusable');
+
+                mff.start();
+
+                expect(mff.getKnownElements().length).to.equal(initialFocusableCount);
+
+                document.querySelector('#iContainMoreFocusables').appendChild(appendee);
+
+                setTimeout(function() {
+                    expect(mff.getKnownElements().length).to.equal(initialFocusableCount + 1);
+                    done();
+                }, 1000);
+            });
+
+            //https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeType
+            it('should only add HTML nodes of type === 1 and no text/comment nodes.', function(done) {
+                var appendee = document.createTextNode('juju bone'),
+                    initialFocusableCount = document.querySelectorAll('[focusable]').length - document.querySelectorAll('.hidden').length;
+
+                mff.start();
+
+                document.querySelector('#iContainMoreFocusables').appendChild(appendee);
+
+                setTimeout(function() {
+                    expect(mff.getKnownElements().length).to.equal(initialFocusableCount);
+                    done();
+                }, 1000);
             });
         });
     });
@@ -355,7 +457,8 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder'], function(chai, mocha, _,
             focusedClass : 'focused',
             overrideDirectionAttribute : 'focus-overrides',
             captureFocusAttribute : 'capture-focus',
-            dynamicPositionAttribute : 'dynamic-position'
+            dynamicPositionAttribute : 'dynamic-position',
+            watchDomMutations : true
         };
     }
 });
