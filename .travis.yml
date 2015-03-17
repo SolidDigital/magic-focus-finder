@@ -5,4 +5,4 @@ node_js:
 - '0.12'
 - "iojs"
 - "iojs-v1.0.4"
-install: bower install
+install: npm install && bower install
