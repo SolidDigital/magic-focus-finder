@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/Duder-onomy/magic-focus-finder",
   "devDependencies": {
+    "bower" : "*",
     "bluebird": "^2.9.13",
     "chai": "^2.1.0",
     "express": "^4.12.2",
