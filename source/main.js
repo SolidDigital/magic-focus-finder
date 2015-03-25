@@ -172,7 +172,9 @@ define(['lodash'], function (_) {
         if(internal.currentlyFocusedElement) {
             mappedKey = _.findWhere(internal.config.keymap, { code : event.keyCode });
 
-            if(mappedKey && internal.currentlyFocusedElement.magicFocusFinderDirectionOverrides[mappedKey.direction]) {
+            if(mappedKey && 'skip' === internal.currentlyFocusedElement.magicFocusFinderDirectionOverrides[mappedKey.direction]) {
+                return;
+            } else if(mappedKey && internal.currentlyFocusedElement.magicFocusFinderDirectionOverrides[mappedKey.direction]) {
                 setCurrent(internal.currentlyFocusedElement.magicFocusFinderDirectionOverrides[mappedKey.direction]);
             } else if(mappedKey) {
                 mff.move[mappedKey.direction]();
