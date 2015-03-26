@@ -9,8 +9,6 @@ Should do a bower install first.
 
 To run the test via CLI: `npm test` after doing a bower and npm install.
 
-### This is currently not a complete readme, I wrote this for a project I am on, will flesh out the details this weekend with example page and Travis-ci integration.
-
 ---
 
 This is heavily influenced by (and sort of a rip off of) this repo: [jquery.keyJumper](https://github.com/mbitto/jquery.keyJumper)
