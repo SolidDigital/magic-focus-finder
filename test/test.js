@@ -67,7 +67,7 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder'], function(chai, mocha, _,
 
                 mff.configure(options);
 
-                expect(mff.getConfig()).to.deep.equal(_.merge(getOriginalOptions(), options));
+                expect(mff.getConfig()).to.deep.equal(_.extend(getOriginalOptions(), options));
             });
 
             xit('should perform basic validation on the options object (keymap has all dirctions, that nothing required is blown out accidentally)', function() {
@@ -428,28 +428,13 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder'], function(chai, mocha, _,
 
     function getOriginalOptions() {
         return {
-            keymap : [
-                {
-                    direction : 'up',
-                    code : 38
-                },
-                {
-                    direction : 'down',
-                    code : 40
-                },
-                {
-                    direction : 'left',
-                    code : 37
-                },
-                {
-                    direction : 'right',
-                    code : 39
-                },
-                {
-                    direction : 'enter',
-                    code : 13
-                }
-            ],
+            keymap : {
+                38 : 'up',
+                40 : 'down',
+                37 : 'left',
+                39 : 'right',
+                13 : 'enter'
+            },
             focusableAttribute : 'focusable',
             defaultFocusedElement : null,
             container : 'document',

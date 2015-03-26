@@ -2,28 +2,13 @@ define(['lodash'], function (_) {
     'use strict';
 
     var defaultConfig = {
-            keymap : [
-                {
-                    direction : 'up',
-                    code : 38
-                },
-                {
-                    direction : 'down',
-                    code : 40
-                },
-                {
-                    direction : 'left',
-                    code : 37
-                },
-                {
-                    direction : 'right',
-                    code : 39
-                },
-                {
-                    direction : 'enter',
-                    code : 13
-                }
-            ],
+            keymap : {
+                38 : 'up',
+                40 : 'down',
+                37 : 'left',
+                39 : 'right',
+                13 : 'enter'
+            },
             focusableAttribute : 'focusable',
             defaultFocusedElement : null,
             container : 'document',
@@ -161,7 +146,7 @@ define(['lodash'], function (_) {
     }
 
     function _eventManager(event) {
-        var mappedKey;
+        var direction;
 
         if(!internal.canMove) {
             return;
@@ -170,14 +155,14 @@ define(['lodash'], function (_) {
         _recalculateDynamicElementPositions();
 
         if(internal.currentlyFocusedElement) {
-            mappedKey = _.findWhere(internal.config.keymap, { code : event.keyCode });
+            direction = internal.config.keymap[event.keyCode];
 
-            if(mappedKey && 'skip' === internal.currentlyFocusedElement.magicFocusFinderDirectionOverrides[mappedKey.direction]) {
+            if(direction && 'skip' === internal.currentlyFocusedElement.magicFocusFinderDirectionOverrides[direction]) {
                 return;
-            } else if(mappedKey && internal.currentlyFocusedElement.magicFocusFinderDirectionOverrides[mappedKey.direction]) {
-                setCurrent(internal.currentlyFocusedElement.magicFocusFinderDirectionOverrides[mappedKey.direction]);
-            } else if(mappedKey) {
-                mff.move[mappedKey.direction]();
+            } else if(direction && internal.currentlyFocusedElement.magicFocusFinderDirectionOverrides[direction]) {
+                setCurrent(internal.currentlyFocusedElement.magicFocusFinderDirectionOverrides[direction]);
+            } else if(direction) {
+                mff.move[direction]();
             }
         } else {
             _setDefaultFocus();
