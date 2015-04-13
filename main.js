@@ -15,7 +15,6 @@
     require(['lodash', 'magicFocusFinder'], function (_, mff) {
 
         var config = {
-                numberoOfDivs : 50,
                 size : 20,
                 colors : [
                     'red',
@@ -25,24 +24,13 @@
                     'blue',
                     'violet'
                 ]
-            },
-                size = getWindowSize(),
-                elements;
+            };
 
+        createFullGrid(config);
 
-        elements = _
-            .range(config.numberoOfDivs)
-            .map(function() {
-                return draw({
-                    x : _.random(0, size.width - config.size),
-                    y : _.random(0, size.height - config.size),
-                    color : config.colors[_.random(0, config.colors.length - 1)],
-                    size : config.size
-                });
-            });
+        giveColorsToSparseGrid(config);
 
-        // TODO: this broke, initially set focused class is no longer respected
-        //addClass('focused', elements.pop());
+        createRandomNodes(config);
 
         mff.start();
     });
@@ -52,47 +40,56 @@
         return element;
     }
 
-    function draw(div) {
-        var element = document.createElement('div');
-        element.style.background = div.color;
-        element.style.position = 'absolute';
-        element.style.top       = px(div.y);
-        element.style.left      = px(div.x);
-        element.style.width     = px(div.size);
-        element.style.height    = px(div.size);
-        element.setAttribute('focusable', true);
+    function createFullGrid(config) {
+        _.range(48)
+            .map(function() {
+                var element = document.createElement('div'),
+                    childItem = document.createElement('div');
 
-        document.body.appendChild(element);
-        return element;
+                childItem.style.background = getRandomColor(config);
+                childItem.style.width     = px(20);
+                childItem.style.height    = px(20);
+                childItem.classList.add('item');
+                childItem.setAttribute('focusable', true);
+
+                element.classList.add('pure-u-1-12');
+
+                element.appendChild(childItem);
+
+                document.querySelector('#fullGrid .pure-g').appendChild(element);
+            });
+    }
+
+    function giveColorsToSparseGrid(config) {
+        [].forEach.call(document.querySelectorAll('#sparseGrid .item'), function(element) {
+            element.style.background = getRandomColor(config);
+        });
+    }
+
+    function createRandomNodes(config) {
+        _.range(30)
+            .map(function() {
+                var element = document.createElement('div');
+
+                element.style.background = getRandomColor(config);
+                element.style.position   = 'absolute';
+                element.style.display    = 'inline-block';
+                element.style.top        = px(_.random(20, 480));
+                element.style.left       = _.random(0, 95) + '%';
+                element.style.width      = px(20);
+                element.style.height     = px(20);
+                element.setAttribute('focusable', true);
+
+                document.querySelector('#random').appendChild(element);
+            });
     }
 
     function px(pixels) {
         return pixels + 'px';
     }
 
-    function getWindowSize() {
-        var size = {width:0, height: 0};
-
-        if (window.innerWidth) {
-            size.width = window.innerWidth;
-        } else if (document.documentElement && document.documentElement.clientWidth) {
-            size.width = document.documentElement.clientWidth;
-        }
-        else if (document.body) {
-            size.width = document.body.clientWidth;
-        }
-
-        if (window.innerHeight) {
-            size.height = window.innerHeight;
-        } else if (document.documentElement && document.documentElement.clientHeight) {
-            size.height = document.documentElement.clientHeight;
-        }
-        else if (document.body) {
-            size.height = document.body.clientHeight;
-        }
-
-        return size;
+    function getRandomColor(config) {
+        return config.colors[_.random(0, config.colors.length - 1)];
     }
+
 }());
-
-
