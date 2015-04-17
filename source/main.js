@@ -377,7 +377,7 @@ define(['lodash'], function (_) {
         if(event.target.nodeType === 1 && event.target.hasAttribute(internal.config.focusableAttribute) && event.target.nodeName !== '#comment') {
             _unregisterElement(event.target);
         }
-        if(internal.currentlyFocusedElement.isEqualNode(event.target)) {
+        if(internal.currentlyFocusedElement && internal.currentlyFocusedElement.isEqualNode(event.target)) {
             _setDefaultFocus();
         }
     }
