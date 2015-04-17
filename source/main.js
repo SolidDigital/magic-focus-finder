@@ -362,7 +362,7 @@ define(['lodash'], function (_) {
         if(node.nodeType === 1 && node.hasAttribute(internal.config.focusableAttribute)) {
             _unregisterElement(node);
         }
-        if(internal.currentlyFocusedElement.isEqualNode(node)) {
+        if(internal.currentlyFocusedElement && internal.currentlyFocusedElement.isEqualNode(node)) {
             _setDefaultFocus();
         }
     }
