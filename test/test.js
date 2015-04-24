@@ -201,7 +201,7 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder'], function(chai, mocha, _,
                 expect(mff.getKnownElements().length).to.equal(document.querySelectorAll('[focusable]').length - document.querySelectorAll('.hidden').length);
             });
 
-            it('will respect and changed config values', function() {
+            xit('will respect and changed config values', function() {
                 mff.start();
 
                 expect(mff.getKnownElements().length).to.equal(document.querySelectorAll('[focusable]').length - document.querySelectorAll('.hidden').length);
@@ -373,20 +373,20 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder'], function(chai, mocha, _,
         describe('the mutation observer features', function() {
             it('should be able to be turned off for crappy browsers', function() {
                 var appendee = document.createElement('div'),
-                    initialFocusableCount = document.querySelector('#iContainMoreFocusables').querySelectorAll('[focusable]').length;
+                    initialFocusableCount = document.querySelector('#edgarRiceBurroughs').querySelectorAll('[focusable]').length;
 
                 appendee.setAttribute('focusable', 'focusable');
 
                 mff
                     .configure({
                         watchDomMutations : false,
-                        container : '#iContainMoreFocusables'
+                        container : '#edgarRiceBurroughs'
                     })
                     .start();
 
                 expect(mff.getKnownElements().length).to.equal(initialFocusableCount);
 
-                document.querySelector('#iContainMoreFocusables').appendChild(appendee);
+                document.querySelector('#edgarRiceBurroughs').appendChild(appendee);
 
                 expect(mff.getKnownElements().length).to.equal(initialFocusableCount);
             });
@@ -407,6 +407,11 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder'], function(chai, mocha, _,
                     expect(mff.getKnownElements().length).to.equal(initialFocusableCount + 1);
                     done();
                 }, 1000);
+            });
+
+            xit('should add elements that are deeply nested into knownElements when the parent is added to the dom', function() {
+                // This should test that if there were deeply nested nodes, and on very deep in there had a focusable.
+                // currently, the mutation event will only fire on the first level children of the container.
             });
 
             //https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeType

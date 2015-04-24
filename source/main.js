@@ -116,21 +116,19 @@ define(['lodash'], function (_) {
     }
 
     function refresh() {
-        var container;
-
         if(internal.config.container === 'document') {
-            container = document;
+            internal.config.container = document;
         } else if(internal.config.container.nodeName){
-            container = internal.config.container;
+            internal.config.container = internal.config.container;
         } else {
-            container = document.querySelector(internal.config.container);
+            internal.config.container = document.querySelector(internal.config.container);
         }
 
         _.once(_setupBodyKeypressListener)();
 
         internal.knownElements = [];
 
-        [].forEach.call(container.querySelectorAll('['+ internal.config.focusableAttribute +']'), _registerElement);
+        [].forEach.call(internal.config.container.querySelectorAll('['+ internal.config.focusableAttribute +']'), _registerElement);
 
         return mff;
     }
@@ -140,9 +138,9 @@ define(['lodash'], function (_) {
         internal.configured = false;
         internal.canMode = true;
         internal.currentlyFocusedElement = null;
-        configure(defaultConfig);
         _removeBodyKeypressListener();
         _removeMutationObservers();
+        configure(defaultConfig);
     }
 
     function _eventManager(event) {
@@ -198,6 +196,10 @@ define(['lodash'], function (_) {
         internal.knownElements = _.reject(internal.knownElements, function(knownElement) {
             return knownElement.isEqualNode(element);
         });
+
+        if(internal.currentlyFocusedElement && internal.currentlyFocusedElement.isEqualNode(element)) {
+            _setDefaultFocus();
+        }
     }
 
     function _getPosition(element) {
@@ -344,41 +346,50 @@ define(['lodash'], function (_) {
                 });
             });
 
-            internal.domObserver.observe(document, { childList: true, subtree : true });
+            internal.domObserver.observe(internal.config.container, {
+                childList: true,
+                subtree : true
+            });
         } else {
-            document.querySelector('body').addEventListener('DOMNodeInserted', _addNodeFromDomNodeAddedEvent);
+            internal.config.container.addEventListener('DOMNodeInserted', _addNodeFromDomNodeAddedEvent);
 
-            document.querySelector('body').addEventListener('DOMNodeRemoved', _removeNodeFromDomNodeAddedEvent);
+            internal.config.container.addEventListener('DOMNodeRemoved', _removeNodeFromDomNodeAddedEvent);
         }
     }
 
     function _addNodeFromMutationEvent(node) {
-        if(node.nodeType === 1 && node.hasAttribute(internal.config.focusableAttribute) && node.nodeName !== '#comment') {
-            _registerElement(node);
+        if(node.nodeType === 1 && node.nodeName !== '#comment') {
+            // Register Child Nodes
+            [].forEach.call(node.querySelectorAll('['+ internal.config.focusableAttribute +']'), _registerElement);
+
+            node.hasAttribute(internal.config.focusableAttribute) && _registerElement(node);
         }
     }
 
     function _removeNodeFromMutationEvent(node) {
-        if(node.nodeType === 1 && node.hasAttribute(internal.config.focusableAttribute)) {
-            _unregisterElement(node);
-        }
-        if(internal.currentlyFocusedElement && internal.currentlyFocusedElement.isEqualNode(node)) {
-            _setDefaultFocus();
+        if(node.nodeType === 1 && node.nodeName !== '#comment') {
+            // Unregister Child Nodes
+            [].forEach.call(node.querySelectorAll('['+ internal.config.focusableAttribute +']'), _unregisterElement);
+
+            node.hasAttribute(internal.config.focusableAttribute) && _unregisterElement(node);
         }
     }
 
     function _addNodeFromDomNodeAddedEvent(event) {
-        if(event.target.nodeType === 1 && event.target.hasAttribute(internal.config.focusableAttribute) && event.target.nodeName !== '#comment') {
-            _registerElement(event.target);
+        if(event.target.nodeType === 1 && event.target.nodeName !== '#comment') {
+            // Register Child Nodes
+            [].forEach.call(event.target.querySelectorAll('['+ internal.config.focusableAttribute +']'), _registerElement);
+
+            event.target.hasAttribute(internal.config.focusableAttribute) && _registerElement(event.target);
         }
     }
 
     function _removeNodeFromDomNodeAddedEvent(event) {
-        if(event.target.nodeType === 1 && event.target.hasAttribute(internal.config.focusableAttribute) && event.target.nodeName !== '#comment') {
-            _unregisterElement(event.target);
-        }
-        if(internal.currentlyFocusedElement && internal.currentlyFocusedElement.isEqualNode(event.target)) {
-            _setDefaultFocus();
+        if(event.target.nodeType === 1 && event.target.nodeName !== '#comment') {
+            // Register Child Nodes
+            [].forEach.call(event.target.querySelectorAll('['+ internal.config.focusableAttribute +']'), _unregisterElement);
+
+            event.target.hasAttribute(internal.config.focusableAttribute) && _unregisterElement(event.target);
         }
     }
 
@@ -386,9 +397,9 @@ define(['lodash'], function (_) {
         if(window.MutationObserver || window.WebKitMutationObserver) {
             internal.domObserver && internal.domObserver.disconnect();
             internal.domObserver = null;
-        } else {
-            document.querySelector('body').removeEventListener('DOMNodeInserted', _addNodeFromDomNodeAddedEvent);
-            document.querySelector('body').removeEventListener('DOMNodeRemoved', _removeNodeFromDomNodeAddedEvent);
+        } else if(internal.config && internal.config.container && internal.config.container.nodeName) {
+            internal.config.container.removeEventListener('DOMNodeInserted', _addNodeFromDomNodeAddedEvent);
+            internal.config.container.removeEventListener('DOMNodeRemoved', _removeNodeFromDomNodeAddedEvent);
         }
     }
 
