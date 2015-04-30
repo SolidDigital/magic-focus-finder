@@ -143,10 +143,11 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder'], function(chai, mocha, _,
                 expect(document.querySelector('#focusableInput').classList.contains('focused')).to.be.true;
             });
 
-            it('should ignore elements that are hidden', function() {
+            it('should register elements that are hidden and add the dynamic position class', function() {
                 mff.start();
 
-                expect(_.pluck(mff.getKnownElements(), 'id')).to.not.contain('hiddenInputWithFocusableAttr');
+                expect(_.pluck(mff.getKnownElements(), 'id')).to.contain('hiddenInputWithFocusableAttr');
+                document.querySelector('#hiddenInputWithFocusableAttr').hasAttribute('dynamic-position');
             });
 
             describe('the cached-position added to each element', function() {
@@ -181,7 +182,7 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder'], function(chai, mocha, _,
                 it('should register every element with the default focusable attribute descending from the document', function() {
                     mff.start();
 
-                    expect(mff.getKnownElements().length).to.equal(document.querySelectorAll('[focusable]').length - document.querySelectorAll('.hidden').length);
+                    expect(mff.getKnownElements().length).to.equal(document.querySelectorAll('[focusable]').length);
                 });
             });
         });
@@ -194,11 +195,11 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder'], function(chai, mocha, _,
             it('will refresh the known elements collection', function() {
                 mff.start();
 
-                expect(mff.getKnownElements().length).to.equal(document.querySelectorAll('[focusable]').length - document.querySelectorAll('.hidden').length);
+                expect(mff.getKnownElements().length).to.equal(document.querySelectorAll('[focusable]').length);
 
                 mff.refresh();
 
-                expect(mff.getKnownElements().length).to.equal(document.querySelectorAll('[focusable]').length - document.querySelectorAll('.hidden').length);
+                expect(mff.getKnownElements().length).to.equal(document.querySelectorAll('[focusable]').length);
             });
 
             xit('will respect and changed config values', function() {
@@ -417,7 +418,7 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder'], function(chai, mocha, _,
             //https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeType
             it('should only add HTML nodes of type === 1 and no text/comment nodes.', function(done) {
                 var appendee = document.createTextNode('juju bone'),
-                    initialFocusableCount = document.querySelectorAll('[focusable]').length - document.querySelectorAll('.hidden').length;
+                    initialFocusableCount = document.querySelectorAll('[focusable]').length;
 
                 mff.start();
 

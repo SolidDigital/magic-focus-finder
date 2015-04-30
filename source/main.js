@@ -176,10 +176,10 @@ define(['lodash'], function (_) {
     }
 
     function _registerElement(element) {
-        var computedStyle = window.getComputedStyle(element);
+        var elementsComputedStyle = window.getComputedStyle(element);
 
-        if(computedStyle.display === 'none' || computedStyle.visibility === 'hidden') {
-            return false;
+        if(elementsComputedStyle.display === 'none' || elementsComputedStyle.visibility === 'hidden') {
+            element.setAttribute(internal.config.dynamicPositionAttribute, true);
         }
 
         element.magicFocusFinderPosition = _getPosition(element);
@@ -306,7 +306,12 @@ define(['lodash'], function (_) {
         // Find closest element within the close elements
         _.each(closeElements, function(closeElement) {
             var closeElementsPosition = closeElement.magicFocusFinderPosition,
-                currentDistance;
+                currentDistance,
+                closeElementsComputedStyle = window.getComputedStyle(closeElement);
+
+            if(closeElementsComputedStyle.display === 'none' || closeElementsComputedStyle.visibility === 'hidden') {
+                return;
+            }
 
             // Find distance between 2 elements
             currentDistance = getDistance(currentElementsPosition, closeElementsPosition);
