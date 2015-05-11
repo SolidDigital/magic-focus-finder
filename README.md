@@ -58,7 +58,15 @@ All elements with `config.focusableAttribute` can be given focus to. After start
 the focusable attribute.
 
 ## Events
-It will fire the following events.
+It will fire the following events in the following order - events bubble up and are cancelable, so you can listen on `mff.getContainer()` for all these events.
+
+This example moves focus from Element One to Element Two
+
+1. `losing-focus` - on Element One
+2. `focus-lost` - on Element One
+3. `gaining-focus` - on Element Two
+4. `focus-gained` - on Element Two
+5. `focus-moved` - on Element Two - `event.data` is the string direction moved ('up', 'down', 'left', or 'right')
 
 ### Element level
 Implemented
@@ -94,6 +102,9 @@ returns the current configuration
 ```javascript
 magicFocusFinder.getConfig()
 ```
+
+### getContainer()
+returns the overall container - events bubble up to this
 
 ### start()
 starts the dang thing, if start is called before configure, then default options will be used.

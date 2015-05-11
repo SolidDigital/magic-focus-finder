@@ -32,6 +32,7 @@ define(['lodash'], function (_) {
         mff = {
             configure : configure,
             getConfig : getConfig,
+            getContainer : getContainer,
             start : start,
             setCurrent : setCurrent,
             getCurrent : getCurrent,
@@ -60,6 +61,10 @@ define(['lodash'], function (_) {
         return internal.config;
     }
 
+    function getContainer() {
+        return internal.config.container;
+    }
+
     function start() {
         if (!internal.configured) {
             internal.config = _.cloneDeep(defaultConfig);
@@ -80,7 +85,7 @@ define(['lodash'], function (_) {
         return mff;
     }
 
-    function setCurrent(querySelector) {
+    function setCurrent(querySelector, direction) {
         var currentlyFocusedElement = internal.currentlyFocusedElement,
             element;
 
@@ -102,6 +107,7 @@ define(['lodash'], function (_) {
             _fireHTMLEvent(element, 'focus-gained');
 
             internal.currentlyFocusedElement = element;
+            _fireHTMLEvent(element, 'focus-moved', direction);
         }
 
         return mff;
@@ -158,7 +164,7 @@ define(['lodash'], function (_) {
             if(direction && 'skip' === internal.currentlyFocusedElement.magicFocusFinderDirectionOverrides[direction]) {
                 return;
             } else if(direction && internal.currentlyFocusedElement.magicFocusFinderDirectionOverrides[direction]) {
-                setCurrent(internal.currentlyFocusedElement.magicFocusFinderDirectionOverrides[direction]);
+                setCurrent(internal.currentlyFocusedElement.magicFocusFinderDirectionOverrides[direction], direction);
             } else if(direction) {
                 mff.move[direction]();
             }
@@ -328,7 +334,7 @@ define(['lodash'], function (_) {
         });
 
         if(closestElement){
-            setCurrent(closestElement);
+            setCurrent(closestElement, direction);
         }
     }
 
@@ -408,9 +414,11 @@ define(['lodash'], function (_) {
         }
     }
 
-    function _fireHTMLEvent(element, eventName) {
+    function _fireHTMLEvent(element, eventName, eventPayload) {
         var event = document.createEvent('HTMLEvents');
+
         event.initEvent(eventName, true, true);
+        event.data = eventPayload;
         element.dispatchEvent(event);
     }
 

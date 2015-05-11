@@ -1,8 +1,10 @@
-define(['chai', 'mocha', 'lodash', 'magicFocusFinder'], function(chai, mocha, _, mff) {
+define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], function(chai, mocha, _, mff, sinon, sinonChai) {
     'use strict';
 
     var expect = chai.expect,
         document = window.document;
+
+    chai.use(sinonChai);
 
     mocha.setup('bdd');
     chai.config.includeStack = true;
@@ -127,6 +129,19 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder'], function(chai, mocha, _,
             });
         });
 
+        describe('the getContainer method', function() {
+            it('should return the dom element of the container', function() {
+                mff
+                    .configure({
+                        container: '#example1',
+                        defaultFocusedElement : '.box.block1'
+                    })
+                    .start();
+
+                expect(mff.getContainer()).to.equal(document.querySelector('#example1'));
+            });
+        });
+
         describe('the start method', function() {
             it('should exist on the module', function() {
                 expect(mff).itself.to.respondTo('start');
@@ -218,6 +233,89 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder'], function(chai, mocha, _,
         describe('the setCurrent method', function() {
             it('should exist on the module', function() {
                 expect(mff).itself.to.respondTo('setCurrent');
+            });
+
+            describe('events', function() {
+                it('should fire "losing-focus", "focus-lost", "gaining-focus", and "focus-gained" events in order', function() {
+                    var spy = sinon.spy();
+
+                    mff
+                        .configure({
+                            container: '#example1',
+                            defaultFocusedElement : '.box.block1'
+                        })
+                        .start();
+
+                    mff.getContainer().addEventListener('losing-focus', spy);
+                    mff.getContainer().addEventListener('focus-lost', spy);
+                    mff.getContainer().addEventListener('gaining-focus', spy);
+                    mff.getContainer().addEventListener('focus-gained', spy);
+                    mff.getContainer().addEventListener('focus-moved', spy);
+
+                    mff.move.right();
+
+                    expect(spy.args[0][0].type).to.equal('losing-focus');
+                    expect(spy.args[1][0].type).to.equal('focus-lost');
+                    expect(spy.args[2][0].type).to.equal('gaining-focus');
+                    expect(spy.args[3][0].type).to.equal('focus-gained');
+                    expect(spy.args[4][0].type).to.equal('focus-moved');
+
+                    mff.getContainer().removeEventListener('losing-focus', spy);
+                    mff.getContainer().removeEventListener('focus-lost', spy);
+                    mff.getContainer().removeEventListener('gaining-focus', spy);
+                    mff.getContainer().removeEventListener('focus-gained', spy);
+                    mff.getContainer().removeEventListener('focus-moved', spy);
+                });
+
+                it('should not fire events if focus is not changed', function() {
+                    var spy = sinon.spy();
+
+                    mff
+                        .configure({
+                            container: '#example1',
+                            defaultFocusedElement : '.box.block1'
+                        })
+                        .start();
+
+                    expect(mff.getCurrent().className).to.equal('box block1 focused');
+
+                    mff.getContainer().addEventListener('focus-lost', spy);
+                    mff.getContainer().addEventListener('focus-gained', spy);
+
+                    mff.move.left();
+
+                    expect(spy).to.not.have.been.called;
+
+                    mff.getContainer().removeEventListener('focus-lost', spy);
+                    mff.getContainer().removeEventListener('focus-gained', spy);
+
+                    expect(mff.getCurrent().className).to.equal('box block1 focused');
+                });
+
+                it('should fire a moved-direction event - with the direction - after focus is changed', function() {
+                    var spy = sinon.spy();
+
+                    mff
+                        .configure({
+                            container: '#example1',
+                            defaultFocusedElement : '.box.block1'
+                        })
+                        .start();
+
+                    expect(mff.getCurrent().className).to.equal('box block1 focused');
+
+                    mff.getContainer().addEventListener('focus-moved', spy);
+
+                    mff.move.right();
+
+                    expect(spy).to.have.been.calledOnce;
+                    expect(spy.args[0][0].type).to.equal('focus-moved');
+                    expect(spy.args[0][0].data).to.equal('right');
+
+                    mff.getContainer().removeEventListener('focus-moved', spy);
+
+                    expect(mff.getCurrent().className).to.equal('box block2 focused');
+                });
             });
 
             describe('given a selector', function() {

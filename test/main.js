@@ -12,7 +12,9 @@
             classListPolyFill   : './bower_components/classListPolyfill/classList',
             lodash              : './bower_components/lodash/lodash',
             magicFocusFinder    : '../source/main',
-            mocha               : './bower_components/mocha/mocha'
+            mocha               : './bower_components/mocha/mocha',
+            sinon               : './bower_components/sinon/lib/sinon',
+            'sinon-chai'        : './bower_components/sinon-chai/lib/sinon-chai'
         }
     });
 
