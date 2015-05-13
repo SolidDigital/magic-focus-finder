@@ -66,7 +66,15 @@ This example moves focus from Element One to Element Two
 2. `focus-lost` - on Element One
 3. `gaining-focus` - on Element Two
 4. `focus-gained` - on Element Two
-5. `focus-moved` - on Element Two - `event.data` is the string direction moved ('up', 'down', 'left', or 'right')
+5. `focus-moved` - on Element Two - `event.data` is the object:
+
+    ```json
+    {
+        "direction" : "up|down|left|right",
+        "from"      : domElementOne,
+        "to"        : domElementTwo
+    }
+    ```
 
 ### Element level
 Implemented

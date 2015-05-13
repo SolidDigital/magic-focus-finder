@@ -292,8 +292,11 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                     expect(mff.getCurrent().className).to.equal('box block1 focused');
                 });
 
-                it('should fire a moved-direction event - with the direction - after focus is changed', function() {
-                    var spy = sinon.spy();
+                it('should fire a moved-direction event - with the direction and elements involved - after focus is changed', function() {
+                    var spy = sinon.spy(),
+                        focus1,
+                        focus2,
+                        event;
 
                     mff
                         .configure({
@@ -302,19 +305,25 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                         })
                         .start();
 
-                    expect(mff.getCurrent().className).to.equal('box block1 focused');
+                    focus1 = mff.getCurrent();
+                    expect(focus1.className).to.equal('box block1 focused');
 
                     mff.getContainer().addEventListener('focus-moved', spy);
 
                     mff.move.right();
+                    focus2 = mff.getCurrent();
 
                     expect(spy).to.have.been.calledOnce;
-                    expect(spy.args[0][0].type).to.equal('focus-moved');
-                    expect(spy.args[0][0].data).to.equal('right');
+
+                    event = spy.args[0][0];
+                    expect(event.type).to.equal('focus-moved');
+                    expect(event.data.direction).to.equal('right');
+                    expect(event.data.from).to.equal(focus1);
+                    expect(event.data.to).to.equal(focus2);
 
                     mff.getContainer().removeEventListener('focus-moved', spy);
 
-                    expect(mff.getCurrent().className).to.equal('box block2 focused');
+                    expect(focus2.className).to.equal('box block2 focused');
                 });
             });
 
@@ -525,7 +534,7 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                 setTimeout(function() {
                     expect(mff.getKnownElements().length).to.equal(initialFocusableCount);
                     done();
-                }, 1000);
+                }, 0);
             });
         });
     });

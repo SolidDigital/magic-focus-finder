@@ -86,28 +86,32 @@ define(['lodash'], function (_) {
     }
 
     function setCurrent(querySelector, direction) {
-        var currentlyFocusedElement = internal.currentlyFocusedElement,
-            element;
+        var previouslyFocusedElement = internal.currentlyFocusedElement,
+            newlyFocusedElement;
 
-        element = querySelector && querySelector.nodeName ? querySelector : document.querySelector(querySelector);
+        newlyFocusedElement = querySelector && querySelector.nodeName ? querySelector : document.querySelector(querySelector);
 
-        if(element) {
-            if(currentlyFocusedElement) {
+        if(newlyFocusedElement) {
+            if(previouslyFocusedElement) {
 
-                _fireHTMLEvent(currentlyFocusedElement, 'losing-focus');
-                currentlyFocusedElement.classList.remove(internal.config.focusedClass);
-                currentlyFocusedElement.blur();
-                _fireHTMLEvent(currentlyFocusedElement, 'focus-lost');
+                _fireHTMLEvent(previouslyFocusedElement, 'losing-focus');
+                previouslyFocusedElement.classList.remove(internal.config.focusedClass);
+                previouslyFocusedElement.blur();
+                _fireHTMLEvent(previouslyFocusedElement, 'focus-lost');
             }
 
 
-            _fireHTMLEvent(element, 'gaining-focus');
-            element.classList.add(internal.config.focusedClass);
-            element.focus();
-            _fireHTMLEvent(element, 'focus-gained');
+            _fireHTMLEvent(newlyFocusedElement, 'gaining-focus');
+            newlyFocusedElement.classList.add(internal.config.focusedClass);
+            newlyFocusedElement.focus();
+            _fireHTMLEvent(newlyFocusedElement, 'focus-gained');
 
-            internal.currentlyFocusedElement = element;
-            _fireHTMLEvent(element, 'focus-moved', direction);
+            internal.currentlyFocusedElement = newlyFocusedElement;
+            _fireHTMLEvent(newlyFocusedElement, 'focus-moved', {
+                direction: direction,
+                from: previouslyFocusedElement,
+                to: newlyFocusedElement
+            });
         }
 
         return mff;
