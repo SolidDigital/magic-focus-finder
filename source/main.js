@@ -94,17 +94,25 @@ define(['lodash'], function (_) {
         if(newlyFocusedElement) {
             if(previouslyFocusedElement) {
 
-                _fireHTMLEvent(previouslyFocusedElement, 'losing-focus');
+                _fireHTMLEvent(previouslyFocusedElement, 'losing-focus', {
+                    from: previouslyFocusedElement
+                });
                 previouslyFocusedElement.classList.remove(internal.config.focusedClass);
                 previouslyFocusedElement.blur();
-                _fireHTMLEvent(previouslyFocusedElement, 'focus-lost');
+                _fireHTMLEvent(previouslyFocusedElement, 'focus-lost', {
+                    from: previouslyFocusedElement
+                });
             }
 
 
-            _fireHTMLEvent(newlyFocusedElement, 'gaining-focus');
+            _fireHTMLEvent(newlyFocusedElement, 'gaining-focus', {
+                to: newlyFocusedElement
+            });
             newlyFocusedElement.classList.add(internal.config.focusedClass);
             newlyFocusedElement.focus();
-            _fireHTMLEvent(newlyFocusedElement, 'focus-gained');
+            _fireHTMLEvent(newlyFocusedElement, 'focus-gained', {
+                to: newlyFocusedElement
+            });
 
             internal.currentlyFocusedElement = newlyFocusedElement;
             _fireHTMLEvent(newlyFocusedElement, 'focus-moved', {

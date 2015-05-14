@@ -292,6 +292,86 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                     expect(mff.getCurrent().className).to.equal('box block1 focused');
                 });
 
+                it('should fire focus gainining event with element gaining', function(done) {
+                    var listener = function(event) {
+                        expect(event.data.to).to.equal(document.querySelector('#example1 .box.block2'));
+                        mff.getContainer().removeEventListener('gaining-focus', listener);
+                        done();
+                    };
+
+                    mff
+                        .configure({
+                            container: '#example1',
+                            defaultFocusedElement : '.box.block1'
+                        })
+                        .start();
+
+                    expect(mff.getCurrent().className).to.equal('box block1 focused');
+
+                    mff.getContainer().addEventListener('gaining-focus', listener);
+                    mff.move.right();
+                });
+
+                it('should fire focus gained event with element gaining', function(done) {
+                    var listener = function(event) {
+                        expect(event.data.to).to.equal(document.querySelector('#example1 .box.block2'));
+                        mff.getContainer().removeEventListener('focus-gained', listener);
+                        done();
+                    };
+
+                    mff
+                        .configure({
+                            container: '#example1',
+                            defaultFocusedElement : '.box.block1'
+                        })
+                        .start();
+
+                    expect(mff.getCurrent().className).to.equal('box block1 focused');
+
+                    mff.getContainer().addEventListener('focus-gained', listener);
+                    mff.move.right();
+                });
+
+                it('should fire losing-focus event with element lost', function(done) {
+                    var listener = function(event) {
+                        expect(event.data.from).to.equal(document.querySelector('#example1 .box.block1'));
+                        mff.getContainer().removeEventListener('losing-focus', listener);
+                        done();
+                    };
+
+                    mff
+                        .configure({
+                            container: '#example1',
+                            defaultFocusedElement : '.box.block1'
+                        })
+                        .start();
+
+                    expect(mff.getCurrent().className).to.equal('box block1 focused');
+
+                    mff.getContainer().addEventListener('losing-focus', listener);
+                    mff.move.right();
+                });
+
+                it('should fire focus-lost event with element lost', function(done) {
+                    var listener = function(event) {
+                        expect(event.data.from).to.equal(document.querySelector('#example1 .box.block1'));
+                        mff.getContainer().removeEventListener('focus-lost', listener);
+                        done();
+                    };
+
+                    mff
+                        .configure({
+                            container: '#example1',
+                            defaultFocusedElement : '.box.block1'
+                        })
+                        .start();
+
+                    expect(mff.getCurrent().className).to.equal('box block1 focused');
+
+                    mff.getContainer().addEventListener('focus-lost', listener);
+                    mff.move.right();
+                });
+
                 it('should fire a moved-direction event - with the direction and elements involved - after focus is changed', function() {
                     var spy = sinon.spy(),
                         focus1,

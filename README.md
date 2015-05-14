@@ -62,10 +62,10 @@ It will fire the following events in the following order - events bubble up and 
 
 This example moves focus from Element One to Element Two
 
-1. `losing-focus` - on Element One
-2. `focus-lost` - on Element One
-3. `gaining-focus` - on Element Two
-4. `focus-gained` - on Element Two
+1. `losing-focus` - on Element One - `event.data` has `{ "from" : domElementOne }`
+2. `focus-lost` - on Element One - `event.data` has `{ "from" : domElementOne }`
+3. `gaining-focus` - on Element Two - `event.data` has `{ "to" : domElementTwo }`
+4. `focus-gained` - on Element Two - `event.data` has `{ "to" : domElementTwo }`
 5. `focus-moved` - on Element Two - `event.data` is the object:
 
     ```json
@@ -77,11 +77,6 @@ This example moves focus from Element One to Element Two
     ```
 
 ### Element level
-Implemented
-1. `losing-focus` before the element loses focus.
-1. `focus-lost` when the focus is lost on an element.
-1. `gaining-focus` before the next element gains focus.
-1. `focus-gained` when the element actually gains focus.
 
 Not Implemented:
 1. `focus` normal focus event
