@@ -140,11 +140,14 @@ get the current focused element, element ref of selector
 
 ```
 
-### move(direction)
+### move[direction](options)
 tell the focus to move in a direction
 ```javascript
-
+mff.move.right()
+mff.move.down({ events : false });
 ```
+
+Can move up, down, left, or right. Can turn off all events for a move by setting the events key to `false` on the options object.
 
 ### destroy()
 destroy this thing and free up all memory

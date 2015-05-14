@@ -267,6 +267,33 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                     mff.getContainer().removeEventListener('focus-moved', spy);
                 });
 
+                it.only('should not fire "losing-focus", "focus-lost", "gaining-focus", and "focus-gained" events if options.events is false', function() {
+                    var spy = sinon.spy();
+
+                    mff
+                        .configure({
+                            container: '#example1',
+                            defaultFocusedElement : '.box.block1'
+                        })
+                        .start();
+
+                    mff.getContainer().addEventListener('losing-focus', spy);
+                    mff.getContainer().addEventListener('focus-lost', spy);
+                    mff.getContainer().addEventListener('gaining-focus', spy);
+                    mff.getContainer().addEventListener('focus-gained', spy);
+                    mff.getContainer().addEventListener('focus-moved', spy);
+
+                    mff.move.right({ events : false });
+
+                    expect(spy).to.not.have.been.called;
+
+                    mff.getContainer().removeEventListener('losing-focus', spy);
+                    mff.getContainer().removeEventListener('focus-lost', spy);
+                    mff.getContainer().removeEventListener('gaining-focus', spy);
+                    mff.getContainer().removeEventListener('focus-gained', spy);
+                    mff.getContainer().removeEventListener('focus-moved', spy);
+                });
+
                 it('should not fire events if focus is not changed', function() {
                     var spy = sinon.spy();
 

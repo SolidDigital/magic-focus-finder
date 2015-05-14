@@ -85,37 +85,42 @@ define(['lodash'], function (_) {
         return mff;
     }
 
-    function setCurrent(querySelector, direction) {
+    function setCurrent(querySelector, direction, options) {
         var previouslyFocusedElement = internal.currentlyFocusedElement,
-            newlyFocusedElement;
+            newlyFocusedElement,
+            events;
+
+        options = options || {};
+
+        events = false !== options.events;
 
         newlyFocusedElement = querySelector && querySelector.nodeName ? querySelector : document.querySelector(querySelector);
 
         if(newlyFocusedElement) {
             if(previouslyFocusedElement) {
 
-                _fireHTMLEvent(previouslyFocusedElement, 'losing-focus', {
+                events && _fireHTMLEvent(previouslyFocusedElement, 'losing-focus', {
                     from: previouslyFocusedElement
                 });
                 previouslyFocusedElement.classList.remove(internal.config.focusedClass);
                 previouslyFocusedElement.blur();
-                _fireHTMLEvent(previouslyFocusedElement, 'focus-lost', {
+                events && _fireHTMLEvent(previouslyFocusedElement, 'focus-lost', {
                     from: previouslyFocusedElement
                 });
             }
 
 
-            _fireHTMLEvent(newlyFocusedElement, 'gaining-focus', {
+            events && _fireHTMLEvent(newlyFocusedElement, 'gaining-focus', {
                 to: newlyFocusedElement
             });
             newlyFocusedElement.classList.add(internal.config.focusedClass);
             newlyFocusedElement.focus();
-            _fireHTMLEvent(newlyFocusedElement, 'focus-gained', {
+            events && _fireHTMLEvent(newlyFocusedElement, 'focus-gained', {
                 to: newlyFocusedElement
             });
 
             internal.currentlyFocusedElement = newlyFocusedElement;
-            _fireHTMLEvent(newlyFocusedElement, 'focus-moved', {
+            events && _fireHTMLEvent(newlyFocusedElement, 'focus-moved', {
                 direction: direction,
                 from: previouslyFocusedElement,
                 to: newlyFocusedElement
@@ -252,44 +257,44 @@ define(['lodash'], function (_) {
         });
     }
 
-    function _moveUp() {
+    function _moveUp(options) {
         var closeElements = _findCloseElements(function(current, other){
             return current.oty >= other.oby;
         });
 
         _activateClosest(closeElements, 'up', function(current, other){
             return Math.sqrt(Math.pow(current.oty - other.oby, 2) + Math.pow(current.otx - other.obx, 2));
-        });
+        }, options);
     }
 
-    function _moveDown() {
+    function _moveDown(options) {
         var closeElements = _findCloseElements(function(current, other) {
             return current.oby <= other.oty;
         });
 
         _activateClosest(closeElements, 'down', function(current, other) {
             return Math.sqrt(Math.pow(current.obx - other.otx, 2) + Math.pow(current.oby - other.oty, 2));
-        });
+        }, options);
     }
 
-    function _moveLeft() {
+    function _moveLeft(options) {
         var closeElements = _findCloseElements(function(current, other) {
             return current.olx >= other.orx;
         });
 
         _activateClosest(closeElements, 'left', function(current, other) {
             return Math.sqrt(Math.pow(current.olx - other.orx, 2) + Math.pow(current.oly - other.ory, 2));
-        });
+        }, options);
     }
 
-    function _moveRight() {
+    function _moveRight(options) {
         var closeElements = _findCloseElements(function(current, other) {
             return current.orx <= other.olx;
         });
 
         _activateClosest(closeElements, 'right', function(current, other) {
             return Math.sqrt(Math.pow(current.orx - other.olx, 2) + Math.pow(current.ory - other.oly, 2));
-        });
+        }, options);
     }
 
     function _fireEnter() {
@@ -316,7 +321,7 @@ define(['lodash'], function (_) {
         });
     }
 
-    function _activateClosest(closeElements, direction, getDistance) {
+    function _activateClosest(closeElements, direction, getDistance, options) {
         var closestElement,
             closestDistance,
             currentElementsPosition = internal.currentlyFocusedElement.magicFocusFinderPosition;
@@ -346,7 +351,7 @@ define(['lodash'], function (_) {
         });
 
         if(closestElement){
-            setCurrent(closestElement, direction);
+            setCurrent(closestElement, direction, options);
         }
     }
 
