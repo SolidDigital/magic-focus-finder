@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Duder-onomy/magic-focus-finder.git"
+    "url": "https://github.com/Solid-Interactive/magic-focus-finder.git"
   },
-  "author": "",
+  "author": "Solid Interactive",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Duder-onomy/magic-focus-finder/issues"
+    "url": "https://github.com/Solid-Interactive/magic-focus-finder/issues"
   },
-  "homepage": "https://github.com/Duder-onomy/magic-focus-finder",
+  "homepage": "https://github.com/Solid-Interactive/magic-focus-finder",
   "devDependencies": {
     "bower" : "*",
     "bluebird": "^2.9.13",
