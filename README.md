@@ -1,4 +1,4 @@
-# Magic Focus Finder [![Bower version](https://badge.fury.io/bo/magic-focus-finder.png)](http://badge.fury.io/bo/magic-focus-finder) [![Build Status](https://travis-ci.org/Duder-onomy/magic-focus-finder.png?branch=master)](https://travis-ci.org/Duder-onomy/magic-focus-finder)
+# Magic Focus Finder [![Bower version](https://badge.fury.io/bo/magic-focus-finder.png)](http://badge.fury.io/bo/magic-focus-finder) [![Build Status](https://travis-ci.org/Solid-Interactive/magic-focus-finder.png?branch=master)](https://travis-ci.org/Duder-onomy/magic-focus-finder)
 
 Intended to help keyboard navigation through html nodes.
 
