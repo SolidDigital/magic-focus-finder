@@ -49,7 +49,8 @@ Options Object
   eventNamespace : '', //custom namespace for events, default to 'magicFocusFinder'
   overrideDirectionAttribute : 'focus-overrides',
   captureFocusAttribute : 'capture-focus',
-  dynamicPositionAttribute : 'dynamic-position'
+  dynamicPositionAttribute : 'dynamic-position',
+  useRealFocus : true // Will trigger `blur` and `focus` on the actual elements, if set to false, bypass this.
 }
 ```
 

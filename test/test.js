@@ -35,7 +35,8 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                     container : '',
                     eventNamespace : '',
                     overrideDirectionAttribute : '',
-                    watchDomMutations: true
+                    watchDomMutations: true,
+                    useRealFocus : true
                 };
 
                 mff.configure(options);
@@ -54,7 +55,8 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                     container : '',
                     eventNamespace : '',
                     overrideDirectionAttribute : '',
-                    watchDomMutations: true
+                    watchDomMutations: true,
+                    useRealFocus : true
                 };
 
                 mff.configure(options);
@@ -103,7 +105,8 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                     'container',
                     'eventNamespace',
                     'overrideDirectionAttribute',
-                    'watchDomMutations'
+                    'watchDomMutations',
+                    'useRealFocus'
                 ];
 
                 expect(mff.getConfig()).to.have.all.keys(keys);
@@ -120,7 +123,8 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                     defaultFocusedElement : '',
                     container : '',
                     eventNamespace : '',
-                    watchDomMutations : true
+                    watchDomMutations : true,
+                    useRealFocus : true
                 };
 
                 mff.configure(options);
@@ -267,7 +271,7 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                     mff.getContainer().removeEventListener('focus-moved', spy);
                 });
 
-                it.only('should not fire "losing-focus", "focus-lost", "gaining-focus", and "focus-gained" events if options.events is false', function() {
+                it('should not fire "losing-focus", "focus-lost", "gaining-focus", and "focus-gained" events if options.events is false', function() {
                     var spy = sinon.spy();
 
                     mff
@@ -501,6 +505,64 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                 });
             });
 
+            describe('when the config "useRealFocus" is true', function() {
+                it('should not give actual focus to the element - actual focus is the :focus psuedo selector', function() {
+
+                    // give real focus to some other input element
+                    document.querySelector('#input6').focus();
+
+                    // Start MFF
+                    mff
+                        .configure({
+                            container: '#focusableInputs',
+                            defaultFocusedElement : '#input1',
+                            useRealFocus : false
+                        })
+                        .start();
+
+                    // ensure the original still has focus
+                    expect(document.activeElement.isEqualNode(document.querySelector('#input6'))).to.be.true;
+                    // ensure the default focused element does not have real focus
+                    expect(document.activeElement.isEqualNode(document.querySelector('#input1'))).to.be.false;
+
+                    mff.move.right();
+
+                    // ensure the original still has focus
+                    expect(document.activeElement.isEqualNode(document.querySelector('#input6'))).to.be.true;
+                    // ensure the previous does not have real focus
+                    expect(document.activeElement.isEqualNode(document.querySelector('#input1'))).to.be.false;
+                    // ensure the element moved too does not have real focus
+                    expect(document.activeElement.isEqualNode(document.querySelector('#input2'))).to.be.false;
+                });
+
+                it('should not remove actual focus from the previously focused element', function() {
+                    // give real focus to some other input element
+                    document.querySelector('#input6').focus();
+
+                    // Start MFF
+                    mff
+                        .configure({
+                            container: '#focusableInputs',
+                            defaultFocusedElement : '#input1',
+                            useRealFocus : false
+                        })
+                        .start();
+
+                    // ensure the original still has focus
+                    expect(document.activeElement.isEqualNode(document.querySelector('#input6'))).to.be.true;
+                    // ensure the default focused element does not have real focus
+                    expect(document.activeElement.isEqualNode(document.querySelector('#input1'))).to.be.false;
+
+                    mff.move.right();
+
+                    // ensure the original still has focus
+                    expect(document.activeElement.isEqualNode(document.querySelector('#input6'))).to.be.true;
+                    // ensure the previous does not have real focus
+                    expect(document.activeElement.isEqualNode(document.querySelector('#input1'))).to.be.false;
+                    // ensure the element moved too does not have real focus
+                    expect(document.activeElement.isEqualNode(document.querySelector('#input2'))).to.be.false;
+                });
+            });
         });
 
         describe('the getCurrent method', function() {
@@ -663,7 +725,8 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
             overrideDirectionAttribute : 'focus-overrides',
             captureFocusAttribute : 'capture-focus',
             dynamicPositionAttribute : 'dynamic-position',
-            watchDomMutations : true
+            watchDomMutations : true,
+            useRealFocus : true
         };
     }
 });

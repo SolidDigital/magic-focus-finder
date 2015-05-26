@@ -17,7 +17,8 @@ define(['lodash'], function (_) {
             overrideDirectionAttribute : 'focus-overrides',
             captureFocusAttribute : 'capture-focus',
             dynamicPositionAttribute : 'dynamic-position',
-            watchDomMutations : true
+            watchDomMutations : true,
+            useRealFocus : true
         },
         internal = {
             configured: false,
@@ -103,7 +104,9 @@ define(['lodash'], function (_) {
                     from: previouslyFocusedElement
                 });
                 previouslyFocusedElement.classList.remove(internal.config.focusedClass);
-                previouslyFocusedElement.blur();
+
+                internal.config.useRealFocus && previouslyFocusedElement.blur();
+
                 events && _fireHTMLEvent(previouslyFocusedElement, 'focus-lost', {
                     from: previouslyFocusedElement
                 });
@@ -114,7 +117,9 @@ define(['lodash'], function (_) {
                 to: newlyFocusedElement
             });
             newlyFocusedElement.classList.add(internal.config.focusedClass);
-            newlyFocusedElement.focus();
+
+            internal.config.useRealFocus && newlyFocusedElement.focus();
+
             events && _fireHTMLEvent(newlyFocusedElement, 'focus-gained', {
                 to: newlyFocusedElement
             });

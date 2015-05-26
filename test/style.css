@@ -29,6 +29,11 @@
 .example3{position: relative; height: 300px;}
 .example4{position: relative; height: 300px;}
 
+#focusableInputs input {
+    display: inline-block;
+    width: 50px;
+}
+
 .block1{top:50px; left:70px;}
 .block2{top:50px; left:130px;}
 .block3{top:50px; left:190px;}
