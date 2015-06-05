@@ -1,6 +1,6 @@
 {
   "name": "magic-focus-finder",
-  "version": "2.5.1",
+  "version": "2.6.0",
   "homepage": "https://github.com/Solid-Interactive/magic-focus-finder",
   "authors": [
     "Greg Larrenaga <greg.larrenaga@thinksolid.com>",
@@ -27,13 +27,13 @@
     "sinon-chai": "2.7.0",
     "pure": "~0.6.0"
   },
-  "_release": "2.5.1",
+  "_release": "2.6.0",
   "_resolution": {
     "type": "version",
-    "tag": "2.5.1",
-    "commit": "1a7e4a82ad5ec304de48217b401aec6d41cc6bd3"
+    "tag": "2.6.0",
+    "commit": "00732418808127f71f4c697596745151b872dd92"
   },
   "_source": "git://github.com/Solid-Interactive/magic-focus-finder.git",
-  "_target": "2.5.1",
+  "_target": "2.6.0",
   "_originalSource": "magic-focus-finder"
 }

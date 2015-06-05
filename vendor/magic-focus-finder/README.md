@@ -2,7 +2,7 @@
 
 Intended to help keyboard navigation through html nodes.
 
-[Try out the demo](http://duder-onomy.github.io/magic-focus-finder/)
+[Try out the demo](http://solid-interactive.github.io/magic-focus-finder/)
 
 Tests can be run in a browser. `python -m SimpleHTTPServer` from the project root, then visit: http://0.0.0.0:8000/test/ .
 Should do a bower install first.
@@ -50,7 +50,10 @@ Options Object
   overrideDirectionAttribute : 'focus-overrides',
   captureFocusAttribute : 'capture-focus',
   dynamicPositionAttribute : 'dynamic-position',
-  useRealFocus : true // Will trigger `blur` and `focus` on the actual elements, if set to false, bypass this.
+  useRealFocus : true, // Will trigger `blur` and `focus` on the actual elements, if set to false, bypass this.
+  azimuthWeight : 5, // Higher value means that it will prefer elements in the direction it is going
+  distanceWeigth : 1, // Higher value means that it will prefer elements that are closer
+  debug : false // Setting to true will replace the elements innerHTML with the computed distance (weighted azimuth + weighted distance)
 }
 ```
 

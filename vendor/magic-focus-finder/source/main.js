@@ -19,7 +19,9 @@ define(['lodash'], function (_) {
             dynamicPositionAttribute : 'dynamic-position',
             watchDomMutations : true,
             useRealFocus : true,
-            unweight : 1
+            azimuthWeight : 5,
+            distanceWeight : 1,
+            debug : false
         },
         internal = {
             configured: false,
@@ -275,7 +277,10 @@ define(['lodash'], function (_) {
                 azimuth = _getAngleDifference(270, _getAngle(current, other));
 
             // 270 is up (reversed)
-            return (internal.config.unweight + azimuth) * distance;
+            return {
+                distance : distance,
+                azimuth : azimuth
+            };
         }, options);
     }
 
@@ -289,7 +294,10 @@ define(['lodash'], function (_) {
                 azimuth = _getAngleDifference(90, _getAngle(current, other));
 
             // 90 is down (reversed)
-            return (internal.config.unweight + azimuth) * distance;
+            return {
+                distance : distance,
+                azimuth : azimuth
+            };
         }, options);
     }
 
@@ -303,7 +311,10 @@ define(['lodash'], function (_) {
                 azimuth = _getAngleDifference(180, _getAngle(current, other));
 
             // Math.PI is directly left
-            return (internal.config.unweight + azimuth) * distance;
+            return {
+                distance : distance,
+                azimuth : azimuth
+            };
         }, options);
     }
 
@@ -317,7 +328,10 @@ define(['lodash'], function (_) {
                 azimuth = _getAngleDifference(0, _getAngle(current, other));
 
             // 0 is directly right
-            return (internal.config.unweight + azimuth) * distance;
+            return {
+                distance : distance,
+                azimuth : azimuth
+            };
         }, options);
     }
 
@@ -327,6 +341,17 @@ define(['lodash'], function (_) {
 
     function _getAngleDifference(angle1, angle2) {
         return Math.abs((angle1 + 180 -  angle2) % 360 - 180);
+    }
+
+    function _getWeightedResult(azimuth, maxAzimuth, distance, maxDistance) {
+        var result;
+
+        azimuth = Math.abs(azimuth);
+        distance = Math.abs(distance);
+
+        result = internal.config.azimuthWeight * (azimuth / maxAzimuth) + internal.config.distanceWeight * (distance / maxDistance);
+
+        return result;
     }
 
     function _fireEnter() {
@@ -355,32 +380,42 @@ define(['lodash'], function (_) {
 
     function _activateClosest(closeElements, direction, getDistance, options) {
         var closestElement,
-            closestDistance,
-            currentElementsPosition = internal.currentlyFocusedElement.magicFocusFinderPosition;
+            currentElementsPosition = internal.currentlyFocusedElement.magicFocusFinderPosition,
+            maxDistance = 0,
+            maxAzimuth = 0;
 
         // Find closest element within the close elements
-        _.each(closeElements, function(closeElement) {
-            var closeElementsPosition = closeElement.magicFocusFinderPosition,
-                currentDistance,
-                closeElementsComputedStyle = window.getComputedStyle(closeElement);
+        closestElement = _.chain(closeElements)
+            .map(function(closeElement) {
 
-            if(closeElementsComputedStyle.display === 'none' || closeElementsComputedStyle.visibility === 'hidden') {
-                return;
-            }
+                var result = getDistance(currentElementsPosition, closeElement.magicFocusFinderPosition),
+                    closeElementsComputedStyle = window.getComputedStyle(closeElement);
 
-            // Find distance between 2 elements
-            currentDistance = getDistance(currentElementsPosition, closeElementsPosition);
+                if(closeElementsComputedStyle.display === 'none' || closeElementsComputedStyle.visibility === 'hidden') {
+                    return;
+                }
 
-            // Check if is the closest found yet
-            if(_.isUndefined(closestDistance) || currentDistance < closestDistance) {
-                closestDistance = currentDistance;
-                closestElement = closeElement;
-            }
+                maxDistance = Math.max(maxDistance, result.distance);
+                maxAzimuth = Math.max(maxAzimuth, result.azimuth);
+                result.closeElement = closeElement;
+                return result;
+            })
+            .compact()
+            .reduce(function(stored, current) {
 
-            if(currentDistance === 0) {
-                return false; // exit early for speed.
-            }
-        });
+                var result = {
+                    computed : _getWeightedResult(current.azimuth, maxAzimuth, current.distance, maxDistance),
+                    closeElement : current.closeElement
+                };
+
+                if (internal.config.debug) {
+                    result.closeElement.innerHTML = result.computed.toPrecision(2);
+                }
+
+                return stored.computed < result.computed ? stored : result;
+            }, {computed:Infinity})
+            .value()
+            .closeElement;
 
         if(closestElement){
             setCurrent(closestElement, direction, options);
