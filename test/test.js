@@ -36,7 +36,8 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                     eventNamespace : '',
                     overrideDirectionAttribute : '',
                     watchDomMutations: true,
-                    useRealFocus : true
+                    useRealFocus : true,
+                    unweight : 1
                 };
 
                 mff.configure(options);
@@ -56,7 +57,8 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                     eventNamespace : '',
                     overrideDirectionAttribute : '',
                     watchDomMutations: true,
-                    useRealFocus : true
+                    useRealFocus : true,
+                    unweight : 1
                 };
 
                 mff.configure(options);
@@ -106,7 +108,8 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                     'eventNamespace',
                     'overrideDirectionAttribute',
                     'watchDomMutations',
-                    'useRealFocus'
+                    'useRealFocus',
+                    'unweight'
                 ];
 
                 expect(mff.getConfig()).to.have.all.keys(keys);
@@ -124,7 +127,8 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                     container : '',
                     eventNamespace : '',
                     watchDomMutations : true,
-                    useRealFocus : true
+                    useRealFocus : true,
+                    unweight : 1
                 };
 
                 mff.configure(options);
@@ -176,14 +180,14 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                     expect(_.first(mff.getKnownElements()).magicFocusFinderPosition).to.exist;
                 });
 
-                it('should have the properties, x, y, otx, oty, obx, oby, olx, oly, orx, ory', function() {
+                it('should have the properties, x, y, otx, oty, obx, oby, olx, oly, orx, ory, centerX, centerY', function() {
                     var position;
 
                     mff.start();
 
                     position = _.first(mff.getKnownElements()).magicFocusFinderPosition;
 
-                    expect(position).to.have.all.keys('x', 'y', 'otx', 'oty', 'obx', 'oby', 'olx', 'oly', 'orx', 'ory');
+                    expect(position).to.have.all.keys('x', 'y', 'otx', 'oty', 'obx', 'oby', 'olx', 'oly', 'orx', 'ory', 'centerX', 'centerY');
                 });
             });
 
@@ -630,7 +634,7 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                 });
             });
 
-            xit('should move directly to the right even if there is something closer to the right but more above', function() {
+            it('should move directly to the right even if there is something closer to the right but more above', function() {
 
                 mff
                     .configure({
@@ -641,8 +645,7 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                 expect(mff.getCurrent().className).to.equal('box block37 focused');
 
                 mff.move.right();
-                // mff.private.move.right.call(mff);
-                // looks like zombie has all bounding client rectangles as 0 0
+
                 expect(mff.getCurrent().className).to.equal('box block38 focused');
             });
         });
@@ -726,7 +729,8 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
             captureFocusAttribute : 'capture-focus',
             dynamicPositionAttribute : 'dynamic-position',
             watchDomMutations : true,
-            useRealFocus : true
+            useRealFocus : true,
+            unweight : 1
         };
     }
 });

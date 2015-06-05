@@ -18,7 +18,8 @@ define(['lodash'], function (_) {
             captureFocusAttribute : 'capture-focus',
             dynamicPositionAttribute : 'dynamic-position',
             watchDomMutations : true,
-            useRealFocus : true
+            useRealFocus : true,
+            unweight : 1
         },
         internal = {
             configured: false,
@@ -237,6 +238,8 @@ define(['lodash'], function (_) {
 
         return {
             // Top-left corner coords
+            centerX : centerX,
+            centerY : centerY,
             x : boundingRect.left,
             y : boundingRect.top,
             // Outer top center coords
@@ -268,7 +271,11 @@ define(['lodash'], function (_) {
         });
 
         _activateClosest(closeElements, 'up', function(current, other){
-            return Math.sqrt(Math.pow(current.oty - other.oby, 2) + Math.pow(current.otx - other.obx, 2));
+            var distance = Math.sqrt(Math.pow(current.oty - other.oby, 2) + Math.pow(current.otx - other.obx, 2)),
+                azimuth = _getAngleDifference(270, _getAngle(current, other));
+
+            // 270 is up (reversed)
+            return (internal.config.unweight + azimuth) * distance;
         }, options);
     }
 
@@ -278,7 +285,11 @@ define(['lodash'], function (_) {
         });
 
         _activateClosest(closeElements, 'down', function(current, other) {
-            return Math.sqrt(Math.pow(current.obx - other.otx, 2) + Math.pow(current.oby - other.oty, 2));
+            var distance = Math.sqrt(Math.pow(current.obx - other.otx, 2) + Math.pow(current.oby - other.oty, 2)),
+                azimuth = _getAngleDifference(90, _getAngle(current, other));
+
+            // 90 is down (reversed)
+            return (internal.config.unweight + azimuth) * distance;
         }, options);
     }
 
@@ -288,7 +299,11 @@ define(['lodash'], function (_) {
         });
 
         _activateClosest(closeElements, 'left', function(current, other) {
-            return Math.sqrt(Math.pow(current.olx - other.orx, 2) + Math.pow(current.oly - other.ory, 2));
+            var distance = Math.sqrt(Math.pow(current.olx - other.orx, 2) + Math.pow(current.oly - other.ory, 2)),
+                azimuth = _getAngleDifference(180, _getAngle(current, other));
+
+            // Math.PI is directly left
+            return (internal.config.unweight + azimuth) * distance;
         }, options);
     }
 
@@ -298,8 +313,20 @@ define(['lodash'], function (_) {
         });
 
         _activateClosest(closeElements, 'right', function(current, other) {
-            return Math.sqrt(Math.pow(current.orx - other.olx, 2) + Math.pow(current.ory - other.oly, 2));
+            var distance = Math.sqrt(Math.pow(current.orx - other.olx, 2) + Math.pow(current.ory - other.oly, 2)),
+                azimuth = _getAngleDifference(0, _getAngle(current, other));
+
+            // 0 is directly right
+            return (internal.config.unweight + azimuth) * distance;
         }, options);
+    }
+
+    function _getAngle(current, other) {
+        return Math.atan2(other.centerY - current.centerY, other.centerX - current.centerX) * 180 / Math.PI;
+    }
+
+    function _getAngleDifference(angle1, angle2) {
+        return Math.abs((angle1 + 180 -  angle2) % 360 - 180);
     }
 
     function _fireEnter() {
