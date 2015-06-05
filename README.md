@@ -42,6 +42,7 @@ Options Object
 ```javascript
 {
   keymap : {},  //override the default browser keymap
+  weightOverrideAttribute : 'weight-override', // weight-override-up, down, left, and right can be set to 'distance' or 'azimuth' and the other will be disregarded
   focusableAttribute : '', //override the default data attribute used to denote focusability
   focusedClass : '', // a focus class for non focusable elements
   defaultFocusedElement : '', // a element reference, or a selector

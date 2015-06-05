@@ -9,6 +9,7 @@ define(['lodash'], function (_) {
                 39 : 'right',
                 13 : 'enter'
             },
+            weightOverrideAttribute : 'weight-override',
             focusableAttribute : 'focusable',
             defaultFocusedElement : null,
             container : 'document',
@@ -215,6 +216,7 @@ define(['lodash'], function (_) {
 
         element.magicFocusFinderPosition = _getPosition(element);
         element.magicFocusFinderDirectionOverrides = _getDirectionOverrides(element);
+        element.magicFocusFinderpreferedWeightOverrides = _getPreferedOverrides(element);
 
         if(element.hasAttribute(internal.config.captureFocusAttribute)) {
             setCurrent(element);
@@ -343,13 +345,13 @@ define(['lodash'], function (_) {
         return Math.abs((angle1 + 180 -  angle2) % 360 - 180);
     }
 
-    function _getWeightedResult(azimuth, maxAzimuth, distance, maxDistance) {
+    function _getWeightedResult(azimuth, maxAzimuth, azimuthWeight, distance, maxDistance, distanceWeight) {
         var result;
 
         azimuth = Math.abs(azimuth);
         distance = Math.abs(distance);
 
-        result = internal.config.azimuthWeight * (azimuth / maxAzimuth) + internal.config.distanceWeight * (distance / maxDistance);
+        result = azimuthWeight * (azimuth / maxAzimuth) + distanceWeight * (distance / maxDistance);
 
         return result;
     }
@@ -368,6 +370,18 @@ define(['lodash'], function (_) {
         }
     }
 
+    function _getPreferedOverrides(element) {
+        return _.reduce(['up', 'down', 'left', 'right'], function(attributes, direction) {
+            var attribute = internal.config.weightOverrideAttribute + '-' + direction;
+
+            if (element.hasAttribute(attribute)) {
+                attributes[direction] = element.getAttribute(attribute);
+            }
+
+            return attributes;
+        }, {});
+    }
+
     function _findCloseElements(isClose) {
         var currentElementsPosition = internal.currentlyFocusedElement.magicFocusFinderPosition;
 
@@ -382,7 +396,22 @@ define(['lodash'], function (_) {
         var closestElement,
             currentElementsPosition = internal.currentlyFocusedElement.magicFocusFinderPosition,
             maxDistance = 0,
-            maxAzimuth = 0;
+            maxAzimuth = 0,
+            azimuthWeight = internal.config.azimuthWeight,
+            distanceWeight = internal.config.distanceWeight,
+            weightOverrides = internal.currentlyFocusedElement.magicFocusFinderpreferedWeightOverrides;
+
+        if (weightOverrides && weightOverrides[direction]) {
+            // can be distance or azimuth
+            switch (weightOverrides[direction]) {
+            case 'distance':
+                azimuthWeight = 0;
+                break;
+            case 'azimuth':
+                distanceWeight = 0;
+                break;
+            }
+        }
 
         // Find closest element within the close elements
         closestElement = _.chain(closeElements)
@@ -404,7 +433,7 @@ define(['lodash'], function (_) {
             .reduce(function(stored, current) {
 
                 var result = {
-                    computed : _getWeightedResult(current.azimuth, maxAzimuth, current.distance, maxDistance),
+                    computed : _getWeightedResult(current.azimuth, maxAzimuth, azimuthWeight, current.distance, maxDistance, distanceWeight),
                     closeElement : current.closeElement
                 };
 

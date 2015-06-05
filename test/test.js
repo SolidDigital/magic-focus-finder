@@ -27,6 +27,7 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
             it('should set the configuration on the module', function() {
                 var options = {
                     keymap : {},
+                    weightOverrideAttribute : '',
                     focusableAttribute : '',
                     defaultFocusedElement : '',
                     dynamicPositionAttribute : '',
@@ -50,6 +51,7 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
             it('should merge onto the original configs if run more than once', function() {
                 var options = {
                     keymap : {},
+                    weightOverrideAttribute : '',
                     focusableAttribute : '',
                     defaultFocusedElement : '',
                     dynamicPositionAttribute : '',
@@ -103,6 +105,7 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
             it('should return the current configuration', function() {
                 var keys = [
                     'keymap',
+                    'weightOverrideAttribute',
                     'focusableAttribute',
                     'defaultFocusedElement',
                     'dynamicPositionAttribute',
@@ -124,6 +127,7 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
             it('after updating the configuration, should return the new configuration', function() {
                 var options = {
                     keymap : {},
+                    weightOverrideAttribute : '',
                     focusableAttribute : '',
                     overrideDirectionAttribute : '',
                     dynamicPositionAttribute : '',
@@ -728,6 +732,7 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                 39 : 'right',
                 13 : 'enter'
             },
+            weightOverrideAttribute : 'weight-override',
             focusableAttribute : 'focusable',
             defaultFocusedElement : null,
             container : 'document',
