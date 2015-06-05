@@ -1,0 +1,38 @@
+{
+  "name": "magic-focus-finder",
+  "version": "2.5.0",
+  "homepage": "https://github.com/Solid-Interactive/magic-focus-finder",
+  "authors": [
+    "Greg Larrenaga <greg.larrenaga@thinksolid.com>",
+    "Peter Ajtai <peter.ajtai@thinksolid.com>"
+  ],
+  "main": "source/main.js",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "package.json",
+    "test"
+  ],
+  "dependencies": {
+    "lodash": "3.3.1"
+  },
+  "devDependencies": {
+    "requirejs": "2.1.16",
+    "classListPolyfill": "https://github.com/eligrey/classList.js.git",
+    "mocha": "2.2.1",
+    "chai": "2.1.1",
+    "sinon": "1.14.0",
+    "sinon-chai": "2.7.0"
+  },
+  "_release": "2.5.0",
+  "_resolution": {
+    "type": "version",
+    "tag": "2.5.0",
+    "commit": "d7e6175255ab71519834e06afb9f85fe99612a58"
+  },
+  "_source": "git://github.com/Solid-Interactive/magic-focus-finder.git",
+  "_target": "2.5.0",
+  "_originalSource": "magic-focus-finder"
+}
