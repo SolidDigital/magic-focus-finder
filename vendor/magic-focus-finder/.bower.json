@@ -1,7 +1,7 @@
 {
   "name": "magic-focus-finder",
-  "version": "1.2.3",
-  "homepage": "https://github.com/Duder-onomy/magic-focus-finder",
+  "version": "2.5.1",
+  "homepage": "https://github.com/Solid-Interactive/magic-focus-finder",
   "authors": [
     "Greg Larrenaga <greg.larrenaga@thinksolid.com>",
     "Peter Ajtai <peter.ajtai@thinksolid.com>"
@@ -24,15 +24,16 @@
     "mocha": "2.2.1",
     "chai": "2.1.1",
     "sinon": "1.14.0",
-    "sinon-chai": "2.7.0"
+    "sinon-chai": "2.7.0",
+    "pure": "~0.6.0"
   },
-  "_release": "1.2.3",
+  "_release": "2.5.1",
   "_resolution": {
     "type": "version",
-    "tag": "1.2.3",
-    "commit": "b053a4e5de8a47645fead063a67f9a53704a649c"
+    "tag": "2.5.1",
+    "commit": "1a7e4a82ad5ec304de48217b401aec6d41cc6bd3"
   },
-  "_source": "git://github.com/Duder-onomy/magic-focus-finder.git",
-  "_target": "1.2.3",
+  "_source": "git://github.com/Solid-Interactive/magic-focus-finder.git",
+  "_target": "2.5.1",
   "_originalSource": "magic-focus-finder"
 }

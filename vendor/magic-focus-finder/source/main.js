@@ -1,29 +1,14 @@
 define(['lodash'], function (_) {
     'use strict';
 
-    var   defaultConfig = {
-            keymap : [
-                {
-                    direction : 'up',
-                    code : 38
-                },
-                {
-                    direction : 'down',
-                    code : 40
-                },
-                {
-                    direction : 'left',
-                    code : 37
-                },
-                {
-                    direction : 'right',
-                    code : 39
-                },
-                {
-                    direction : 'enter',
-                    code : 13
-                }
-            ],
+    var defaultConfig = {
+            keymap : {
+                38 : 'up',
+                40 : 'down',
+                37 : 'left',
+                39 : 'right',
+                13 : 'enter'
+            },
             focusableAttribute : 'focusable',
             defaultFocusedElement : null,
             container : 'document',
@@ -31,7 +16,10 @@ define(['lodash'], function (_) {
             focusedClass : 'focused',
             overrideDirectionAttribute : 'focus-overrides',
             captureFocusAttribute : 'capture-focus',
-            dynamicPositionAttribute : 'dynamic-position'
+            dynamicPositionAttribute : 'dynamic-position',
+            watchDomMutations : true,
+            useRealFocus : true,
+            unweight : 1
         },
         internal = {
             configured: false,
@@ -41,23 +29,25 @@ define(['lodash'], function (_) {
             // Each element will get the following properties when registered:
             // magicFocusFinderPosition = the elements position.
             // magicFocusFinderDirectionOverrides = if the element had any direction overrides.
+            domObserver : null
+        },
+        mff = {
+            configure : configure,
+            getConfig : getConfig,
+            getContainer : getContainer,
+            start : start,
+            setCurrent : setCurrent,
+            getCurrent : getCurrent,
+            getKnownElements : getKnownElements,
+            refresh : refresh,
+            destroy : destroy,
             move : {
                 up : _moveUp,
                 down : _moveDown,
                 left : _moveLeft,
                 right : _moveRight,
                 enter : _fireEnter
-            },
-            domObserver : null
-        },
-        mff = {
-            configure : configure,
-            getConfig : getConfig,
-            start : start,
-            setCurrent : setCurrent,
-            getCurrent : getCurrent,
-            getKnownElements : getKnownElements,
-            refresh : refresh
+            }
         };
 
     // for now mff is a singleton
@@ -73,6 +63,10 @@ define(['lodash'], function (_) {
         return internal.config;
     }
 
+    function getContainer() {
+        return internal.config.container;
+    }
+
     function start() {
         if (!internal.configured) {
             internal.config = _.cloneDeep(defaultConfig);
@@ -80,39 +74,63 @@ define(['lodash'], function (_) {
             internal.configured = false;
         }
 
-
         if (internal.config.defaultFocusedElement) {
             setCurrent(internal.config.defaultFocusedElement);
         }
 
         refresh();
 
-        _setupAndStartWatchingMutations();
+        if(internal.config.watchDomMutations) {
+            _setupAndStartWatchingMutations();
+        }
+
         return mff;
     }
 
-    function setCurrent(querySelector) {
-        var currentlyFocusedElement = internal.currentlyFocusedElement,
-            element;
+    function setCurrent(querySelector, direction, options) {
+        var previouslyFocusedElement = internal.currentlyFocusedElement,
+            newlyFocusedElement,
+            events;
 
-        element = querySelector && querySelector.nodeName ? querySelector : document.querySelector(querySelector);
+        options = options || {};
 
-        if(element) {
-            if(currentlyFocusedElement) {
+        events = false !== options.events;
 
-                _fireHTMLEvent(currentlyFocusedElement, 'losing-focus');
-                currentlyFocusedElement.classList.remove(internal.config.focusedClass);
-                currentlyFocusedElement.blur();
-                _fireHTMLEvent(currentlyFocusedElement, 'focus-lost');
+        newlyFocusedElement = querySelector && querySelector.nodeName ? querySelector : document.querySelector(querySelector);
+
+        if(newlyFocusedElement) {
+            if(previouslyFocusedElement) {
+
+                events && _fireHTMLEvent(previouslyFocusedElement, 'losing-focus', {
+                    from: previouslyFocusedElement
+                });
+                previouslyFocusedElement.classList.remove(internal.config.focusedClass);
+
+                internal.config.useRealFocus && previouslyFocusedElement.blur();
+
+                events && _fireHTMLEvent(previouslyFocusedElement, 'focus-lost', {
+                    from: previouslyFocusedElement
+                });
             }
 
 
-            _fireHTMLEvent(element, 'gaining-focus');
-            element.classList.add(internal.config.focusedClass);
-            element.focus();
-            _fireHTMLEvent(element, 'focus-gained');
+            events && _fireHTMLEvent(newlyFocusedElement, 'gaining-focus', {
+                to: newlyFocusedElement
+            });
+            newlyFocusedElement.classList.add(internal.config.focusedClass);
 
-            internal.currentlyFocusedElement = element;
+            internal.config.useRealFocus && newlyFocusedElement.focus();
+
+            events && _fireHTMLEvent(newlyFocusedElement, 'focus-gained', {
+                to: newlyFocusedElement
+            });
+
+            internal.currentlyFocusedElement = newlyFocusedElement;
+            events && _fireHTMLEvent(newlyFocusedElement, 'focus-moved', {
+                direction: direction,
+                from: previouslyFocusedElement,
+                to: newlyFocusedElement
+            });
         }
 
         return mff;
@@ -127,27 +145,35 @@ define(['lodash'], function (_) {
     }
 
     function refresh() {
-        var container;
-
         if(internal.config.container === 'document') {
-            container = document;
+            internal.config.container = document;
         } else if(internal.config.container.nodeName){
-            container = internal.config.container;
+            internal.config.container = internal.config.container;
         } else {
-            container = document.querySelector(internal.config.container);
+            internal.config.container = document.querySelector(internal.config.container);
         }
 
         _.once(_setupBodyKeypressListener)();
 
         internal.knownElements = [];
 
-        [].forEach.call(container.querySelectorAll('['+ internal.config.focusableAttribute +']'), _registerElement);
+        [].forEach.call(internal.config.container.querySelectorAll('['+ internal.config.focusableAttribute +']'), _registerElement);
 
         return mff;
     }
 
+    function destroy() {
+        internal.knownElements = [];
+        internal.configured = false;
+        internal.canMode = true;
+        internal.currentlyFocusedElement = null;
+        _removeBodyKeypressListener();
+        _removeMutationObservers();
+        configure(defaultConfig);
+    }
+
     function _eventManager(event) {
-        var mappedKey;
+        var direction;
 
         if(!internal.canMove) {
             return;
@@ -156,12 +182,14 @@ define(['lodash'], function (_) {
         _recalculateDynamicElementPositions();
 
         if(internal.currentlyFocusedElement) {
-            mappedKey = _.findWhere(internal.config.keymap, { code : event.keyCode });
+            direction = internal.config.keymap[event.keyCode];
 
-            if(mappedKey && internal.currentlyFocusedElement.magicFocusFinderDirectionOverrides[mappedKey.direction]) {
-                setCurrent(internal.currentlyFocusedElement.magicFocusFinderDirectionOverrides[mappedKey.direction]);
-            } else if(mappedKey) {
-                internal.move[mappedKey.direction]();
+            if(direction && 'skip' === internal.currentlyFocusedElement.magicFocusFinderDirectionOverrides[direction]) {
+                return;
+            } else if(direction && internal.currentlyFocusedElement.magicFocusFinderDirectionOverrides[direction]) {
+                setCurrent(internal.currentlyFocusedElement.magicFocusFinderDirectionOverrides[direction], direction);
+            } else if(direction) {
+                mff.move[direction]();
             }
         } else {
             _setDefaultFocus();
@@ -177,10 +205,10 @@ define(['lodash'], function (_) {
     }
 
     function _registerElement(element) {
-        var computedStyle = window.getComputedStyle(element);
+        var elementsComputedStyle = window.getComputedStyle(element);
 
-        if(computedStyle.display === 'none' || computedStyle.visibility === 'hidden') {
-            return false;
+        if(elementsComputedStyle.display === 'none' || elementsComputedStyle.visibility === 'hidden') {
+            element.setAttribute(internal.config.dynamicPositionAttribute, true);
         }
 
         element.magicFocusFinderPosition = _getPosition(element);
@@ -197,6 +225,10 @@ define(['lodash'], function (_) {
         internal.knownElements = _.reject(internal.knownElements, function(knownElement) {
             return knownElement.isEqualNode(element);
         });
+
+        if(internal.currentlyFocusedElement && internal.currentlyFocusedElement.isEqualNode(element)) {
+            _setDefaultFocus();
+        }
     }
 
     function _getPosition(element) {
@@ -206,6 +238,8 @@ define(['lodash'], function (_) {
 
         return {
             // Top-left corner coords
+            centerX : centerX,
+            centerY : centerY,
             x : boundingRect.left,
             y : boundingRect.top,
             // Outer top center coords
@@ -231,44 +265,68 @@ define(['lodash'], function (_) {
         });
     }
 
-    function _moveUp() {
+    function _moveUp(options) {
         var closeElements = _findCloseElements(function(current, other){
             return current.oty >= other.oby;
         });
 
         _activateClosest(closeElements, 'up', function(current, other){
-            return Math.sqrt(Math.pow(current.oty - other.oby, 2) + Math.pow(current.otx - other.obx, 2));
-        });
+            var distance = Math.sqrt(Math.pow(current.oty - other.oby, 2) + Math.pow(current.otx - other.obx, 2)),
+                azimuth = _getAngleDifference(270, _getAngle(current, other));
+
+            // 270 is up (reversed)
+            return (internal.config.unweight + azimuth) * distance;
+        }, options);
     }
 
-    function _moveDown() {
+    function _moveDown(options) {
         var closeElements = _findCloseElements(function(current, other) {
             return current.oby <= other.oty;
         });
 
         _activateClosest(closeElements, 'down', function(current, other) {
-            return Math.sqrt(Math.pow(current.obx - other.otx, 2) + Math.pow(current.oby - other.oty, 2));
-        });
+            var distance = Math.sqrt(Math.pow(current.obx - other.otx, 2) + Math.pow(current.oby - other.oty, 2)),
+                azimuth = _getAngleDifference(90, _getAngle(current, other));
+
+            // 90 is down (reversed)
+            return (internal.config.unweight + azimuth) * distance;
+        }, options);
     }
 
-    function _moveLeft() {
+    function _moveLeft(options) {
         var closeElements = _findCloseElements(function(current, other) {
             return current.olx >= other.orx;
         });
 
         _activateClosest(closeElements, 'left', function(current, other) {
-            return Math.sqrt(Math.pow(current.olx - other.orx, 2) + Math.pow(current.oly - other.ory, 2));
-        });
+            var distance = Math.sqrt(Math.pow(current.olx - other.orx, 2) + Math.pow(current.oly - other.ory, 2)),
+                azimuth = _getAngleDifference(180, _getAngle(current, other));
+
+            // Math.PI is directly left
+            return (internal.config.unweight + azimuth) * distance;
+        }, options);
     }
 
-    function _moveRight() {
+    function _moveRight(options) {
         var closeElements = _findCloseElements(function(current, other) {
             return current.orx <= other.olx;
         });
 
         _activateClosest(closeElements, 'right', function(current, other) {
-            return Math.sqrt(Math.pow(current.orx - other.olx, 2) + Math.pow(current.ory - other.oly, 2));
-        });
+            var distance = Math.sqrt(Math.pow(current.orx - other.olx, 2) + Math.pow(current.ory - other.oly, 2)),
+                azimuth = _getAngleDifference(0, _getAngle(current, other));
+
+            // 0 is directly right
+            return (internal.config.unweight + azimuth) * distance;
+        }, options);
+    }
+
+    function _getAngle(current, other) {
+        return Math.atan2(other.centerY - current.centerY, other.centerX - current.centerX) * 180 / Math.PI;
+    }
+
+    function _getAngleDifference(angle1, angle2) {
+        return Math.abs((angle1 + 180 -  angle2) % 360 - 180);
     }
 
     function _fireEnter() {
@@ -295,7 +353,7 @@ define(['lodash'], function (_) {
         });
     }
 
-    function _activateClosest(closeElements, direction, getDistance) {
+    function _activateClosest(closeElements, direction, getDistance, options) {
         var closestElement,
             closestDistance,
             currentElementsPosition = internal.currentlyFocusedElement.magicFocusFinderPosition;
@@ -303,7 +361,12 @@ define(['lodash'], function (_) {
         // Find closest element within the close elements
         _.each(closeElements, function(closeElement) {
             var closeElementsPosition = closeElement.magicFocusFinderPosition,
-                currentDistance;
+                currentDistance,
+                closeElementsComputedStyle = window.getComputedStyle(closeElement);
+
+            if(closeElementsComputedStyle.display === 'none' || closeElementsComputedStyle.visibility === 'hidden') {
+                return;
+            }
 
             // Find distance between 2 elements
             currentDistance = getDistance(currentElementsPosition, closeElementsPosition);
@@ -320,7 +383,7 @@ define(['lodash'], function (_) {
         });
 
         if(closestElement){
-            setCurrent(closestElement);
+            setCurrent(closestElement, direction, options);
         }
     }
 
@@ -328,50 +391,83 @@ define(['lodash'], function (_) {
         document.querySelector('body').addEventListener('keydown', _eventManager);
     }
 
+    function _removeBodyKeypressListener() {
+        document.querySelector('body').removeEventListener('keydown', _eventManager);
+    }
+
     function _setupAndStartWatchingMutations() {
         // Home baked mutation observer. The shim was VERY slow. This is much faster.
         if(window.MutationObserver || window.WebKitMutationObserver) {
             internal.domObserver = new MutationObserver(function(mutations) {
                 mutations.forEach(function(mutation) {
-                    _.each(mutation.addedNodes, function(addedNode) {
-                        if(addedNode.hasAttribute(internal.config.focusableAttribute) && addedNode.nodeName !== '#comment') {
-                            _registerElement(addedNode);
-                        }
-                    });
+                    _.each(mutation.addedNodes, _addNodeFromMutationEvent);
 
-                    _.each(mutation.removedNodes, function(removedNode) {
-                        if(removedNode.hasAttribute(internal.config.focusableAttribute)) {
-                            _unregisterElement(removedNode);
-                        }
-                        if(internal.currentlyFocusedElement.isEqualNode(removedNode)) {
-                            _setDefaultFocus();
-                        }
-                    });
+                    _.each(mutation.removedNodes, _removeNodeFromMutationEvent);
                 });
             });
 
-            internal.domObserver.observe(document, { childList: true, subtree : true });
+            internal.domObserver.observe(internal.config.container, {
+                childList: true,
+                subtree : true
+            });
         } else {
-            document.querySelector('body').addEventListener('DOMNodeInserted', function(event) {
-                if(event.target.hasAttribute(internal.config.focusableAttribute) && event.target.nodeName !== '#comment') {
-                    _registerElement(event.target);
-                }
-            });
+            internal.config.container.addEventListener('DOMNodeInserted', _addNodeFromDomNodeAddedEvent);
 
-            document.querySelector('body').addEventListener('DOMNodeRemoved', function(event) {
-                if(event.target.hasAttribute(internal.config.focusableAttribute) && event.target.nodeName !== '#comment') {
-                    _unregisterElement(event.target);
-                }
-                if(internal.currentlyFocusedElement.isEqualNode(event.target)) {
-                    _setDefaultFocus();
-                }
-            });
+            internal.config.container.addEventListener('DOMNodeRemoved', _removeNodeFromDomNodeAddedEvent);
         }
     }
 
-    function _fireHTMLEvent(element, eventName) {
+    function _addNodeFromMutationEvent(node) {
+        if(node.nodeType === 1 && node.nodeName !== '#comment') {
+            // Register Child Nodes
+            [].forEach.call(node.querySelectorAll('['+ internal.config.focusableAttribute +']'), _registerElement);
+
+            node.hasAttribute(internal.config.focusableAttribute) && _registerElement(node);
+        }
+    }
+
+    function _removeNodeFromMutationEvent(node) {
+        if(node.nodeType === 1 && node.nodeName !== '#comment') {
+            // Unregister Child Nodes
+            [].forEach.call(node.querySelectorAll('['+ internal.config.focusableAttribute +']'), _unregisterElement);
+
+            node.hasAttribute(internal.config.focusableAttribute) && _unregisterElement(node);
+        }
+    }
+
+    function _addNodeFromDomNodeAddedEvent(event) {
+        if(event.target.nodeType === 1 && event.target.nodeName !== '#comment') {
+            // Register Child Nodes
+            [].forEach.call(event.target.querySelectorAll('['+ internal.config.focusableAttribute +']'), _registerElement);
+
+            event.target.hasAttribute(internal.config.focusableAttribute) && _registerElement(event.target);
+        }
+    }
+
+    function _removeNodeFromDomNodeAddedEvent(event) {
+        if(event.target.nodeType === 1 && event.target.nodeName !== '#comment') {
+            // Register Child Nodes
+            [].forEach.call(event.target.querySelectorAll('['+ internal.config.focusableAttribute +']'), _unregisterElement);
+
+            event.target.hasAttribute(internal.config.focusableAttribute) && _unregisterElement(event.target);
+        }
+    }
+
+    function _removeMutationObservers() {
+        if(window.MutationObserver || window.WebKitMutationObserver) {
+            internal.domObserver && internal.domObserver.disconnect();
+            internal.domObserver = null;
+        } else if(internal.config && internal.config.container && internal.config.container.nodeName) {
+            internal.config.container.removeEventListener('DOMNodeInserted', _addNodeFromDomNodeAddedEvent);
+            internal.config.container.removeEventListener('DOMNodeRemoved', _removeNodeFromDomNodeAddedEvent);
+        }
+    }
+
+    function _fireHTMLEvent(element, eventName, eventPayload) {
         var event = document.createEvent('HTMLEvents');
+
         event.initEvent(eventName, true, true);
+        event.data = eventPayload;
         element.dispatchEvent(event);
     }
 

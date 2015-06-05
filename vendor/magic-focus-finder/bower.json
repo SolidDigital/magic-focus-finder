@@ -1,7 +1,7 @@
 {
   "name": "magic-focus-finder",
-  "version": "1.2.3",
-  "homepage": "https://github.com/Duder-onomy/magic-focus-finder",
+  "version": "2.5.1",
+  "homepage": "https://github.com/Solid-Interactive/magic-focus-finder",
   "authors": [
     "Greg Larrenaga <greg.larrenaga@thinksolid.com>",
     "Peter Ajtai <peter.ajtai@thinksolid.com>"
@@ -24,6 +24,7 @@
     "mocha": "2.2.1",
     "chai": "2.1.1",
     "sinon": "1.14.0",
-    "sinon-chai": "2.7.0"
+    "sinon-chai": "2.7.0",
+    "pure": "~0.6.0"
   }
 }

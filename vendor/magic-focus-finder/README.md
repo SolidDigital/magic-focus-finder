@@ -1,4 +1,4 @@
-# Magic Focus Finder [![Bower version](https://badge.fury.io/bo/magic-focus-finder.png)](http://badge.fury.io/bo/magic-focus-finder) [![Build Status](https://travis-ci.org/Duder-onomy/magic-focus-finder.png?branch=bower)](https://travis-ci.org/Duder-onomy/magic-focus-finder)
+# Magic Focus Finder [![Bower version](https://badge.fury.io/bo/magic-focus-finder.png)](http://badge.fury.io/bo/magic-focus-finder) [![Build Status](https://travis-ci.org/Solid-Interactive/magic-focus-finder.png?branch=master)](https://travis-ci.org/Solid-Interactive/magic-focus-finder)
 
 Intended to help keyboard navigation through html nodes.
 
@@ -8,8 +8,6 @@ Tests can be run in a browser. `python -m SimpleHTTPServer` from the project roo
 Should do a bower install first.
 
 To run the test via CLI: `npm test` after doing a bower and npm install.
-
-### This is currently not a complete readme, I wrote this for a project I am on, will flesh out the details this weekend with example page and Travis-ci integration.
 
 ---
 
@@ -51,7 +49,8 @@ Options Object
   eventNamespace : '', //custom namespace for events, default to 'magicFocusFinder'
   overrideDirectionAttribute : 'focus-overrides',
   captureFocusAttribute : 'capture-focus',
-  dynamicPositionAttribute : 'dynamic-position'
+  dynamicPositionAttribute : 'dynamic-position',
+  useRealFocus : true // Will trigger `blur` and `focus` on the actual elements, if set to false, bypass this.
 }
 ```
 
@@ -60,14 +59,25 @@ All elements with `config.focusableAttribute` can be given focus to. After start
 the focusable attribute.
 
 ## Events
-It will fire the following events.
+It will fire the following events in the following order - events bubble up and are cancelable, so you can listen on `mff.getContainer()` for all these events.
+
+This example moves focus from Element One to Element Two
+
+1. `losing-focus` - on Element One - `event.data` has `{ "from" : domElementOne }`
+2. `focus-lost` - on Element One - `event.data` has `{ "from" : domElementOne }`
+3. `gaining-focus` - on Element Two - `event.data` has `{ "to" : domElementTwo }`
+4. `focus-gained` - on Element Two - `event.data` has `{ "to" : domElementTwo }`
+5. `focus-moved` - on Element Two - `event.data` is the object:
+
+    ```json
+    {
+        "direction" : "up|down|left|right",
+        "from"      : domElementOne,
+        "to"        : domElementTwo
+    }
+    ```
 
 ### Element level
-Implemented
-1. `losing-focus` before the element loses focus.
-1. `focus-lost` when the focus is lost on an element.
-1. `gaining-focus` before the next element gains focus.
-1. `focus-gained` when the element actually gains focus.
 
 Not Implemented:
 1. `focus` normal focus event
@@ -96,6 +106,9 @@ returns the current configuration
 ```javascript
 magicFocusFinder.getConfig()
 ```
+
+### getContainer()
+returns the overall container - events bubble up to this
 
 ### start()
 starts the dang thing, if start is called before configure, then default options will be used.
@@ -128,11 +141,14 @@ get the current focused element, element ref of selector
 
 ```
 
-### move(direction)
+### move[direction](options)
 tell the focus to move in a direction
 ```javascript
-
+mff.move.right()
+mff.move.down({ events : false });
 ```
+
+Can move up, down, left, or right. Can turn off all events for a move by setting the events key to `false` on the options object.
 
 ### destroy()
 destroy this thing and free up all memory
