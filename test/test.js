@@ -37,7 +37,9 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                     overrideDirectionAttribute : '',
                     watchDomMutations: true,
                     useRealFocus : true,
-                    unweight : 1
+                    azimuthWeight : 5,
+                    distanceWeight : 1,
+                    debug : false
                 };
 
                 mff.configure(options);
@@ -58,7 +60,9 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                     overrideDirectionAttribute : '',
                     watchDomMutations: true,
                     useRealFocus : true,
-                    unweight : 1
+                    azimuthWeight : 5,
+                    distanceWeight : 1,
+                    debug : false
                 };
 
                 mff.configure(options);
@@ -109,7 +113,9 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                     'overrideDirectionAttribute',
                     'watchDomMutations',
                     'useRealFocus',
-                    'unweight'
+                    'azimuthWeight',
+                    'distanceWeight',
+                    'debug'
                 ];
 
                 expect(mff.getConfig()).to.have.all.keys(keys);
@@ -128,7 +134,9 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                     eventNamespace : '',
                     watchDomMutations : true,
                     useRealFocus : true,
-                    unweight : 1
+                    azimuthWeight : 5,
+                    distanceWeight : 1,
+                    debug : false
                 };
 
                 mff.configure(options);
@@ -730,7 +738,9 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
             dynamicPositionAttribute : 'dynamic-position',
             watchDomMutations : true,
             useRealFocus : true,
-            unweight : 1
+            azimuthWeight : 5,
+            distanceWeight : 1,
+            debug : false
         };
     }
 });
