@@ -2,7 +2,7 @@
 
 Intended to help keyboard navigation through html nodes.
 
-[Try out the demo](http://duder-onomy.github.io/magic-focus-finder/)
+[Try out the demo](http://solid-interactive.github.io/magic-focus-finder/)
 
 Tests can be run in a browser. `python -m SimpleHTTPServer` from the project root, then visit: http://0.0.0.0:8000/test/ .
 Should do a bower install first.
