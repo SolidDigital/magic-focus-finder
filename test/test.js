@@ -48,6 +48,55 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                 expect(mff.getConfig()).to.deep.equal(options);
             });
 
+            it('should set the configuration on the module as an extension of all the argmuents passed to it', function() {
+                var options = {
+                        keymap : {},
+                        weightOverrideAttribute : 'weight-override',
+                        focusableAttribute : '',
+                        defaultFocusedElement : '',
+                        dynamicPositionAttribute : '',
+                        captureFocusAttribute: '',
+                        focusedClass : '',
+                        container : '#yo',
+                        eventNamespace : '',
+                        overrideDirectionAttribute : '',
+                        watchDomMutations: true,
+                        useRealFocus : true,
+                        azimuthWeight : 6,
+                        distanceWeight : 6,
+                        debug : false
+                    },
+                    options1 = {
+                        keymap: {},
+                        focusableAttribute: '',
+                        defaultFocusedElement: '',
+                        dynamicPositionAttribute: '',
+                        captureFocusAttribute: '',
+                        focusedClass: ''
+                    },
+                    options2 =  {
+                        container : '',
+                        eventNamespace : '',
+                        overrideDirectionAttribute : '',
+                        watchDomMutations: true,
+                        useRealFocus : true
+                    },
+                    options3 = {
+                        azimuthWeight : 5,
+                        distanceWeight : 1,
+                        debug : false
+                    },
+                    options4 = {
+                        azimuthWeight : 6,
+                        distanceWeight : 6,
+                        container : '#yo'
+                    };
+
+                mff.configure(options1, options2, options3, options4);
+
+                expect(mff.getConfig()).to.deep.equal(options);
+            });
+
             it('should merge onto the original configs if run more than once', function() {
                 var options = {
                     keymap : {},

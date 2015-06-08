@@ -37,6 +37,8 @@ define(['./vendor/magic-focus-finder/source/index'], function(magicFocusFinder) 
 });
 ```
 
+The configure method can be passed multiple arguments. They will all be extended into each other.
+
 Options Object
 
 ```javascript
@@ -96,6 +98,14 @@ Not Implemented:
 1. `magicFocusFinder:elementAdded` event telling you a focusable element was added to the container.
 2. `magicFocusFinder:elementRemoved` event telling you a focusable element was removed from the container.
 
+## Attributes
+
+You can specify on a per element basis whether you want `distance` or `azimuth` to be the only factor in determining the 
+next focused element. You have to specify up, down, left, or right following the `weightOverrideAttribute`:
+
+```html
+<div weight-override-up='azimuth' focusable> </div>
+```
 
 ##Methods
 

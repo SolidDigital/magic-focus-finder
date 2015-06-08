@@ -56,8 +56,8 @@ define(['lodash'], function (_) {
     // for now mff is a singleton
     return mff;
 
-    function configure(options) {
-        internal.config = _.extend(_.cloneDeep(defaultConfig), options);
+    function configure() {
+        internal.config = _.extend(_.cloneDeep(defaultConfig), _.extend.apply(_, arguments));
         internal.configured = true;
         return mff;
     }
