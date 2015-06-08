@@ -406,11 +406,11 @@ define(['lodash'], function (_) {
             switch (weightOverrides[direction]) {
             case 'distance':
                 distanceWeight = 1;
-                azimuthWeight = 0;
+                azimuthWeight = 0.001;
                 break;
             case 'azimuth':
                 azimuthWeight = 1;
-                distanceWeight = 0;
+                distanceWeight = 0.001;
                 break;
             }
         }
