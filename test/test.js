@@ -97,6 +97,8 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                 expect(mff.getConfig()).to.deep.equal(options);
             });
 
+            // TODO: this test says one thing but does another
+            // The test says configs should be merged on but it is just resetting the configs to the default configs wholesale
             it('should merge onto the original configs if run more than once', function() {
                 var options = {
                     keymap : {},
@@ -123,6 +125,8 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                 expect(mff.getConfig()).to.deep.equal(getOriginalOptions());
             });
 
+            // TODO: this test says one thing but does another
+            // says to merge configs with current configs, but it is merging with default configs instead
             it('should merge the passed configure with the current one, so as to support partial config updates', function() {
                 var options = { keymap : {} };
 
@@ -570,7 +574,7 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                 });
             });
 
-            describe('when the config "useRealFocus" is true', function() {
+            describe('when the config "useRealFocus" is false', function() {
                 it('should not give actual focus to the element - actual focus is the :focus psuedo selector', function() {
 
                     // give real focus to some other input element
@@ -708,6 +712,48 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                 mff.move.right();
 
                 expect(mff.getCurrent().className).to.equal('box block38 focused');
+            });
+        });
+
+        describe('azimuth calculation logic', function() {
+            describe('overlap', function() {
+                it.only('down', function() {
+                    var box1 = {
+                            top : 50,
+                            left: 50,
+                            width : 50,
+                            height: 50
+                        },
+                        box2 = {
+                            top : 125,
+                            left: 75,
+                            width : 50,
+                            height: 50
+                        };
+
+                    expect(mff.getAngle(
+                        mff.getPosition(null, box1),
+                        mff.getPosition(null, box2),
+                        'down')).to.equal(0);
+
+                });
+            });
+            describe('should calculate a zero for elements that "overlap" in the direction moved', function() {
+                it('down', function() {
+
+                    mff
+                        .configure({
+                            container: '#example5',
+                            defaultFocusedElement : '.box.block41'
+                        })
+                        .start();
+
+                    expect(mff.getCurrent().className).to.equal('box block41 focused');
+
+                    mff.move.down();
+
+                    expect(mff.getCurrent().className).to.equal('box block42 focused');
+                });
             });
         });
 

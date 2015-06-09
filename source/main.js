@@ -1,7 +1,11 @@
 define(['lodash'], function (_) {
     'use strict';
 
-    var defaultConfig = {
+    var up = 'up',
+        down = 'down',
+        left = 'left',
+        right = 'right',
+        defaultConfig = {
             keymap : {
                 38 : 'up',
                 40 : 'down',
@@ -50,7 +54,10 @@ define(['lodash'], function (_) {
                 left : _moveLeft,
                 right : _moveRight,
                 enter : _fireEnter
-            }
+            },
+            getAngle : _getAngle,
+            getPosition : _getPosition,
+            overlap : _overlap
         };
 
     // for now mff is a singleton
@@ -74,6 +81,7 @@ define(['lodash'], function (_) {
         if (!internal.configured) {
             internal.config = _.cloneDeep(defaultConfig);
         } else {
+            // TODO: why is configured set to false?
             internal.configured = false;
         }
 
@@ -235,8 +243,8 @@ define(['lodash'], function (_) {
         }
     }
 
-    function _getPosition(element) {
-        var boundingRect = element.getBoundingClientRect(),
+    function _getPosition(element, boundingRectIn) {
+        var boundingRect = boundingRectIn || element.getBoundingClientRect(),
             centerX = Math.round(boundingRect.left + (boundingRect.width / 2)),
             centerY = Math.round(boundingRect.top + (boundingRect.height / 2));
 
@@ -270,13 +278,14 @@ define(['lodash'], function (_) {
     }
 
     function _moveUp(options) {
+        // TODO: findCloseElement and activateClosest can be combined into one loop with two checks in series
         var closeElements = _findCloseElements(function(current, other){
             return current.oty >= other.oby;
         });
 
         _activateClosest(closeElements, 'up', function(current, other){
             var distance = Math.sqrt(Math.pow(current.oty - other.oby, 2) + Math.pow(current.otx - other.obx, 2)),
-                azimuth = _getAngleDifference(270, _getAngle(current, other));
+                azimuth = _getAngleDifference(270, _getAngle(current, other, 'up'));
 
             // 270 is up (reversed)
             return {
@@ -293,7 +302,7 @@ define(['lodash'], function (_) {
 
         _activateClosest(closeElements, 'down', function(current, other) {
             var distance = Math.sqrt(Math.pow(current.obx - other.otx, 2) + Math.pow(current.oby - other.oty, 2)),
-                azimuth = _getAngleDifference(90, _getAngle(current, other));
+                azimuth = _getAngleDifference(90, _getAngle(current, other, 'down'));
 
             // 90 is down (reversed)
             return {
@@ -310,7 +319,7 @@ define(['lodash'], function (_) {
 
         _activateClosest(closeElements, 'left', function(current, other) {
             var distance = Math.sqrt(Math.pow(current.olx - other.orx, 2) + Math.pow(current.oly - other.ory, 2)),
-                azimuth = _getAngleDifference(180, _getAngle(current, other));
+                azimuth = _getAngleDifference(180, _getAngle(current, other, 'left'));
 
             // Math.PI is directly left
             return {
@@ -327,7 +336,7 @@ define(['lodash'], function (_) {
 
         _activateClosest(closeElements, 'right', function(current, other) {
             var distance = Math.sqrt(Math.pow(current.orx - other.olx, 2) + Math.pow(current.ory - other.oly, 2)),
-                azimuth = _getAngleDifference(0, _getAngle(current, other));
+                azimuth = _getAngleDifference(0, _getAngle(current, other, 'right'));
 
             // 0 is directly right
             return {
@@ -337,8 +346,29 @@ define(['lodash'], function (_) {
         }, options);
     }
 
-    function _getAngle(current, other) {
+    function _getAngle(current, other, direction) {
+        // Overlaps return 0
+        if (_overlap(current, other, direction)) {
+            return 0;
+        }
+
+        // TODO: If not overlapped return corner to corner
         return Math.atan2(other.centerY - current.centerY, other.centerX - current.centerX) * 180 / Math.PI;
+    }
+
+    function _overlap(current, other, direction) {
+        switch (direction) {
+        case up:
+            break;
+        case down:
+            return  (other.olx >= current.olx && other.olx <= current.orx) ||
+                    (other.orx >= current.olx && other.orx <= current.orx);
+            break;
+        case left:
+            break;
+        case right:
+            break;
+        }
     }
 
     function _getAngleDifference(angle1, angle2) {
