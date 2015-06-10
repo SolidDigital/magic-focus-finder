@@ -716,29 +716,76 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
         });
 
         describe('azimuth calculation logic', function() {
+
+            var box41 = {
+                    top     : 50,
+                    bottom  : 100,
+                    left    : 50,
+                    right   : 100,
+                    width : 50,
+                    height: 50
+                },
+                box42 = {
+                    top     : 125,
+                    bottom  : 175,
+                    left    : 75,
+                    right   : 125,
+                    width : 50,
+                    height: 50
+                },
+                box44 = {
+                    top     : 75,
+                    bottom  : 125,
+                    left    : 150,
+                    right   : 175,
+                    width   : 50,
+                    height  : 50
+                };
+
             describe('overlap', function() {
-                it.only('down', function() {
-                    var box1 = {
-                            top : 50,
-                            left: 50,
-                            width : 50,
-                            height: 50
-                        },
-                        box2 = {
-                            top : 125,
-                            left: 75,
-                            width : 50,
-                            height: 50
-                        };
-
+                it('down', function() {
                     expect(mff.getAngle(
-                        mff.getPosition(null, box1),
-                        mff.getPosition(null, box2),
-                        'down')).to.equal(0);
+                        mff.getPosition(null, box41),
+                        mff.getPosition(null, box42),
+                        'down')).to.equal(90);
 
+                });
+                it('up', function() {
+                    expect(mff.getAngle(
+                        mff.getPosition(null, box42),
+                        mff.getPosition(null, box41),
+                        'up')).to.equal(270);
+                });
+                it('right', function() {
+                    expect(mff.getAngle(
+                        mff.getPosition(null, box41),
+                        mff.getPosition(null, box44),
+                        'right')).to.equal(0);
+                });
+                it('left', function() {
+                    expect(mff.getAngle(
+                        mff.getPosition(null, box44),
+                        mff.getPosition(null, box41),
+                        'left')).to.equal(180);
                 });
             });
             describe('should calculate a zero for elements that "overlap" in the direction moved', function() {
+                it('up', function() {
+
+                    mff
+                        .configure({
+                            container: '#example5',
+                            defaultFocusedElement : '.box.block43'
+                        })
+                        .start();
+
+                    expect(mff.getCurrent().className).to.equal('box block43 focused');
+
+                    mff.move.up();
+
+                    expect(mff.getCurrent().className).to.equal('box block42 focused');
+                });
+
                 it('down', function() {
 
                     mff
@@ -753,6 +800,38 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                     mff.move.down();
 
                     expect(mff.getCurrent().className).to.equal('box block42 focused');
+                });
+
+                it('right', function() {
+
+                    mff
+                        .configure({
+                            container: '#example5',
+                            defaultFocusedElement : '.box.block41'
+                        })
+                        .start();
+
+                    expect(mff.getCurrent().className).to.equal('box block41 focused');
+
+                    mff.move.right();
+
+                    expect(mff.getCurrent().className).to.equal('box block44 focused');
+                });
+
+                it('left', function() {
+
+                    mff
+                        .configure({
+                            container: '#example5',
+                            defaultFocusedElement : '.box.block45'
+                        })
+                        .start();
+
+                    expect(mff.getCurrent().className).to.equal('box block45 focused');
+
+                    mff.move.left();
+
+                    expect(mff.getCurrent().className).to.equal('box block44 focused');
                 });
             });
         });
@@ -838,7 +917,7 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
             dynamicPositionAttribute : 'dynamic-position',
             watchDomMutations : true,
             useRealFocus : true,
-            azimuthWeight : 5,
+            azimuthWeight : 1,
             distanceWeight : 1,
             debug : false
         };

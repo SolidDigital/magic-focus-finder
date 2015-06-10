@@ -1,10 +1,24 @@
 define(['lodash'], function (_) {
     'use strict';
 
-    var up = 'up',
-        down = 'down',
-        left = 'left',
-        right = 'right',
+    var _direction = {
+            up: {
+                name: 'up',
+                degrees: 270
+            },
+            down: {
+                name: 'down',
+                degrees: 90
+            },
+            left: {
+                name: 'left',
+                degrees: 180
+            },
+            right: {
+                name: 'right',
+                degrees: 0
+            }
+        },
         defaultConfig = {
             keymap : {
                 38 : 'up',
@@ -24,7 +38,7 @@ define(['lodash'], function (_) {
             dynamicPositionAttribute : 'dynamic-position',
             watchDomMutations : true,
             useRealFocus : true,
-            azimuthWeight : 5,
+            azimuthWeight : 1,
             distanceWeight : 1,
             debug : false
         },
@@ -283,9 +297,9 @@ define(['lodash'], function (_) {
             return current.oty >= other.oby;
         });
 
-        _activateClosest(closeElements, 'up', function(current, other){
+        _activateClosest(closeElements, _direction.up.name, function(current, other){
             var distance = Math.sqrt(Math.pow(current.oty - other.oby, 2) + Math.pow(current.otx - other.obx, 2)),
-                azimuth = _getAngleDifference(270, _getAngle(current, other, 'up'));
+                azimuth = _getAngleDifference(270, _getAngle(current, other, _direction.up.name));
 
             // 270 is up (reversed)
             return {
@@ -300,9 +314,9 @@ define(['lodash'], function (_) {
             return current.oby <= other.oty;
         });
 
-        _activateClosest(closeElements, 'down', function(current, other) {
+        _activateClosest(closeElements, _direction.down.name, function(current, other) {
             var distance = Math.sqrt(Math.pow(current.obx - other.otx, 2) + Math.pow(current.oby - other.oty, 2)),
-                azimuth = _getAngleDifference(90, _getAngle(current, other, 'down'));
+                azimuth = _getAngleDifference(90, _getAngle(current, other, _direction.down.name));
 
             // 90 is down (reversed)
             return {
@@ -317,9 +331,9 @@ define(['lodash'], function (_) {
             return current.olx >= other.orx;
         });
 
-        _activateClosest(closeElements, 'left', function(current, other) {
+        _activateClosest(closeElements, _direction.left.name, function(current, other) {
             var distance = Math.sqrt(Math.pow(current.olx - other.orx, 2) + Math.pow(current.oly - other.ory, 2)),
-                azimuth = _getAngleDifference(180, _getAngle(current, other, 'left'));
+                azimuth = _getAngleDifference(180, _getAngle(current, other, _direction.left.name));
 
             // Math.PI is directly left
             return {
@@ -334,9 +348,9 @@ define(['lodash'], function (_) {
             return current.orx <= other.olx;
         });
 
-        _activateClosest(closeElements, 'right', function(current, other) {
+        _activateClosest(closeElements, _direction.right.name, function(current, other) {
             var distance = Math.sqrt(Math.pow(current.orx - other.olx, 2) + Math.pow(current.ory - other.oly, 2)),
-                azimuth = _getAngleDifference(0, _getAngle(current, other, 'right'));
+                azimuth = _getAngleDifference(0, _getAngle(current, other, _direction.right.name));
 
             // 0 is directly right
             return {
@@ -349,7 +363,16 @@ define(['lodash'], function (_) {
     function _getAngle(current, other, direction) {
         // Overlaps return 0
         if (_overlap(current, other, direction)) {
-            return 0;
+            switch (direction) {
+                case _direction.up.name:
+                    return _direction.up.degrees;
+                case _direction.down.name:
+                    return _direction.down.degrees;
+                case _direction.left.name:
+                    return _direction.left.degrees;
+                case _direction.right.name:
+                    return _direction.right.degrees;
+            }
         }
 
         // TODO: If not overlapped return corner to corner
@@ -358,17 +381,19 @@ define(['lodash'], function (_) {
 
     function _overlap(current, other, direction) {
         switch (direction) {
-        case up:
-            break;
-        case down:
-            return  (other.olx >= current.olx && other.olx <= current.orx) ||
-                    (other.orx >= current.olx && other.orx <= current.orx);
-            break;
-        case left:
-            break;
-        case right:
-            break;
+        case _direction.up.name:
+        case _direction.down.name:
+            return  _inside(other.olx, current.olx, current.orx) ||
+                    _inside(other.orx, current.olx, current.orx);
+        case _direction.left.name:
+        case _direction.right.name:
+            return  _inside(other.oty, current.oty, current.oby) ||
+                    _inside(other.oby, current.oty, current.oby);
         }
+    }
+
+    function _inside(pin, lower, upper) {
+        return pin >= lower && pin <= upper;
     }
 
     function _getAngleDifference(angle1, angle2) {
@@ -378,6 +403,8 @@ define(['lodash'], function (_) {
     function _getWeightedResult(azimuth, maxAzimuth, azimuthWeight, distance, maxDistance, distanceWeight) {
         var result;
 
+        maxAzimuth = maxAzimuth || 1;
+        maxDistance = maxDistance || 1;
         azimuth = Math.abs(azimuth);
         distance = Math.abs(distance);
 
@@ -392,7 +419,7 @@ define(['lodash'], function (_) {
 
     function _getDirectionOverrides(element) {
         if(element.hasAttribute(internal.config.overrideDirectionAttribute)) {
-            return _.zipObject(['up', 'right', 'down', 'left'], _.map(element.getAttribute(internal.config.overrideDirectionAttribute).split(' '), function(direction) {
+            return _.zipObject([_direction.up.name, _direction.right.name, _direction.down.name, _direction.left.name], _.map(element.getAttribute(internal.config.overrideDirectionAttribute).split(' '), function(direction) {
                 return direction !== 'null' ? direction : null;
             }));
         } else {
@@ -401,7 +428,7 @@ define(['lodash'], function (_) {
     }
 
     function _getPreferedOverrides(element) {
-        return _.reduce(['up', 'down', 'left', 'right'], function(attributes, direction) {
+        return _.reduce([_direction.up.name, _direction.down.name, _direction.left.name, _direction.right.name], function(attributes, direction) {
             var attribute = internal.config.weightOverrideAttribute + '-' + direction;
 
             if (element.hasAttribute(attribute)) {
@@ -429,7 +456,8 @@ define(['lodash'], function (_) {
             maxAzimuth = 0,
             azimuthWeight = internal.config.azimuthWeight,
             distanceWeight = internal.config.distanceWeight,
-            weightOverrides = internal.currentlyFocusedElement.magicFocusFinderpreferedWeightOverrides;
+            weightOverrides = internal.currentlyFocusedElement.magicFocusFinderpreferedWeightOverrides,
+            zeroes = false;
 
         if (weightOverrides && weightOverrides[direction]) {
             // can be distance or azimuth
@@ -465,12 +493,23 @@ define(['lodash'], function (_) {
             .reduce(function(stored, current) {
 
                 var result = {
+                    azimuth : current.azimuth,
                     computed : _getWeightedResult(current.azimuth, maxAzimuth, azimuthWeight, current.distance, maxDistance, distanceWeight),
                     closeElement : current.closeElement
                 };
 
                 if (internal.config.debug) {
                     result.closeElement.innerHTML = result.computed.toPrecision(2);
+                }
+
+                if (0 === current.azimuth) {
+                    zeroes = true;
+                }
+
+                if (zeroes) {
+                    if (0 !== stored.azimuth && 0 === current.azimuth) {
+                        return result;
+                    }
                 }
 
                 return stored.computed < result.computed ? stored : result;
