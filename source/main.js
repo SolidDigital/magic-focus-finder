@@ -62,6 +62,8 @@ define(['lodash'], function (_) {
             getKnownElements : getKnownElements,
             refresh : refresh,
             destroy : destroy,
+            lock : lock,
+            unlock : unlock,
             move : {
                 up : _moveUp,
                 down : _moveDown,
@@ -195,6 +197,16 @@ define(['lodash'], function (_) {
         _removeBodyKeypressListener();
         _removeMutationObservers();
         configure(defaultConfig);
+    }
+
+    function lock() {
+        internal.canMove = false;
+        return mff;
+    }
+
+    function unlock() {
+        internal.canMove = true;
+        return mff;
     }
 
     function _eventManager(event) {

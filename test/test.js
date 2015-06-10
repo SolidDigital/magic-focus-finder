@@ -676,6 +676,64 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
             });
         });
 
+        describe('the lock method', function() {
+            it('should exist on the module', function() {
+                expect(mff).itself.to.respondTo('lock');
+            });
+
+            it('should prevent all navigation', function() {
+                var event = document.createEvent('HTMLEvents');
+
+                mff
+                    .configure({
+                        container: '#example1',
+                        defaultFocusedElement : '.box.block1'
+                    })
+                    .start();
+
+                mff.lock();
+
+                event.initEvent('keydown', true, true);
+                event.keyCode = 39;
+                mff.getCurrent().dispatchEvent(event);
+
+                expect(mff.getCurrent().isEqualNode(document.querySelector('#example1 .box.block1'))).to.be.true;
+            });
+        });
+
+        describe('the unlock method', function() {
+            it('should exist on the module', function() {
+                expect(mff).itself.to.respondTo('unlock');
+            });
+
+            it('should allow navigation from a previously locked state', function() {
+                var event = document.createEvent('HTMLEvents');
+
+                mff
+                    .configure({
+                        container: '#example1',
+                        defaultFocusedElement : '.box.block1'
+                    })
+                    .start();
+
+                mff.lock();
+
+                event.initEvent('keydown', true, true);
+                event.keyCode = 39;
+                mff.getCurrent().dispatchEvent(event);
+
+                expect(mff.getCurrent().isEqualNode(document.querySelector('#example1 .box.block1'))).to.be.true;
+
+                mff.unlock();
+
+                event.initEvent('keydown', true, true);
+                event.keyCode = 39;
+                mff.getCurrent().dispatchEvent(event);
+
+                expect(mff.getCurrent().isEqualNode(document.querySelector('#example1 .box.block2'))).to.be.true;
+            });
+        });
+
         describe('the eventManager', function() {
 
         });
@@ -959,6 +1017,7 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                 }, 0);
             });
         });
+
     });
 
     function getOriginalOptions() {

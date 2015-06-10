@@ -26,11 +26,8 @@ The diff will be
 
 ---
 
-how I would like to use it in a AMD module:
-
 ```javascript
-define(['./vendor/magic-focus-finder/source/index'], function(magicFocusFinder) {
-// Basically I want to initialize it with an options object then be able to call start, stop, and refresh etc.
+define(['./vendor/magic-focus-finder/source/main'], function(magicFocusFinder) {
   magicFocusFinder
     .configure(optionsObject)
     .start();
@@ -60,9 +57,7 @@ Options Object
 }
 ```
 
-All elements with `config.focusableAttribute` can be given focus to. After starting and a key press, focus is given to
-`config.defaultFocusedElement`, or the first element found with `config.focusdClass`, or the first element found with
-the focusable attribute.
+All elements with `config.focusableAttribute` can be given focus to. After starting and a key press, focus is given to `config.defaultFocusedElement`, or the first element found with `config.focusdClass`, or the first element found with the focusable attribute.
 
 ## Events
 It will fire the following events in the following order - events bubble up and are cancelable, so you can listen on `mff.getContainer()` for all these events.
@@ -85,7 +80,6 @@ This example moves focus from Element One to Element Two
 
 ### Element level
 
-Not Implemented:
 1. `focus` normal focus event
 2. `blur` normal blur event
 5. `magicFocusFinder:focus:from:<% direction %>` namespaced focus event telling you which direction the focus came  from
@@ -100,7 +94,7 @@ Not Implemented:
 
 ## Attributes
 
-You can specify on a per element basis whether you want `distance` or `azimuth` to be the only factor in determining the 
+You can specify on a per element basis whether you want `distance` or `azimuth` to be the only factor in determining the
 next focused element. You have to specify up, down, left, or right following the `weightOverrideAttribute`:
 
 ```html
@@ -127,36 +121,42 @@ returns the overall container - events bubble up to this
 ### start()
 starts the dang thing, if start is called before configure, then default options will be used.
 ```javascript
-
+magicFocusFinder.start();
 ```
 
 ### lock()
-locks it up
+Prevents all navigation from key events.
 ```javascript
+magicFocusFinder.lock();
+```
 
+### unlock()
+Allows navigation from key events.
+```javascript
+magicFocusFinder.unlock();
 ```
 
 ### refresh()
 will refresh the element mapping (should only be used if your browser does not support mutation observers)
 Otherwise it will watch the DOM for new elements.
 ```javascript
-
+magicFocusFinder.refresh();
 ```
 
 ### setCurrent(element)
 set the current focused element, element ref or selector
 ```javascript
-
+magicFocusFinder.setCurrent();
 ```
 
 ### getCurrent()
 get the current focused element, element ref of selector
 ```javascript
-
+magicFocusFinder.getCurrent()
 ```
 
 ### move[direction](options)
-tell the focus to move in a direction
+Tell the focus to move in a direction, this will bypass a lock, if one was set via `mff.lock()`.
 ```javascript
 mff.move.right()
 mff.move.down({ events : false });
@@ -164,10 +164,17 @@ mff.move.down({ events : false });
 
 Can move up, down, left, or right. Can turn off all events for a move by setting the events key to `false` on the options object.
 
+
+### getKnownElements()
+Returns an array of all elements that can be focused by mff.
+```javascript
+magicFocusFinder.getKnownElements();
+```
+
 ### destroy()
 destroy this thing and free up all memory
 ```javascript
-
+magicFocusFinder.destroy();
 ```
 ---
 
