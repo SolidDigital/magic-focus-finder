@@ -1,7 +1,25 @@
 define(['lodash'], function (_) {
     'use strict';
 
-    var defaultConfig = {
+    var _direction = {
+            up: {
+                name: 'up',
+                degrees: 270
+            },
+            down: {
+                name: 'down',
+                degrees: 90
+            },
+            left: {
+                name: 'left',
+                degrees: 180
+            },
+            right: {
+                name: 'right',
+                degrees: 0
+            }
+        },
+        defaultConfig = {
             keymap : {
                 38 : 'up',
                 40 : 'down',
@@ -20,7 +38,7 @@ define(['lodash'], function (_) {
             dynamicPositionAttribute : 'dynamic-position',
             watchDomMutations : true,
             useRealFocus : true,
-            azimuthWeight : 5,
+            azimuthWeight : 1,
             distanceWeight : 1,
             debug : false
         },
@@ -50,7 +68,10 @@ define(['lodash'], function (_) {
                 left : _moveLeft,
                 right : _moveRight,
                 enter : _fireEnter
-            }
+            },
+            getAngle : _getAngle,
+            getPosition : _getPosition,
+            overlap : _overlap
         };
 
     // for now mff is a singleton
@@ -74,6 +95,7 @@ define(['lodash'], function (_) {
         if (!internal.configured) {
             internal.config = _.cloneDeep(defaultConfig);
         } else {
+            // TODO: why is configured set to false?
             internal.configured = false;
         }
 
@@ -235,8 +257,8 @@ define(['lodash'], function (_) {
         }
     }
 
-    function _getPosition(element) {
-        var boundingRect = element.getBoundingClientRect(),
+    function _getPosition(element, boundingRectIn) {
+        var boundingRect = boundingRectIn || element.getBoundingClientRect(),
             centerX = Math.round(boundingRect.left + (boundingRect.width / 2)),
             centerY = Math.round(boundingRect.top + (boundingRect.height / 2));
 
@@ -270,13 +292,14 @@ define(['lodash'], function (_) {
     }
 
     function _moveUp(options) {
+        // TODO: findCloseElement and activateClosest can be combined into one loop with two checks in series
         var closeElements = _findCloseElements(function(current, other){
             return current.oty >= other.oby;
         });
 
-        _activateClosest(closeElements, 'up', function(current, other){
+        _activateClosest(closeElements, _direction.up.name, function(current, other){
             var distance = Math.sqrt(Math.pow(current.oty - other.oby, 2) + Math.pow(current.otx - other.obx, 2)),
-                azimuth = _getAngleDifference(270, _getAngle(current, other));
+                azimuth = _getAngleDifference(270, _getAngle(current, other, _direction.up.name));
 
             // 270 is up (reversed)
             return {
@@ -291,9 +314,9 @@ define(['lodash'], function (_) {
             return current.oby <= other.oty;
         });
 
-        _activateClosest(closeElements, 'down', function(current, other) {
+        _activateClosest(closeElements, _direction.down.name, function(current, other) {
             var distance = Math.sqrt(Math.pow(current.obx - other.otx, 2) + Math.pow(current.oby - other.oty, 2)),
-                azimuth = _getAngleDifference(90, _getAngle(current, other));
+                azimuth = _getAngleDifference(90, _getAngle(current, other, _direction.down.name));
 
             // 90 is down (reversed)
             return {
@@ -308,9 +331,9 @@ define(['lodash'], function (_) {
             return current.olx >= other.orx;
         });
 
-        _activateClosest(closeElements, 'left', function(current, other) {
+        _activateClosest(closeElements, _direction.left.name, function(current, other) {
             var distance = Math.sqrt(Math.pow(current.olx - other.orx, 2) + Math.pow(current.oly - other.ory, 2)),
-                azimuth = _getAngleDifference(180, _getAngle(current, other));
+                azimuth = _getAngleDifference(180, _getAngle(current, other, _direction.left.name));
 
             // Math.PI is directly left
             return {
@@ -325,9 +348,9 @@ define(['lodash'], function (_) {
             return current.orx <= other.olx;
         });
 
-        _activateClosest(closeElements, 'right', function(current, other) {
+        _activateClosest(closeElements, _direction.right.name, function(current, other) {
             var distance = Math.sqrt(Math.pow(current.orx - other.olx, 2) + Math.pow(current.ory - other.oly, 2)),
-                azimuth = _getAngleDifference(0, _getAngle(current, other));
+                azimuth = _getAngleDifference(0, _getAngle(current, other, _direction.right.name));
 
             // 0 is directly right
             return {
@@ -337,8 +360,79 @@ define(['lodash'], function (_) {
         }, options);
     }
 
-    function _getAngle(current, other) {
-        return Math.atan2(other.centerY - current.centerY, other.centerX - current.centerX) * 180 / Math.PI;
+    function _getAngle(current, other, direction) {
+        // Overlaps return 0
+        if (_overlap(current, other, direction)) {
+            switch (direction) {
+                case _direction.up.name:
+                    return _direction.up.degrees;
+                case _direction.down.name:
+                    return _direction.down.degrees;
+                case _direction.left.name:
+                    return _direction.left.degrees;
+                case _direction.right.name:
+                    return _direction.right.degrees;
+            }
+        }
+
+        // Can assume no overlap here
+        switch (direction) {
+        case _direction.up.name:
+            if (other.orx > current.orx) {
+                // o: bl c: tr
+                return Math.atan2(other.oby - current.oty, other.olx - current.orx) * 180 / Math.PI;
+            } else {
+                // o: br c: tl
+                return Math.atan2(other.oby - current.oty, other.orx - current.olx) * 180 / Math.PI;
+            }
+            break;
+        case _direction.down.name:
+            if (other.orx > current.orx) {
+                // o: tl c: br
+                return Math.atan2(other.oty - current.oby, other.olx - current.orx) * 180 / Math.PI;
+            } else {
+                // o: tr c: bl
+                return Math.atan2(other.oty - current.oby, other.orx - current.olx) * 180 / Math.PI;
+            }
+            break;
+        case _direction.left.name:
+            if (other.oty > current.oty) {
+                // o: tr c: bl
+                return Math.atan2(other.oty - current.oby, other.orx - current.olx) * 180 / Math.PI;
+            } else {
+                // o: br c: tl
+                return Math.atan2(other.oby - current.oty, other.orx - current.olx) * 180 / Math.PI;
+            }
+            break;
+        case _direction.right.name:
+            if (other.oty > current.oty) {
+                // o: tl c: br
+                return Math.atan2(other.oty - current.oby, other.olx - current.orx) * 180 / Math.PI;
+            } else {
+                // o: bl c: tr
+                return Math.atan2(other.oby - current.oty, other.olx - current.orx) * 180 / Math.PI;
+            }
+            break;
+        }
+    }
+
+    function _overlap(current, other, direction) {
+        switch (direction) {
+        case _direction.up.name:
+        case _direction.down.name:
+            return  _inside(other.olx, current.olx, current.orx) ||
+                    _inside(other.orx, current.olx, current.orx) ||
+                    (_inside(current.olx, other.olx, current.orx) && (_inside(current.orx, other.olx, other.orx)));
+        case _direction.left.name:
+        case _direction.right.name:
+            return  _inside(other.oty, current.oty, current.oby) ||
+                    _inside(other.oby, current.oty, current.oby) ||
+                    (_inside(current.oty, other.oty, other.oby) && _inside(current.oby, other.oty, other.oby));
+        }
+    }
+
+    function _inside(pin, lower, upper) {
+        return pin >= lower && pin <= upper;
     }
 
     function _getAngleDifference(angle1, angle2) {
@@ -348,6 +442,8 @@ define(['lodash'], function (_) {
     function _getWeightedResult(azimuth, maxAzimuth, azimuthWeight, distance, maxDistance, distanceWeight) {
         var result;
 
+        maxAzimuth = maxAzimuth || 1;
+        maxDistance = maxDistance || 1;
         azimuth = Math.abs(azimuth);
         distance = Math.abs(distance);
 
@@ -362,7 +458,7 @@ define(['lodash'], function (_) {
 
     function _getDirectionOverrides(element) {
         if(element.hasAttribute(internal.config.overrideDirectionAttribute)) {
-            return _.zipObject(['up', 'right', 'down', 'left'], _.map(element.getAttribute(internal.config.overrideDirectionAttribute).split(' '), function(direction) {
+            return _.zipObject([_direction.up.name, _direction.right.name, _direction.down.name, _direction.left.name], _.map(element.getAttribute(internal.config.overrideDirectionAttribute).split(' '), function(direction) {
                 return direction !== 'null' ? direction : null;
             }));
         } else {
@@ -371,7 +467,7 @@ define(['lodash'], function (_) {
     }
 
     function _getPreferedOverrides(element) {
-        return _.reduce(['up', 'down', 'left', 'right'], function(attributes, direction) {
+        return _.reduce([_direction.up.name, _direction.down.name, _direction.left.name, _direction.right.name], function(attributes, direction) {
             var attribute = internal.config.weightOverrideAttribute + '-' + direction;
 
             if (element.hasAttribute(attribute)) {
@@ -435,6 +531,7 @@ define(['lodash'], function (_) {
             .reduce(function(stored, current) {
 
                 var result = {
+                    azimuth : current.azimuth,
                     computed : _getWeightedResult(current.azimuth, maxAzimuth, azimuthWeight, current.distance, maxDistance, distanceWeight),
                     closeElement : current.closeElement
                 };
@@ -443,8 +540,19 @@ define(['lodash'], function (_) {
                     result.closeElement.innerHTML = result.computed.toPrecision(2);
                 }
 
+                if (0 !== stored.azimuth && 0 === current.azimuth) {
+                    return result;
+                }
+
+                if (0 === stored.azimuth && 0 !== result.azimuth) {
+                    return stored;
+                }
+
                 return stored.computed < result.computed ? stored : result;
-            }, {computed:Infinity})
+            }, {
+                azimuth: Infinity,
+                computed:Infinity
+            })
             .value()
             .closeElement;
 

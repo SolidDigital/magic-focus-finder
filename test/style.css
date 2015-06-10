@@ -13,6 +13,18 @@
     width: 50px;
     height: 50px;
 }
+.box-wide {
+    position: absolute;
+    background-color: lime;
+    width: 100px;
+    height: 50px;
+}
+.box-tall {
+    position: absolute;
+    background-color: lime;
+    width: 50px;
+    height: 100px;
+}
 .box.focused {
     outline: 2px solid black;
 }
@@ -28,6 +40,7 @@
 .example2{position: relative; height: 300px;}
 .example3{position: relative; height: 300px;}
 .example4{position: relative; height: 300px;}
+.example5{position: relative; height: 300px;}
 
 #focusableInputs input {
     display: inline-block;
@@ -77,3 +90,13 @@
 .block38{top:200px; left:310px;}
 .block39{top:230px; left:480px;}
 .block40{top:170px; left:550px;}
+
+.block41{top:50px; left:50px;}
+.block42{top:125px; left:75px;}
+.block43{top:200px; left:50px;}
+.block44{top:75px; left:150px;}
+.block45{top:50px; left:225px;}
+.block46{top:125px; left:210px;}
+.block47{top:200px; left:225px;}
+.block48{top:100px; left:335px;}
+.block49{top:125px; left:410px;}
