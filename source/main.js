@@ -456,8 +456,7 @@ define(['lodash'], function (_) {
             maxAzimuth = 0,
             azimuthWeight = internal.config.azimuthWeight,
             distanceWeight = internal.config.distanceWeight,
-            weightOverrides = internal.currentlyFocusedElement.magicFocusFinderpreferedWeightOverrides,
-            zeroes = false;
+            weightOverrides = internal.currentlyFocusedElement.magicFocusFinderpreferedWeightOverrides;
 
         if (weightOverrides && weightOverrides[direction]) {
             // can be distance or azimuth
@@ -499,21 +498,22 @@ define(['lodash'], function (_) {
                 };
 
                 if (internal.config.debug) {
-                    result.closeElement.innerHTML = result.computed.toPrecision(2);
+                    result.closeElement.innerHTML = result.azimuth.toPrecision(2);
                 }
 
-                if (0 === current.azimuth) {
-                    zeroes = true;
+                if (0 !== stored.azimuth && 0 === current.azimuth) {
+                    return result;
                 }
 
-                if (zeroes) {
-                    if (0 !== stored.azimuth && 0 === current.azimuth) {
-                        return result;
-                    }
+                if (0 === stored.azimuth && 0 !== result.azimuth) {
+                    return stored;
                 }
 
                 return stored.computed < result.computed ? stored : result;
-            }, {computed:Infinity})
+            }, {
+                azimuth: Infinity,
+                computed:Infinity
+            })
             .value()
             .closeElement;
 
