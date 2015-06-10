@@ -742,7 +742,7 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                     height  : 50
                 };
 
-            describe('overlap', function() {
+            describe('should calculate a zero for elements that "overlap" in the direction moved', function() {
                 it('down', function() {
                     expect(mff.getAngle(
                         mff.getPosition(null, box41),
@@ -769,69 +769,133 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                         'left')).to.equal(180);
                 });
             });
-            describe('should calculate a zero for elements that "overlap" in the direction moved', function() {
-                it('up', function() {
+            describe('should prefer line of site in direction being moved', function() {
+                describe('overlap where other elements side is inside current element', function() {
+                    it('up', function() {
 
-                    mff
-                        .configure({
-                            container: '#example5',
-                            defaultFocusedElement : '.box.block43'
-                        })
-                        .start();
+                        mff
+                            .configure({
+                                container: '#example5',
+                                defaultFocusedElement : '.box.block43'
+                            })
+                            .start();
 
-                    expect(mff.getCurrent().className).to.equal('box block43 focused');
+                        expect(mff.getCurrent().className).to.equal('box block43 focused');
 
-                    mff.move.up();
+                        mff.move.up();
 
-                    expect(mff.getCurrent().className).to.equal('box block42 focused');
+                        expect(mff.getCurrent().className).to.equal('box block42 focused');
+                    });
+
+                    it('down', function() {
+
+                        mff
+                            .configure({
+                                container: '#example5',
+                                defaultFocusedElement : '.box.block41'
+                            })
+                            .start();
+
+                        expect(mff.getCurrent().className).to.equal('box block41 focused');
+
+                        mff.move.down();
+
+                        expect(mff.getCurrent().className).to.equal('box block42 focused');
+                    });
+
+                    it('right', function() {
+
+                        mff
+                            .configure({
+                                container: '#example5',
+                                defaultFocusedElement : '.box.block41'
+                            })
+                            .start();
+
+                        expect(mff.getCurrent().className).to.equal('box block41 focused');
+
+                        mff.move.right();
+
+                        expect(mff.getCurrent().className).to.equal('box block44 focused');
+                    });
+
+                    it('left', function() {
+
+                        mff
+                            .configure({
+                                container: '#example5',
+                                defaultFocusedElement : '.box.block45'
+                            })
+                            .start();
+
+                        expect(mff.getCurrent().className).to.equal('box block45 focused');
+
+                        mff.move.left();
+
+                        expect(mff.getCurrent().className).to.equal('box block44 focused');
+                    });
                 });
+                describe('overlap where other element is wider than current', function() {
+                    it('up', function() {
 
-                it('down', function() {
+                        mff
+                            .configure({
+                                container: '#example5',
+                                defaultFocusedElement : '.box.block47'
+                            })
+                            .start();
 
-                    mff
-                        .configure({
-                            container: '#example5',
-                            defaultFocusedElement : '.box.block41'
-                        })
-                        .start();
+                        expect(mff.getCurrent().className).to.equal('box block47 focused');
 
-                    expect(mff.getCurrent().className).to.equal('box block41 focused');
+                        mff.move.up();
 
-                    mff.move.down();
+                        expect(mff.getCurrent().className).to.equal('box-wide block46 focused');
+                    });
+                    it('down', function() {
 
-                    expect(mff.getCurrent().className).to.equal('box block42 focused');
-                });
+                        mff
+                            .configure({
+                                container: '#example5',
+                                defaultFocusedElement : '.box.block45'
+                            })
+                            .start();
 
-                it('right', function() {
+                        expect(mff.getCurrent().className).to.equal('box block45 focused');
 
-                    mff
-                        .configure({
-                            container: '#example5',
-                            defaultFocusedElement : '.box.block41'
-                        })
-                        .start();
+                        mff.move.down();
 
-                    expect(mff.getCurrent().className).to.equal('box block41 focused');
+                        expect(mff.getCurrent().className).to.equal('box-wide block46 focused');
+                    });
+                    it('right', function() {
 
-                    mff.move.right();
+                        mff
+                            .configure({
+                                container: '#example5',
+                                defaultFocusedElement : '.box-wide.block46'
+                            })
+                            .start();
 
-                    expect(mff.getCurrent().className).to.equal('box block44 focused');
-                });
+                        expect(mff.getCurrent().className).to.equal('box-wide block46 focused');
 
-                it('left', function() {
+                        mff.move.right();
 
-                    mff
-                        .configure({
-                            container: '#example5',
-                            defaultFocusedElement : '.box.block45'
-                        })
-                        .start();
+                        expect(mff.getCurrent().className).to.equal('box-tall block48 focused');
+                    });
+                    it('left', function() {
 
-                    expect(mff.getCurrent().className).to.equal('box block45 focused');
+                        mff
+                            .configure({
+                                container: '#example5',
+                                defaultFocusedElement : '.box.block49'
+                            })
+                            .start();
 
-                    mff.move.left();
+                        expect(mff.getCurrent().className).to.equal('box block49 focused');
 
-                    expect(mff.getCurrent().className).to.equal('box block44 focused');
+                        mff.move.left();
+
+                        expect(mff.getCurrent().className).to.equal('box-tall block48 focused');
+                    });
                 });
             });
         });

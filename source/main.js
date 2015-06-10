@@ -421,11 +421,13 @@ define(['lodash'], function (_) {
         case _direction.up.name:
         case _direction.down.name:
             return  _inside(other.olx, current.olx, current.orx) ||
-                    _inside(other.orx, current.olx, current.orx);
+                    _inside(other.orx, current.olx, current.orx) ||
+                    (_inside(current.olx, other.olx, current.orx) && (_inside(current.orx, other.olx, other.orx)));
         case _direction.left.name:
         case _direction.right.name:
             return  _inside(other.oty, current.oty, current.oby) ||
-                    _inside(other.oby, current.oty, current.oby);
+                    _inside(other.oby, current.oty, current.oby) ||
+                    (_inside(current.oty, other.oty, other.oby) && _inside(current.oby, other.oty, other.oby));
         }
     }
 
