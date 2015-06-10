@@ -375,8 +375,45 @@ define(['lodash'], function (_) {
             }
         }
 
-        // TODO: If not overlapped return corner to corner
-        return Math.atan2(other.centerY - current.centerY, other.centerX - current.centerX) * 180 / Math.PI;
+        // Can assume no overlap here
+        switch (direction) {
+        case _direction.up.name:
+            if (other.orx > current.orx) {
+                // o: bl c: tr
+                return Math.atan2(other.oby - current.oty, other.olx - current.orx) * 180 / Math.PI;
+            } else {
+                // o: br c: tl
+                return Math.atan2(other.oby - current.oty, other.orx - current.olx) * 180 / Math.PI;
+            }
+            break;
+        case _direction.down.name:
+            if (other.orx > current.orx) {
+                // o: tl c: br
+                return Math.atan2(other.oty - current.oby, other.olx - current.orx) * 180 / Math.PI;
+            } else {
+                // o: tr c: bl
+                return Math.atan2(other.oty - current.oby, other.orx - current.olx) * 180 / Math.PI;
+            }
+            break;
+        case _direction.left.name:
+            if (other.oty > current.oty) {
+                // o: tr c: bl
+                return Math.atan2(other.oty - current.oby, other.orx - current.olx) * 180 / Math.PI;
+            } else {
+                // o: br c: tl
+                return Math.atan2(other.oby - current.oty, other.orx - current.olx) * 180 / Math.PI;
+            }
+            break;
+        case _direction.right.name:
+            if (other.oty > current.oty) {
+                // o: tl c: br
+                return Math.atan2(other.oty - current.oby, other.olx - current.orx) * 180 / Math.PI;
+            } else {
+                // o: bl c: tr
+                return Math.atan2(other.oby - current.oty, other.olx - current.orx) * 180 / Math.PI;
+            }
+            break;
+        }
     }
 
     function _overlap(current, other, direction) {
@@ -498,7 +535,7 @@ define(['lodash'], function (_) {
                 };
 
                 if (internal.config.debug) {
-                    result.closeElement.innerHTML = result.azimuth.toPrecision(2);
+                    result.closeElement.innerHTML = result.computed.toPrecision(2);
                 }
 
                 if (0 !== stored.azimuth && 0 === current.azimuth) {
