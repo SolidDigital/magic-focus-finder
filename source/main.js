@@ -216,8 +216,6 @@ define(['lodash'], function (_) {
             return;
         }
 
-        _recalculateDynamicElementPositions();
-
         if(internal.currentlyFocusedElement) {
             direction = internal.config.keymap[event.keyCode];
 
@@ -491,7 +489,11 @@ define(['lodash'], function (_) {
     }
 
     function _findCloseElements(isClose) {
-        var currentElementsPosition = internal.currentlyFocusedElement.magicFocusFinderPosition;
+        var currentElementsPosition;
+
+        _recalculateDynamicElementPositions();
+
+        currentElementsPosition = internal.currentlyFocusedElement.magicFocusFinderPosition;
 
         return _.filter(internal.knownElements, function(element) {
             var isCloseElement = isClose(currentElementsPosition, element.magicFocusFinderPosition);
