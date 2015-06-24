@@ -554,12 +554,14 @@ define(['lodash'], function (_) {
                     result.closeElement.innerHTML = result.computed.toPrecision(2);
                 }
 
-                if (0 !== stored.azimuth && 0 === current.azimuth) {
-                    return result;
-                }
+                if(weightOverrides[direction] !== 'distance') {
+                    if (0 !== stored.azimuth && 0 === current.azimuth) {
+                        return result;
+                    }
 
-                if (0 === stored.azimuth && 0 !== result.azimuth) {
-                    return stored;
+                    if (0 === stored.azimuth && 0 !== result.azimuth) {
+                        return stored;
+                    }
                 }
 
                 return stored.computed < result.computed ? stored : result;
