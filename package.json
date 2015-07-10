@@ -1,6 +1,6 @@
 {
   "name": "magic-focus-finder",
-  "version": "2.8.9",
+  "version": "2.9.0",
   "description": "Intended to help keyboard navigation through html nodes.",
   "main": "index.js",
   "scripts": {

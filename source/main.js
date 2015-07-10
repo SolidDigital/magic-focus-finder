@@ -1,4 +1,4 @@
-define(['lodash'], function (_) {
+define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
     'use strict';
 
     var _direction = {
@@ -529,10 +529,9 @@ define(['lodash'], function (_) {
         closestElement = _.chain(closeElements)
             .map(function(closeElement) {
 
-                var result = getDistance(currentElementsPosition, closeElement.magicFocusFinderPosition),
-                    closeElementsComputedStyle = window.getComputedStyle(closeElement);
+                var result = getDistance(currentElementsPosition, closeElement.magicFocusFinderPosition);
 
-                if(closeElementsComputedStyle.display === 'none' || closeElementsComputedStyle.visibility === 'hidden') {
+                if(!elementIsVisible(closeElement)) {
                     return;
                 }
 

@@ -11,6 +11,7 @@
             chai                : './bower_components/chai/chai',
             classListPolyFill   : './bower_components/classListPolyfill/classList',
             lodash              : './bower_components/lodash/lodash',
+            elementIsVisible    : './bower_components/elementIsVisible/main',
             magicFocusFinder    : '../source/main',
             mocha               : './bower_components/mocha/mocha',
             sinon               : './bower_components/sinon/lib/sinon',
