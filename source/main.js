@@ -284,7 +284,7 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
         if(internal.config.watchDomMutations && !window.MutationObserver && !window.WebKitMutationObserver) {
             element._watchAttributes = {};
             watchedAttributes.forEach(function(attr) {
-                element._watchAttributes[attr] = elem.getAttribute(attr);
+                element._watchAttributes[attr] = element.getAttribute(attr);
             });
         }
 
@@ -640,7 +640,7 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
                 subtree : true,
                 attributes: true,
                 attributeOldValue: true,
-                attributeFilter: ['focus-overrides', internal.config.focusableAttribute]
+                attributeFilter: watchedAttributes
             });
         } else {
             internal.config.container.addEventListener('DOMNodeInserted', _addNodeFromDomNodeAddedEvent);
