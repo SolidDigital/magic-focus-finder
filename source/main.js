@@ -1,9 +1,8 @@
 define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
     'use strict';
 
-    var compatibilityAttributeMutationWatcherTimer = null;
-
-    var _direction = {
+    var compatibilityAttributeMutationWatcherTimer,
+        _direction = {
             up: {
                 name: 'up',
                 degrees: 270
@@ -76,12 +75,11 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
             getAngle : _getAngle,
             getPosition : _getPosition,
             overlap : _overlap
-        };
+        },
+        watchedAttributes = [];
 
     // for now mff is a singleton
     return mff;
-
-    var watchedAttributes = [];
 
     function configure() {
         internal.config = _.extend(_.cloneDeep(defaultConfig), _.extend.apply(_, arguments));
@@ -622,11 +620,13 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
         if(window.MutationObserver || window.WebKitMutationObserver) {
             internal.domObserver = new MutationObserver(function(mutations) {
                 mutations.forEach(function(mutation) {
-                    if (mutation.addedNodes.length)
+                    if (mutation.addedNodes.length) {
                         _.each(mutation.addedNodes, _addNodeFromMutationEvent);
+                    }
 
-                    if (mutation.removedNodes.length)
+                    if (mutation.removedNodes.length) {
                         _.each(mutation.removedNodes, _removeNodeFromMutationEvent);
+                    }
 
                     if (mutation.type == 'attributes') {
                         _removeNodeFromMutationEvent(mutation.target);
