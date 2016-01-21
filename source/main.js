@@ -1,6 +1,8 @@
 define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
     'use strict';
 
+    var compatibilityAttributeMutationWatcherTimer = null;
+
     var _direction = {
             up: {
                 name: 'up',
@@ -78,6 +80,8 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
 
     // for now mff is a singleton
     return mff;
+
+    var watchedAttributes = [];
 
     function configure() {
         internal.config = _.extend(_.cloneDeep(defaultConfig), _.extend.apply(_, arguments));
@@ -172,6 +176,8 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
     }
 
     function refresh() {
+        watchedAttributes = ['focus-overrides', internal.config.focusableAttribute];
+
         if(internal.config.container === 'document') {
             internal.config.container = document;
         } else if(internal.config.container.nodeName){
@@ -186,6 +192,24 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
 
         [].forEach.call(internal.config.container.querySelectorAll('['+ internal.config.focusableAttribute +']'), _registerElement);
 
+        //ATTENTION! May cause performance issues!!!
+        if(internal.config.watchDomMutations && !window.MutationObserver && !window.WebKitMutationObserver) {
+            clearInterval(compatibilityAttributeMutationWatcherTimer);
+
+            compatibilityAttributeMutationWatcherTimer = setInterval(function() {
+                internal.knownElements.forEach(function(elem) {
+                    watchedAttributes.forEach(function(attr) {
+                        if (elem.getAttribute(attr) != elem._watchAttributes[attr]) {
+                            elem._watchAttributes[attr] = elem.getAttribute(attr);
+
+                            _removeNodeFromMutationEvent(elem);
+                            _addNodeFromMutationEvent(elem);
+                        }
+                    });
+                });
+            }, 100);
+        }
+
         return mff;
     }
 
@@ -197,6 +221,7 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
         _removeBodyKeypressListener();
         _removeMutationObservers();
         configure(defaultConfig);
+        clearInterval(compatibilityAttributeMutationWatcherTimer);
     }
 
     function lock() {
@@ -255,6 +280,14 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
         }
 
         internal.knownElements.push(element);
+
+        if(internal.config.watchDomMutations && !window.MutationObserver && !window.WebKitMutationObserver) {
+            element._watchAttributes = {};
+            watchedAttributes.forEach(function(attr) {
+                element._watchAttributes[attr] = element.getAttribute(attr);
+            });
+        }
+
     }
 
     function _unregisterElement(element) {
@@ -589,15 +622,25 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
         if(window.MutationObserver || window.WebKitMutationObserver) {
             internal.domObserver = new MutationObserver(function(mutations) {
                 mutations.forEach(function(mutation) {
-                    _.each(mutation.addedNodes, _addNodeFromMutationEvent);
+                    if (mutation.addedNodes.length)
+                        _.each(mutation.addedNodes, _addNodeFromMutationEvent);
 
-                    _.each(mutation.removedNodes, _removeNodeFromMutationEvent);
+                    if (mutation.removedNodes.length)
+                        _.each(mutation.removedNodes, _removeNodeFromMutationEvent);
+
+                    if (mutation.type == 'attributes') {
+                        _removeNodeFromMutationEvent(mutation.target);
+                        _addNodeFromMutationEvent(mutation.target);
+                    }
                 });
             });
 
             internal.domObserver.observe(internal.config.container, {
                 childList: true,
-                subtree : true
+                subtree : true,
+                attributes: true,
+                attributeOldValue: true,
+                attributeFilter: watchedAttributes
             });
         } else {
             internal.config.container.addEventListener('DOMNodeInserted', _addNodeFromDomNodeAddedEvent);
