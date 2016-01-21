@@ -43,7 +43,7 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
             distanceWeight : 1,
             debug : false,
             attributeWatchInterval : 100,
-            useMutationObserverFallbacks : false
+            useNativeMutationObserver : true
         },
         internal = {
             configured: false,
@@ -610,7 +610,7 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
 
     function _setupAndStartWatchingMutations() {
         // Home baked mutation observer. The shim was VERY slow. This is much faster.
-        if((window.MutationObserver || window.WebKitMutationObserver) && !internal.config.useMutationObserverFallbacks) {
+        if((window.MutationObserver || window.WebKitMutationObserver) && internal.config.useNativeMutationObserver) {
             internal.domObserver = new MutationObserver(function(mutations) {
                 mutations.forEach(function(mutation) {
                     if (mutation.addedNodes.length) {

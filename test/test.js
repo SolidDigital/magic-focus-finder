@@ -42,7 +42,7 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                     distanceWeight : 1,
                     debug : false,
                     attributeWatchInterval : 100,
-                    useMutationObserverFallbacks : false
+                    useNativeMutationObserver : true
                 };
 
                 mff.configure(options);
@@ -68,7 +68,7 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                         distanceWeight : 6,
                         debug : false,
                         attributeWatchInterval : 100,
-                        useMutationObserverFallbacks : false
+                        useNativeMutationObserver : true
                     },
                     options1 = {
                         keymap: {},
@@ -120,7 +120,7 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                     azimuthWeight : 5,
                     distanceWeight : 1,
                     debug : false,
-                    useMutationObserverFallbacks : false
+                    useNativeMutationObserver : true
                 };
 
                 mff.configure(options);
@@ -178,7 +178,7 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                     'distanceWeight',
                     'debug',
                     'attributeWatchInterval',
-                    'useMutationObserverFallbacks'
+                    'useNativeMutationObserver'
                 ];
 
                 expect(mff.getConfig()).to.have.all.keys(keys);
@@ -202,7 +202,7 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                     distanceWeight : 1,
                     debug : false,
                     attributeWatchInterval : 100,
-                    useMutationObserverFallbacks : false
+                    useNativeMutationObserver : true
                 };
 
                 mff.configure(options);
@@ -1056,11 +1056,11 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                 it('should support forcing to use mutation observer fallback for development', function() {
                     mff
                         .configure({
-                            useMutationObserverFallbacks : true
+                            useNativeMutationObserver : false
                         })
                         .start();
 
-                    expect(mff.getConfig().useMutationObserverFallbacks).to.be.true;
+                    expect(mff.getConfig().useNativeMutationObserver).to.be.false;
                 });
 
                 it('should watch changes to individual elements attributes', function() {
@@ -1070,7 +1070,7 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                         .configure({
                             container : '#example6',
                             defaultFocusedElement : '#block50',
-                            useMutationObserverFallbacks : true
+                            useNativeMutationObserver : false
                         })
                         .start();
 
@@ -1116,7 +1116,7 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
             distanceWeight : 1,
             debug : false,
             attributeWatchInterval : 100,
-            useMutationObserverFallbacks : false
+            useNativeMutationObserver : true
         };
     }
 });
