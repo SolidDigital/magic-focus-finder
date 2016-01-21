@@ -1,6 +1,6 @@
 # Magic Focus Finder [![Bower version](https://badge.fury.io/bo/magic-focus-finder.png)](http://badge.fury.io/bo/magic-focus-finder) [![Build Status](https://travis-ci.org/Solid-Interactive/magic-focus-finder.png?branch=master)](https://travis-ci.org/Solid-Interactive/magic-focus-finder)
 
-Intended to help keyboard navigation through html nodes.
+Intended to help keyboard navigation through html nodes. Useful on Smart TV apps when people need to navigate with 4 directional remote.
 
 [Try out the demo](http://solid-interactive.github.io/magic-focus-finder/)
 
@@ -16,13 +16,14 @@ This is heavily influenced by (and sort of a rip off of) this repo: [jquery.keyJ
 The diff will be
 
 1. no jquery
-2. using mutation observers to know when new focusable elements are added / removed from the DOM.
-3. full custom event support so that it will work with custom elements and dom binding libraries seemless.
-3. customizable key mapping so that I can use it with TV remote controls.
-4. wrap in integration tests
-5. semvar and bower
-6. amd compliant
-7. full wiki and examples page
+2. using mutation observers to know when new focusable elements are added / removed from the DOM. (Does not need to support native observers, we have fallback)
+3. Using Mustation observers to know when individual elements focusable attributes have changed.
+4. full custom event support so that it will work with custom elements and dom binding libraries seamless.
+5. customizable key mapping so that I can use it with TV remote controls.
+6. wrap in integration tests
+7. semvar and bower
+8. amd compliant
+9. full wiki and examples page
 
 ---
 
@@ -52,8 +53,10 @@ Options Object
   dynamicPositionAttribute : 'dynamic-position',
   useRealFocus : true, // Will trigger `blur` and `focus` on the actual elements, if set to false, bypass this.
   azimuthWeight : 5, // Higher value means that it will prefer elements in the direction it is going
-  distanceWeigth : 1, // Higher value means that it will prefer elements that are closer
-  debug : false // Setting to true will replace the elements innerHTML with the computed distance (weighted azimuth + weighted distance)
+  distanceWeight : 1, // Higher value means that it will prefer elements that are closer
+  debug : false, // Setting to true will replace the elements innerHTML with the computed distance (weighted azimuth + weighted distance),
+  attributeWatchInterval : 100, // If your browser does not support mutation observers. This is how often it will check the known elements for attribute changes.
+  useNativeMutationObserver : true // You can force the repo to use the non native mutation observer fallback.
 }
 ```
 
@@ -95,7 +98,7 @@ Not Implemented:
 ## Attributes
 
 You can specify on a per element basis whether you want `distance` or `azimuth` to be the only factor in determining the
-next focused element. You have to specify up, down, left, or right following the `weightOverrideAttribute`:
+next focused element. You have to specify up, down, left, or right following the `weightOverrideAttribute`.  Element attributes will be watched for changes and appropriately updated.
 
 ```html
 <div weight-override-up='azimuth' focusable> </div>
