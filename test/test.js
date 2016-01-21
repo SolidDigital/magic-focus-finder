@@ -40,7 +40,9 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                     useRealFocus : true,
                     azimuthWeight : 5,
                     distanceWeight : 1,
-                    debug : false
+                    debug : false,
+                    attributeWatchInterval : 100,
+                    useMutationObserverFallbacks : false
                 };
 
                 mff.configure(options);
@@ -64,7 +66,9 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                         useRealFocus : true,
                         azimuthWeight : 6,
                         distanceWeight : 6,
-                        debug : false
+                        debug : false,
+                        attributeWatchInterval : 100,
+                        useMutationObserverFallbacks : false
                     },
                     options1 = {
                         keymap: {},
@@ -115,7 +119,8 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                     useRealFocus : true,
                     azimuthWeight : 5,
                     distanceWeight : 1,
-                    debug : false
+                    debug : false,
+                    useMutationObserverFallbacks : false
                 };
 
                 mff.configure(options);
@@ -171,7 +176,9 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                     'useRealFocus',
                     'azimuthWeight',
                     'distanceWeight',
-                    'debug'
+                    'debug',
+                    'attributeWatchInterval',
+                    'useMutationObserverFallbacks'
                 ];
 
                 expect(mff.getConfig()).to.have.all.keys(keys);
@@ -193,7 +200,9 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                     useRealFocus : true,
                     azimuthWeight : 5,
                     distanceWeight : 1,
-                    debug : false
+                    debug : false,
+                    attributeWatchInterval : 100,
+                    useMutationObserverFallbacks : false
                 };
 
                 mff.configure(options);
@@ -979,42 +988,105 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                 expect(mff.getKnownElements().length).to.equal(initialFocusableCount);
             });
 
-            xit('should add an element to the knownElements collection when added to the dom', function(done) {
-                var appendee = document.createElement('div'),
-                    initialFocusableCount = document.querySelectorAll('[focusable]').length - document.querySelectorAll('.hidden').length;
+            describe('when the browser supports mutation observers', function() {
+                xit('should add an element to the knownElements collection when added to the dom', function(done) {
+                    var appendee = document.createElement('div'),
+                        initialFocusableCount = document.querySelectorAll('[focusable]').length - document.querySelectorAll('.hidden').length;
 
-                appendee.setAttribute('focusable', 'focusable');
+                    appendee.setAttribute('focusable', 'focusable');
 
-                mff.start();
+                    mff.start();
 
-                expect(mff.getKnownElements().length).to.equal(initialFocusableCount);
-
-                document.querySelector('#iContainMoreFocusables').appendChild(appendee);
-
-                setTimeout(function() {
-                    expect(mff.getKnownElements().length).to.equal(initialFocusableCount + 1);
-                    done();
-                }, 1000);
-            });
-
-            xit('should add elements that are deeply nested into knownElements when the parent is added to the dom', function() {
-                // This should test that if there were deeply nested nodes, and on very deep in there had a focusable.
-                // currently, the mutation event will only fire on the first level children of the container.
-            });
-
-            //https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeType
-            it('should only add HTML nodes of type === 1 and no text/comment nodes.', function(done) {
-                var appendee = document.createTextNode('juju bone'),
-                    initialFocusableCount = document.querySelectorAll('[focusable]').length;
-
-                mff.start();
-
-                document.querySelector('#iContainMoreFocusables').appendChild(appendee);
-
-                setTimeout(function() {
                     expect(mff.getKnownElements().length).to.equal(initialFocusableCount);
-                    done();
-                }, 0);
+
+                    document.querySelector('#iContainMoreFocusables').appendChild(appendee);
+
+                    setTimeout(function() {
+                        expect(mff.getKnownElements().length).to.equal(initialFocusableCount + 1);
+                        done();
+                    }, 1000);
+                });
+
+                xit('should add elements that are deeply nested into knownElements when the parent is added to the dom', function() {
+                    // This should test that if there were deeply nested nodes, and on very deep in there had a focusable.
+                    // currently, the mutation event will only fire on the first level children of the container.
+                });
+
+                //https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeType
+                it('should only add HTML nodes of type === 1 and no text/comment nodes.', function(done) {
+                    var appendee = document.createTextNode('juju bone'),
+                        initialFocusableCount = document.querySelectorAll('[focusable]').length;
+
+                    mff.start();
+
+                    document.querySelector('#iContainMoreFocusables').appendChild(appendee);
+
+                    setTimeout(function() {
+                        expect(mff.getKnownElements().length).to.equal(initialFocusableCount);
+                        done();
+                    }, 0);
+                });
+
+                it('should watch changes to individual elements attributes', function() {
+                    var elementWhoseAttributesChanged;
+
+                    mff
+                        .configure({
+                            container : '#example6',
+                            defaultFocusedElement : '#block50'
+                        })
+                        .start();
+
+                    // if we modify the attributes on block50 in the dom, we should be able to see those new attributes in the known elements array.
+                    document.querySelector('#block50').setAttribute('focus-overrides', 'null #block52 null null');
+
+                    elementWhoseAttributesChanged = mff.getKnownElements().reduce(function(found, element) {
+                        if(element.id === 'block50') {
+                            found = element;
+                        }
+
+                        return found;
+                    }, null);
+
+                    expect(elementWhoseAttributesChanged.getAttribute('focus-overrides')).to.equal('null #block52 null null');
+                });
+            });
+
+            describe('when the browser does not support mutation observers', function() {
+                it('should support forcing to use mutation observer fallback for development', function() {
+                    mff
+                        .configure({
+                            useMutationObserverFallbacks : true
+                        })
+                        .start();
+
+                    expect(mff.getConfig().useMutationObserverFallbacks).to.be.true;
+                });
+
+                it('should watch changes to individual elements attributes', function() {
+                    var elementWhoseAttributesChanged;
+
+                    mff
+                        .configure({
+                            container : '#example6',
+                            defaultFocusedElement : '#block50',
+                            useMutationObserverFallbacks : true
+                        })
+                        .start();
+
+                    // if we modify the attributes on block50 in the dom, we should be able to see those new attributes in the known elements array.
+                    document.querySelector('#block50').setAttribute('focus-overrides', 'null #block52 null null');
+
+                    elementWhoseAttributesChanged = mff.getKnownElements().reduce(function(found, element) {
+                        if(element.id === 'block50') {
+                            found = element;
+                        }
+
+                        return found;
+                    }, null);
+
+                    expect(elementWhoseAttributesChanged.getAttribute('focus-overrides')).to.equal('null #block52 null null');
+                });
             });
         });
 
@@ -1042,7 +1114,9 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
             useRealFocus : true,
             azimuthWeight : 1,
             distanceWeight : 1,
-            debug : false
+            debug : false,
+            attributeWatchInterval : 100,
+            useMutationObserverFallbacks : false
         };
     }
 });
