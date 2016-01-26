@@ -611,21 +611,12 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
     function _setupAndStartWatchingMutations() {
         // Home baked mutation observer. The shim was VERY slow. This is much faster.
         if((window.MutationObserver || window.WebKitMutationObserver) && internal.config.useNativeMutationObserver) {
+            var delay_timer = null;
             internal.domObserver = new MutationObserver(function(mutations) {
-                mutations.forEach(function(mutation) {
-                    if (mutation.addedNodes.length) {
-                        _.each(mutation.addedNodes, _addNodeFromMutationEvent);
-                    }
-
-                    if (mutation.removedNodes.length) {
-                        _.each(mutation.removedNodes, _removeNodeFromMutationEvent);
-                    }
-
-                    if (mutation.type == 'attributes') {
-                        _removeNodeFromMutationEvent(mutation.target);
-                        _addNodeFromMutationEvent(mutation.target);
-                    }
-                });
+                clearTimeout(delay_timer);
+                delay_timer = setTimeout(function() {
+                    refresh();
+                }, 100);
             });
 
             internal.domObserver.observe(internal.config.container, {
