@@ -15,15 +15,14 @@ This is heavily influenced by (and sort of a rip off of) this repo: [jquery.keyJ
 
 The diff will be
 
-1. no jquery
+1. no jQuery
 2. using mutation observers to know when new focusable elements are added / removed from the DOM. (Does not need to support native observers, we have fallback)
-3. Using Mustation observers to know when individual elements focusable attributes have changed.
-4. full custom event support so that it will work with custom elements and dom binding libraries seamless.
-5. customizable key mapping so that I can use it with TV remote controls.
-6. wrap in integration tests
-7. semvar and bower
-8. amd compliant
-9. full wiki and examples page
+3. full custom event support so that it will work with custom elements and dom binding libraries seamless.
+4. customizable key mapping so that I can use it with TV remote controls.
+5. wrap in integration tests
+6. semvar and bower
+7. amd compliant
+8. full wiki and examples page
 
 ---
 

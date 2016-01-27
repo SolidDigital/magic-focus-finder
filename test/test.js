@@ -41,8 +41,7 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                     azimuthWeight : 5,
                     distanceWeight : 1,
                     debug : false,
-                    attributeWatchInterval : 100,
-                    useNativeMutationObserver : true
+                    useNativeMutationObserver : true,
                 };
 
                 mff.configure(options);
@@ -67,7 +66,6 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                         azimuthWeight : 6,
                         distanceWeight : 6,
                         debug : false,
-                        attributeWatchInterval : 100,
                         useNativeMutationObserver : true
                     },
                     options1 = {
@@ -120,7 +118,7 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                     azimuthWeight : 5,
                     distanceWeight : 1,
                     debug : false,
-                    useNativeMutationObserver : true
+                    useNativeMutationObserver : true,
                 };
 
                 mff.configure(options);
@@ -177,7 +175,6 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                     'azimuthWeight',
                     'distanceWeight',
                     'debug',
-                    'attributeWatchInterval',
                     'useNativeMutationObserver'
                 ];
 
@@ -202,7 +199,8 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                     distanceWeight : 1,
                     debug : false,
                     attributeWatchInterval : 100,
-                    useNativeMutationObserver : true
+                    useNativeMutationObserver : true,
+                    watchAttributeMutations : false
                 };
 
                 mff.configure(options);
@@ -1027,29 +1025,30 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                     }, 0);
                 });
 
-                it('should watch changes to individual elements attributes', function() {
-                    var elementWhoseAttributesChanged;
-
-                    mff
-                        .configure({
-                            container : '#example6',
-                            defaultFocusedElement : '#block50'
-                        })
-                        .start();
-
-                    // if we modify the attributes on block50 in the dom, we should be able to see those new attributes in the known elements array.
-                    document.querySelector('#block50').setAttribute('focus-overrides', 'null #block52 null null');
-
-                    elementWhoseAttributesChanged = mff.getKnownElements().reduce(function(found, element) {
-                        if(element.id === 'block50') {
-                            found = element;
-                        }
-
-                        return found;
-                    }, null);
-
-                    expect(elementWhoseAttributesChanged.getAttribute('focus-overrides')).to.equal('null #block52 null null');
-                });
+                // it('should watch changes to individual elements attributes', function() {
+                //     var elementWhoseAttributesChanged;
+                //
+                //     mff
+                //         .configure({
+                //             container : '#example6',
+                //             defaultFocusedElement : '#block50',
+                //             watchAttributeMutations : true
+                //         })
+                //         .start();
+                //
+                //     // if we modify the attributes on block50 in the dom, we should be able to see those new attributes in the known elements array.
+                //     document.querySelector('#block50').setAttribute('focus-overrides', 'null #block52 null null');
+                //
+                //     elementWhoseAttributesChanged = mff.getKnownElements().reduce(function(found, element) {
+                //         if(element.id === 'block50') {
+                //             found = element;
+                //         }
+                //
+                //         return found;
+                //     }, null);
+                //
+                //     expect(elementWhoseAttributesChanged.magicFocusFinderDirectionOverrides.right).to.equal('#block52');
+                // });
             });
 
             describe('when the browser does not support mutation observers', function() {
@@ -1063,30 +1062,30 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                     expect(mff.getConfig().useNativeMutationObserver).to.be.false;
                 });
 
-                it('should watch changes to individual elements attributes', function() {
-                    var elementWhoseAttributesChanged;
-
-                    mff
-                        .configure({
-                            container : '#example6',
-                            defaultFocusedElement : '#block50',
-                            useNativeMutationObserver : false
-                        })
-                        .start();
-
-                    // if we modify the attributes on block50 in the dom, we should be able to see those new attributes in the known elements array.
-                    document.querySelector('#block50').setAttribute('focus-overrides', 'null #block52 null null');
-
-                    elementWhoseAttributesChanged = mff.getKnownElements().reduce(function(found, element) {
-                        if(element.id === 'block50') {
-                            found = element;
-                        }
-
-                        return found;
-                    }, null);
-
-                    expect(elementWhoseAttributesChanged.getAttribute('focus-overrides')).to.equal('null #block52 null null');
-                });
+                // it('should watch changes to individual elements attributes', function() {
+                //     var elementWhoseAttributesChanged;
+                //
+                //     mff
+                //         .configure({
+                //             container : '#example6',
+                //             defaultFocusedElement : '#block50',
+                //             useNativeMutationObserver : false
+                //         })
+                //         .start();
+                //
+                //     // if we modify the attributes on block50 in the dom, we should be able to see those new attributes in the known elements array.
+                //     document.querySelector('#block50').setAttribute('focus-overrides', 'null #block52 null null');
+                //
+                //     elementWhoseAttributesChanged = mff.getKnownElements().reduce(function(found, element) {
+                //         if(element.id === 'block50') {
+                //             found = element;
+                //         }
+                //
+                //         return found;
+                //     }, null);
+                //
+                //     expect(elementWhoseAttributesChanged.getAttribute('focus-overrides')).to.equal('null #block52 null null');
+                // });
             });
         });
 
@@ -1115,8 +1114,7 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
             azimuthWeight : 1,
             distanceWeight : 1,
             debug : false,
-            attributeWatchInterval : 100,
-            useNativeMutationObserver : true
+            useNativeMutationObserver : true,
         };
     }
 });
