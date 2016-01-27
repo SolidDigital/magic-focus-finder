@@ -103,6 +103,13 @@ next focused element. You have to specify up, down, left, or right following the
 <div weight-override-up='azimuth' focusable> </div>
 ```
 
+You can specify on a per element basis if you want to override the default behavior of that direction fired. This will be recalculated on each movement so you can use this attribute to change the directional behavior in real time if you need. The direction overrides will take a normal single line selector. The order of the overrides occur 'up' 'right' 'down' and 'left'. You can also used the keys null and skip. Null will bypass the direction override for that direction. In the example below, when moving down it will use the default focus behavior.  If you use the work 'skip' it will skip this direction entirely, essentially canceling the movement. In the example below, when you go left, nothing will happen. Please not, the selectors for the overrides need to be a simple word as we split the directions on a space. Also note, the selectors must exist in inside your configured container.
+
+```html
+<div focus-overrides='.something-up #somethingRight null skip'></div>
+```
+
+
 ##Methods
 
 ### configure(options)

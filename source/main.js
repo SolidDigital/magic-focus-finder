@@ -220,6 +220,8 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
         if(internal.currentlyFocusedElement) {
             direction = internal.config.keymap[event.keyCode];
 
+            internal.currentlyFocusedElement.magicFocusFinderDirectionOverrides =  _getDirectionOverrides(internal.currentlyFocusedElement);
+
             if(direction && 'skip' === internal.currentlyFocusedElement.magicFocusFinderDirectionOverrides[direction]) {
                 return;
             } else if(direction && internal.currentlyFocusedElement.magicFocusFinderDirectionOverrides[direction]) {
