@@ -41,7 +41,8 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
             azimuthWeight : 1,
             distanceWeight : 1,
             debug : false,
-            useNativeMutationObserver : true
+            useNativeMutationObserver : true,
+            supportMouse: false
         },
         internal = {
             configured: false,
@@ -210,11 +211,30 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
         return mff;
     }
 
+    function _findParentBySelector(elm, selector) {
+        var all = document.querySelectorAll(selector);
+        var cur = elm.parentNode;
+        while(cur && !_collectionHas(all, cur)) { //keep going up until you find a match
+            cur = cur.parentNode; //go up
+        }
+        return cur; //will return null if not found
+    }
+
     function _eventManager(event) {
         var direction;
 
         if(!internal.canMove) {
             return;
+        }
+
+        if (internal.config.supportMouse && event.type == 'mouseover') {
+            if (event.srcElement.hasAttribute(internal.config.focusableAttribute)) {
+                setCurrent(event.srcElement, null);
+            } else {
+                setCurrent(_findParentBySelector(event.srcElement, '['+internal.config.focusableAttribute+']'), null);
+            }
+
+            return false;
         }
 
         if(internal.currentlyFocusedElement) {
@@ -252,6 +272,11 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
         element.magicFocusFinderPosition = _getPosition(element);
         element.magicFocusFinderDirectionOverrides = _getDirectionOverrides(element);
         element.magicFocusFinderpreferedWeightOverrides = _getPreferedOverrides(element);
+        if (internal.config.supportMouse) {
+            //prevent adding mouse over more than once
+            element.removeEventListener('mouseover', _eventManager);
+            element.addEventListener('mouseover', _eventManager);
+        }
 
         if(element.hasAttribute(internal.config.captureFocusAttribute)) {
             setCurrent(element);
@@ -261,6 +286,10 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
     }
 
     function _unregisterElement(element) {
+        if (internal.config.supportMouse) {
+            element.removeEventListener('mouseover', _eventManager);
+        }
+
         internal.knownElements = _.reject(internal.knownElements, function(knownElement) {
             return knownElement.isEqualNode(element);
         });
