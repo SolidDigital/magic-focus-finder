@@ -15,15 +15,14 @@ This is heavily influenced by (and sort of a rip off of) this repo: [jquery.keyJ
 
 The diff will be
 
-1. no jquery
+1. no jQuery
 2. using mutation observers to know when new focusable elements are added / removed from the DOM. (Does not need to support native observers, we have fallback)
-3. Using Mustation observers to know when individual elements focusable attributes have changed.
-4. full custom event support so that it will work with custom elements and dom binding libraries seamless.
-5. customizable key mapping so that I can use it with TV remote controls.
-6. wrap in integration tests
-7. semvar and bower
-8. amd compliant
-9. full wiki and examples page
+3. full custom event support so that it will work with custom elements and dom binding libraries seamless.
+4. customizable key mapping so that I can use it with TV remote controls.
+5. wrap in integration tests
+6. semvar and bower
+7. amd compliant
+8. full wiki and examples page
 
 ---
 
@@ -103,6 +102,13 @@ next focused element. You have to specify up, down, left, or right following the
 ```html
 <div weight-override-up='azimuth' focusable> </div>
 ```
+
+You can specify on a per element basis if you want to override the default behavior of that direction fired. This will be recalculated on each movement so you can use this attribute to change the directional behavior in real time if you need. The direction overrides will take a normal single line selector. The order of the overrides occur 'up' 'right' 'down' and 'left'. You can also used the keys null and skip. Null will bypass the direction override for that direction. In the example below, when moving down it will use the default focus behavior.  If you use the work 'skip' it will skip this direction entirely, essentially canceling the movement. In the example below, when you go left, nothing will happen. Please not, the selectors for the overrides need to be a simple word as we split the directions on a space. Also note, the selectors must exist in inside your configured container.
+
+```html
+<div focus-overrides='.something-up #somethingRight null skip'></div>
+```
+
 
 ##Methods
 

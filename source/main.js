@@ -1,8 +1,7 @@
 define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
     'use strict';
 
-    var compatibilityAttributeMutationWatcherTimer,
-        _direction = {
+    var _direction = {
             up: {
                 name: 'up',
                 degrees: 270
@@ -42,7 +41,6 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
             azimuthWeight : 1,
             distanceWeight : 1,
             debug : false,
-            attributeWatchInterval : 100,
             useNativeMutationObserver : true
         },
         internal = {
@@ -53,8 +51,7 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
             // Each element will get the following properties when registered:
             // magicFocusFinderPosition = the elements position.
             // magicFocusFinderDirectionOverrides = if the element had any direction overrides.
-            domObserver : null,
-            watchedAttributes : []
+            domObserver : null
         },
         mff = {
             configure : configure,
@@ -176,8 +173,6 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
     }
 
     function refresh() {
-        _setWatchedAttributes();
-
         if(internal.config.container === 'document') {
             internal.config.container = document;
         } else if(internal.config.container.nodeName){
@@ -225,6 +220,8 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
         if(internal.currentlyFocusedElement) {
             direction = internal.config.keymap[event.keyCode];
 
+            internal.currentlyFocusedElement.magicFocusFinderDirectionOverrides =  _getDirectionOverrides(internal.currentlyFocusedElement);
+
             if(direction && 'skip' === internal.currentlyFocusedElement.magicFocusFinderDirectionOverrides[direction]) {
                 return;
             } else if(direction && internal.currentlyFocusedElement.magicFocusFinderDirectionOverrides[direction]) {
@@ -261,24 +258,6 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
         }
 
         internal.knownElements.push(element);
-
-        if(internal.config.watchDomMutations && !window.MutationObserver && !window.WebKitMutationObserver) {
-            element._watchAttributes = {};
-            internal.watchedAttributes.forEach(function(attr) {
-                element._watchAttributes[attr] = element.getAttribute(attr);
-            });
-        }
-
-    }
-
-    function _setWatchedAttributes() {
-        internal.watchedAttributes = [
-            internal.config.weightOverrideAttribute,
-            internal.config.focusableAttribute,
-            internal.config.overrideDirectionAttribute,
-            internal.config.captureFocusAttribute,
-            internal.config.dynamicPositionAttribute
-        ];
     }
 
     function _unregisterElement(element) {
@@ -611,41 +590,26 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
     function _setupAndStartWatchingMutations() {
         // Home baked mutation observer. The shim was VERY slow. This is much faster.
         if((window.MutationObserver || window.WebKitMutationObserver) && internal.config.useNativeMutationObserver) {
-            var delay_timer = null;
             internal.domObserver = new MutationObserver(function(mutations) {
-                clearTimeout(delay_timer);
-                delay_timer = setTimeout(function() {
-                    refresh();
-                }, 100);
+                mutations.forEach(function(mutation) {
+                    if (mutation.addedNodes.length) {
+                        _.each(mutation.addedNodes, _addNodeFromMutationEvent);
+                    }
+
+                    if (mutation.removedNodes.length) {
+                        _.each(mutation.removedNodes, _removeNodeFromMutationEvent);
+                    }
+                });
             });
 
             internal.domObserver.observe(internal.config.container, {
                 childList: true,
-                subtree : true,
-                attributes: true,
-                attributeOldValue: true,
-                attributeFilter: internal.watchedAttributes
+                subtree : true
             });
         } else {
             internal.config.container.addEventListener('DOMNodeInserted', _addNodeFromDomNodeAddedEvent);
 
             internal.config.container.addEventListener('DOMNodeRemoved', _removeNodeFromDomNodeAddedEvent);
-
-            //ATTENTION! May cause performance issues!!!
-            clearInterval(compatibilityAttributeMutationWatcherTimer);
-
-            compatibilityAttributeMutationWatcherTimer = setInterval(function() {
-                internal.knownElements.forEach(function(elem) {
-                    internal.watchedAttributes.forEach(function(attr) {
-                        if (elem.getAttribute(attr) != elem._watchAttributes[attr]) {
-                            elem._watchAttributes[attr] = elem.getAttribute(attr);
-
-                            _removeNodeFromMutationEvent(elem);
-                            _addNodeFromMutationEvent(elem);
-                        }
-                    });
-                });
-            }, internal.config.attributeWatchInterval);
         }
     }
 
@@ -692,7 +656,6 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
         } else if(internal.config && internal.config.container && internal.config.container.nodeName) {
             internal.config.container.removeEventListener('DOMNodeInserted', _addNodeFromDomNodeAddedEvent);
             internal.config.container.removeEventListener('DOMNodeRemoved', _removeNodeFromDomNodeAddedEvent);
-            clearInterval(compatibilityAttributeMutationWatcherTimer);
         }
     }
 
