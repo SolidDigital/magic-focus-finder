@@ -541,7 +541,8 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
             maxAzimuth = 0,
             azimuthWeight = internal.config.azimuthWeight,
             distanceWeight = internal.config.distanceWeight,
-            weightOverrides = internal.currentlyFocusedElement.magicFocusFinderpreferedWeightOverrides;
+            weightOverrides = internal.currentlyFocusedElement.magicFocusFinderpreferedWeightOverrides,
+            namespace = null;
 
         if (weightOverrides && weightOverrides[direction]) {
             // can be distance or azimuth
@@ -554,6 +555,10 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
                 azimuthWeight = 1;
                 distanceWeight = 0.001;
                 break;
+            }
+
+            if (weightOverrides[direction].match(/namespace:/)) {
+                namespace = weightOverrides[direction];
             }
         }
 
@@ -575,9 +580,19 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
             .compact()
             .reduce(function(stored, current) {
 
+                var overrideAzimuthWight = azimuthWeight,
+                    overrideDistanceWeight = distanceWeight;
+                if (namespace) {
+                    var currWeightOverrides = current.closeElement.magicFocusFinderpreferedWeightOverrides;
+                    if (currWeightOverrides && currWeightOverrides[direction] && currWeightOverrides[direction] == namespace) {
+                        overrideAzimuthWight = 1;
+                        overrideDistanceWeight = 0.001;
+                    }
+                }
+
                 var result = {
                     azimuth : current.azimuth,
-                    computed : _getWeightedResult(current.azimuth, maxAzimuth, azimuthWeight, current.distance, maxDistance, distanceWeight),
+                    computed : _getWeightedResult(current.azimuth, maxAzimuth, overrideAzimuthWight, current.distance, maxDistance, overrideDistanceWeight),
                     closeElement : current.closeElement
                 };
 
