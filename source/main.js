@@ -585,7 +585,7 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
                 if (namespace) {
                     var currWeightOverrides = current.closeElement.magicFocusFinderpreferedWeightOverrides;
                     if (currWeightOverrides && currWeightOverrides[direction] && currWeightOverrides[direction] == namespace) {
-                        overrideAzimuthWight = 1;
+                        overrideAzimuthWight = 0;
                         overrideDistanceWeight = 0.001;
                     }
                 }
@@ -600,7 +600,7 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
                     result.closeElement.innerHTML = result.computed.toPrecision(2);
                 }
 
-                if(weightOverrides[direction] !== 'distance') {
+                if(weightOverrides[direction] !== 'distance' && !namespace) {
                     if (0 !== stored.azimuth && 0 === current.azimuth) {
                         return result;
                     }
