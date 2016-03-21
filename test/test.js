@@ -42,7 +42,8 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                     distanceWeight : 1,
                     debug : false,
                     useNativeMutationObserver : true,
-                    supportMouse: false
+                    supportMouse: false,
+                    mouseOverEventName: 'mouseover'
                 };
 
                 mff.configure(options);
@@ -68,7 +69,8 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                         distanceWeight : 6,
                         debug : false,
                         useNativeMutationObserver : true,
-                        supportMouse: false
+                        supportMouse: false,
+                        mouseOverEventName: 'mouseover'
                     },
                     options1 = {
                         keymap: {},
@@ -121,7 +123,8 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                     distanceWeight : 1,
                     debug : false,
                     useNativeMutationObserver : true,
-                    supportMouse: false
+                    supportMouse: false,
+                    mouseOverEventName: 'mouseover'
                 };
 
                 mff.configure(options);
@@ -179,7 +182,8 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                     'distanceWeight',
                     'debug',
                     'useNativeMutationObserver',
-                    'supportMouse'
+                    'supportMouse',
+                    'mouseOverEventName'
                 ];
 
                 expect(mff.getConfig()).to.have.all.keys(keys);
@@ -205,7 +209,8 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                     attributeWatchInterval : 100,
                     useNativeMutationObserver : true,
                     watchAttributeMutations : false,
-                    supportMouse: false
+                    supportMouse: false,
+                    mouseOverEventName: 'mouseover'
                 };
 
                 mff.configure(options);
@@ -746,10 +751,6 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
             });
         });
 
-        describe('the eventManager', function() {
-
-        });
-
         describe('focus change logic', function() {
 
             describe('in a simple grid', function() {
@@ -1094,6 +1095,46 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
             });
         });
 
+        describe('mouse support', function() {
+            it('should give focus to an element when that element is mouseover', function() {
+                mff
+                    .configure({
+                        container: '#example7',
+                        supportMouse : true
+                    })
+                    .start();
+
+                fireMouseOverEventOnElement(document.querySelector('#block54'));
+
+                expect(mff.getCurrent().className).to.equal('box block54 focused');
+            });
+
+            it('should be able to give focus to the parent element when a child element is focused', function() {
+                mff
+                    .configure({
+                        container: '#example7',
+                        supportMouse : true
+                    })
+                    .start();
+
+                fireMouseOverEventOnElement(document.querySelector('#example7').querySelector('.nested3'));
+
+                expect(mff.getCurrent().className).to.equal('box block55 focused');
+            });
+
+            it('should not give focus to an element that is outside of the mff container', function() {
+                mff
+                    .configure({
+                        container: '#example7',
+                        supportMouse : true
+                    })
+                    .start();
+
+                fireMouseOverEventOnElement(document.querySelector('#block52')); // this block is outside the configured container.
+
+                expect(mff.getCurrent()).to.equal(null);
+            });
+        });
     });
 
     function getOriginalOptions() {
@@ -1120,7 +1161,24 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
             distanceWeight : 1,
             debug : false,
             useNativeMutationObserver : true,
-            supportMouse: false
+            supportMouse: false,
+            mouseOverEventName: 'mouseover'
         };
+    }
+
+    function fireMouseOverEventOnElement(element) {
+        // Stole this from : http://stackoverflow.com/questions/15739263/phantomjs-click-an-element/15948355#15948355
+        var event = document.createEvent('MouseEvent');
+
+        event.initMouseEvent(
+            'mouseover',
+            true /* bubble */, true /* cancelable */,
+            window, null,
+            0, 0, 0, 0, /* coordinates */
+            false, false, false, false, /* modifier keys */
+            0 /*left*/, null
+        );
+
+        element.dispatchEvent(event);
     }
 });

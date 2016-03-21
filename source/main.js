@@ -42,7 +42,8 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
             distanceWeight : 1,
             debug : false,
             useNativeMutationObserver : true,
-            supportMouse: false
+            supportMouse: false,
+            mouseOverEventName : 'mouseover'
         },
         internal = {
             configured: false,
@@ -211,15 +212,6 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
         return mff;
     }
 
-    function _findParentBySelector(elm, selector) {
-        var all = document.querySelectorAll(selector);
-        var cur = elm.parentNode;
-        while(cur && !_collectionHas(all, cur)) { //keep going up until you find a match
-            cur = cur.parentNode; //go up
-        }
-        return cur; //will return null if not found
-    }
-
     function _eventManager(event) {
         var direction;
 
@@ -227,17 +219,9 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
             return;
         }
 
-        if (internal.config.supportMouse && event.type == 'mouseover') {
-            if (event.srcElement.hasAttribute(internal.config.focusableAttribute)) {
-                setCurrent(event.srcElement, null);
-            } else {
-                setCurrent(_findParentBySelector(event.srcElement, '['+internal.config.focusableAttribute+']'), null);
-            }
-
-            return false;
-        }
-
-        if(internal.currentlyFocusedElement) {
+        if (internal.config.supportMouse && event.type === internal.config.mouseOverEventName) {
+            setCurrent(_findKnownElementThatContainsElement(event.srcElement), null);
+        } else if (internal.currentlyFocusedElement) {
             direction = internal.config.keymap[event.keyCode];
 
             internal.currentlyFocusedElement.magicFocusFinderDirectionOverrides =  _getDirectionOverrides(internal.currentlyFocusedElement);
@@ -252,6 +236,15 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
         } else {
             _setDefaultFocus();
         }
+    }
+
+    function _findKnownElementThatContainsElement(element) {
+        return internal.knownElements.reduce(function(foundElement, knownElement) {
+            if(knownElement.contains(element)) {
+                foundElement = knownElement;
+            }
+            return foundElement;
+        }, null);
     }
 
     function _setDefaultFocus() {
@@ -272,10 +265,11 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
         element.magicFocusFinderPosition = _getPosition(element);
         element.magicFocusFinderDirectionOverrides = _getDirectionOverrides(element);
         element.magicFocusFinderpreferedWeightOverrides = _getPreferedOverrides(element);
+
         if (internal.config.supportMouse) {
             //prevent adding mouse over more than once
-            element.removeEventListener('mouseover', _eventManager);
-            element.addEventListener('mouseover', _eventManager);
+            element.removeEventListener(internal.config.mouseOverEventName, _eventManager);
+            element.addEventListener(internal.config.mouseOverEventName, _eventManager);
         }
 
         if(element.hasAttribute(internal.config.captureFocusAttribute)) {
@@ -287,7 +281,7 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
 
     function _unregisterElement(element) {
         if (internal.config.supportMouse) {
-            element.removeEventListener('mouseover', _eventManager);
+            element.removeEventListener(internal.config.mouseOverEventName, _eventManager);
         }
 
         internal.knownElements = _.reject(internal.knownElements, function(knownElement) {
@@ -582,6 +576,7 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
 
                 var overrideAzimuthWight = azimuthWeight,
                     overrideDistanceWeight = distanceWeight;
+
                 if (namespace) {
                     var currWeightOverrides = current.closeElement.magicFocusFinderpreferedWeightOverrides;
                     if (currWeightOverrides && currWeightOverrides[direction] && currWeightOverrides[direction] == namespace) {
