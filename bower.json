@@ -17,7 +17,7 @@
   ],
   "dependencies": {
     "lodash": "3.3.1",
-    "elementIsVisible": "0.0.2"
+    "elementIsVisible": "https://github.com/salexch/elementIsVisible.git"
   },
   "devDependencies": {
     "requirejs": "2.1.16",
