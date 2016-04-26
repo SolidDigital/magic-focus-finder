@@ -73,6 +73,7 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
                 right : _moveRight,
                 enter : _fireEnter
             },
+            setFocusToFirstKnowElement: setFocusToFirstKnowElement,
             getAngle : _getAngle,
             getPosition : _getPosition,
             overlap : _overlap
@@ -173,6 +174,10 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
         return internal.knownElements;
     }
 
+    function setFocusToFirstKnowElement() {
+        return setCurrent(_.first(getKnownElements()));
+    }
+    
     function refresh() {
         if(internal.config.container === 'document') {
             internal.config.container = document;
