@@ -216,6 +216,13 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
         return mff;
     }
 
+    function _collectionHas(a, b) { //helper function (see below)
+        for(var i = 0, len = a.length; i < len; i ++) {
+            if(a[i] == b) return true;
+        }
+        return false;
+    }
+
     function _findParentBySelector(elm, selector) {
         var all = document.querySelectorAll(selector);
         var cur = elm.parentNode;
