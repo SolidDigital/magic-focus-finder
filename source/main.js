@@ -19,6 +19,8 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
                 degrees: 0
             }
         },
+        _debouncedNodesMutations = [],
+        keydownHandler = _.once(_setupBodyKeypressListener),
         defaultConfig = {
             keymap : {
                 38 : 'up',
@@ -42,7 +44,8 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
             distanceWeight : 1,
             debug : false,
             useNativeMutationObserver : true,
-            supportMouse: false
+            supportMouse: false,
+            debounceDomMutation: false
         },
         internal = {
             configured: false,
@@ -52,7 +55,8 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
             // Each element will get the following properties when registered:
             // magicFocusFinderPosition = the elements position.
             // magicFocusFinderDirectionOverrides = if the element had any direction overrides.
-            domObserver : null
+            domObserver : null,
+            debounceDomMutation: null
         },
         mff = {
             configure : configure,
@@ -73,7 +77,7 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
                 right : _moveRight,
                 enter : _fireEnter
             },
-            setFocusToFirstKnowElement: setFocusToFirstKnowElement,
+            setDefaultFocus: _setDefaultFocus,
             getAngle : _getAngle,
             getPosition : _getPosition,
             overlap : _overlap
@@ -84,6 +88,42 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
 
     function configure() {
         internal.config = _.extend(_.cloneDeep(defaultConfig), _.extend.apply(_, arguments));
+
+        _removeMutationObservers();
+
+        internal.currentlyFocusedElement = null;
+
+        refresh();
+
+        if (internal.config.watchDomMutations) {
+            _setupAndStartWatchingMutations();
+        }
+
+        if (internal.config.debounceDomMutation) {
+            internal.debounceDomMutation =  _.debounce(function() {
+                while(_debouncedNodesMutations.length) {
+                    var mutations = _debouncedNodesMutations.pop();
+                    mutations.forEach(function(mutation) {
+                        if (mutation.addedNodes.length) {
+                            _.each(mutation.addedNodes, _addNodeFromMutationEvent);
+                        }
+
+                        if (mutation.removedNodes.length) {
+                            _.each(mutation.removedNodes, _removeNodeFromMutationEvent);
+                        }
+                    });
+                }
+
+                if (internal.knownElements.indexOf(internal.currentlyFocusedElement) == -1) {
+                    _setDefaultFocus();
+                }
+            }, 100, {
+                leading: false,
+                trailing: true
+            });
+        }
+
+
         internal.configured = true;
         return mff;
     }
@@ -97,22 +137,22 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
     }
 
     function start() {
-        if (!internal.configured) {
-            internal.config = _.cloneDeep(defaultConfig);
-        } else {
-            // TODO: why is configured set to false?
-            internal.configured = false;
-        }
+        /*        if (!internal.configured) {
+         internal.config = _.cloneDeep(defaultConfig);
+         } else {
+         // TODO: why is configured set to false?
+         internal.configured = false;
+         }
 
-        if (internal.config.defaultFocusedElement) {
-            setCurrent(internal.config.defaultFocusedElement);
-        }
+         if (internal.config.defaultFocusedElement) {
+         setCurrent(internal.config.defaultFocusedElement);
+         }
 
-        refresh();
+         refresh();
 
-        if(internal.config.watchDomMutations) {
-            _setupAndStartWatchingMutations();
-        }
+         if (internal.config.watchDomMutations) {
+         _setupAndStartWatchingMutations();
+         }*/
 
         return mff;
     }
@@ -128,8 +168,10 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
 
         newlyFocusedElement = querySelector && querySelector.nodeName ? querySelector : document.querySelector(querySelector);
 
-        if(newlyFocusedElement) {
+        if (newlyFocusedElement) {
             if(previouslyFocusedElement) {
+
+                previouslyFocusedElement.removeAttribute(internal.config.captureFocusAttribute);
 
                 events && _fireHTMLEvent(previouslyFocusedElement, 'losing-focus', {
                     from: previouslyFocusedElement
@@ -141,8 +183,13 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
                 events && _fireHTMLEvent(previouslyFocusedElement, 'focus-lost', {
                     from: previouslyFocusedElement
                 });
+            } else {
+                internal.knownElements.forEach(function(element) {
+                    element.removeAttribute(internal.config.captureFocusAttribute);
+                });
             }
 
+            newlyFocusedElement.setAttribute(internal.config.captureFocusAttribute, internal.config.captureFocusAttribute);
 
             events && _fireHTMLEvent(newlyFocusedElement, 'gaining-focus', {
                 to: newlyFocusedElement
@@ -174,10 +221,6 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
         return internal.knownElements;
     }
 
-    function setFocusToFirstKnowElement() {
-        return setCurrent(_.first(getKnownElements()));
-    }
-    
     function refresh() {
         if(internal.config.container === 'document') {
             internal.config.container = document;
@@ -187,11 +230,15 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
             internal.config.container = document.querySelector(internal.config.container);
         }
 
-        _.once(_setupBodyKeypressListener)();
+        keydownHandler();
 
         internal.knownElements = [];
 
         [].forEach.call(internal.config.container.querySelectorAll('['+ internal.config.focusableAttribute +']'), _registerElement);
+
+        if (internal.knownElements.indexOf(internal.currentlyFocusedElement) == -1) {
+            _setDefaultFocus();
+        }
 
         return mff;
     }
@@ -283,7 +330,7 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
 
         element.magicFocusFinderPosition = _getPosition(element);
         element.magicFocusFinderDirectionOverrides = _getDirectionOverrides(element);
-        element.magicFocusFinderpreferedWeightOverrides = _getPreferedOverrides(element);
+        element.magicFocusFinderpreferedWeightOverrides = _getPrefererrdOverrides(element);
         if (internal.config.supportMouse) {
             //prevent adding mouse over more than once
             element.removeEventListener('mouseover', _eventManager);
@@ -431,55 +478,55 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
 
         // Can assume no overlap here
         switch (direction) {
-        case _direction.up.name:
-            if (other.orx > current.orx) {
-                // o: bl c: tr
-                return Math.atan2(other.oby - current.oty, other.olx - current.orx) * 180 / Math.PI;
-            } else {
-                // o: br c: tl
-                return Math.atan2(other.oby - current.oty, other.orx - current.olx) * 180 / Math.PI;
-            }
-            break;
-        case _direction.down.name:
-            if (other.orx > current.orx) {
-                // o: tl c: br
-                return Math.atan2(other.oty - current.oby, other.olx - current.orx) * 180 / Math.PI;
-            } else {
-                // o: tr c: bl
-                return Math.atan2(other.oty - current.oby, other.orx - current.olx) * 180 / Math.PI;
-            }
-            break;
-        case _direction.left.name:
-            if (other.oty > current.oty) {
-                // o: tr c: bl
-                return Math.atan2(other.oty - current.oby, other.orx - current.olx) * 180 / Math.PI;
-            } else {
-                // o: br c: tl
-                return Math.atan2(other.oby - current.oty, other.orx - current.olx) * 180 / Math.PI;
-            }
-            break;
-        case _direction.right.name:
-            if (other.oty > current.oty) {
-                // o: tl c: br
-                return Math.atan2(other.oty - current.oby, other.olx - current.orx) * 180 / Math.PI;
-            } else {
-                // o: bl c: tr
-                return Math.atan2(other.oby - current.oty, other.olx - current.orx) * 180 / Math.PI;
-            }
-            break;
+            case _direction.up.name:
+                if (other.orx > current.orx) {
+                    // o: bl c: tr
+                    return Math.atan2(other.oby - current.oty, other.olx - current.orx) * 180 / Math.PI;
+                } else {
+                    // o: br c: tl
+                    return Math.atan2(other.oby - current.oty, other.orx - current.olx) * 180 / Math.PI;
+                }
+                break;
+            case _direction.down.name:
+                if (other.orx > current.orx) {
+                    // o: tl c: br
+                    return Math.atan2(other.oty - current.oby, other.olx - current.orx) * 180 / Math.PI;
+                } else {
+                    // o: tr c: bl
+                    return Math.atan2(other.oty - current.oby, other.orx - current.olx) * 180 / Math.PI;
+                }
+                break;
+            case _direction.left.name:
+                if (other.oty > current.oty) {
+                    // o: tr c: bl
+                    return Math.atan2(other.oty - current.oby, other.orx - current.olx) * 180 / Math.PI;
+                } else {
+                    // o: br c: tl
+                    return Math.atan2(other.oby - current.oty, other.orx - current.olx) * 180 / Math.PI;
+                }
+                break;
+            case _direction.right.name:
+                if (other.oty > current.oty) {
+                    // o: tl c: br
+                    return Math.atan2(other.oty - current.oby, other.olx - current.orx) * 180 / Math.PI;
+                } else {
+                    // o: bl c: tr
+                    return Math.atan2(other.oby - current.oty, other.olx - current.orx) * 180 / Math.PI;
+                }
+                break;
         }
     }
 
     function _overlap(current, other, direction) {
         switch (direction) {
-        case _direction.up.name:
-        case _direction.down.name:
-            return  _inside(other.olx, current.olx, current.orx) ||
+            case _direction.up.name:
+            case _direction.down.name:
+                return  _inside(other.olx, current.olx, current.orx) ||
                     _inside(other.orx, current.olx, current.orx) ||
                     (_inside(current.olx, other.olx, current.orx) && (_inside(current.orx, other.olx, other.orx)));
-        case _direction.left.name:
-        case _direction.right.name:
-            return  _inside(other.oty, current.oty, current.oby) ||
+            case _direction.left.name:
+            case _direction.right.name:
+                return  _inside(other.oty, current.oty, current.oby) ||
                     _inside(other.oby, current.oty, current.oby) ||
                     (_inside(current.oty, other.oty, other.oby) && _inside(current.oby, other.oty, other.oby));
         }
@@ -520,7 +567,7 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
         }
     }
 
-    function _getPreferedOverrides(element) {
+    function _getPrefererrdOverrides(element) {
         return _.reduce([_direction.up.name, _direction.down.name, _direction.left.name, _direction.right.name], function(attributes, direction) {
             var attribute = internal.config.weightOverrideAttribute + '-' + direction;
 
@@ -559,14 +606,14 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
         if (weightOverrides && weightOverrides[direction]) {
             // can be distance or azimuth
             switch (weightOverrides[direction]) {
-            case 'distance':
-                distanceWeight = 1;
-                azimuthWeight = 0.001;
-                break;
-            case 'azimuth':
-                azimuthWeight = 1;
-                distanceWeight = 0.001;
-                break;
+                case 'distance':
+                    distanceWeight = 1;
+                    azimuthWeight = 0.001;
+                    break;
+                case 'azimuth':
+                    azimuthWeight = 1;
+                    distanceWeight = 0.001;
+                    break;
             }
 
             if (weightOverrides[direction].match(/namespace:/)) {
@@ -630,8 +677,10 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
             .value()
             .closeElement;
 
-        if(closestElement){
+        if (closestElement) {
             setCurrent(closestElement, direction, options);
+        } else {
+            _fireHTMLEvent(internal.currentlyFocusedElement, 'focus-stay', {});
         }
     }
 
@@ -645,8 +694,14 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
 
     function _setupAndStartWatchingMutations() {
         // Home baked mutation observer. The shim was VERY slow. This is much faster.
-        if((window.MutationObserver || window.WebKitMutationObserver) && internal.config.useNativeMutationObserver) {
+        if ((window.MutationObserver || window.WebKitMutationObserver) && internal.config.useNativeMutationObserver) {
             internal.domObserver = new MutationObserver(function(mutations) {
+                if (internal.debounceDomMutation) {
+                    _debouncedNodesMutations.push(mutations);
+                    internal.debounceDomMutation();
+                    return;
+                }
+
                 mutations.forEach(function(mutation) {
                     if (mutation.addedNodes.length) {
                         _.each(mutation.addedNodes, _addNodeFromMutationEvent);
