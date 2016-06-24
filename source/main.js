@@ -137,6 +137,8 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
     }
 
     function start() {
+        keydownHandler();
+
         /*        if (!internal.configured) {
          internal.config = _.cloneDeep(defaultConfig);
          } else {
@@ -229,8 +231,6 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
         } else {
             internal.config.container = document.querySelector(internal.config.container);
         }
-
-        keydownHandler();
 
         internal.knownElements = [];
 
