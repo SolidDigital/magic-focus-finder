@@ -171,7 +171,7 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
         newlyFocusedElement = querySelector && querySelector.nodeName ? querySelector : document.querySelector(querySelector);
 
         if (newlyFocusedElement) {
-            if(previouslyFocusedElement) {
+            if (previouslyFocusedElement) {
 
                 previouslyFocusedElement.removeAttribute(internal.config.captureFocusAttribute);
 
@@ -317,7 +317,25 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
         if(internal.config.defaultFocusedElement) {
             setCurrent(internal.config.defaultFocusedElement);
         } else {
-            setCurrent(_.first(internal.knownElements));
+            var element,
+                elementsComputedStyle,
+                found = false,
+                counter = 0,
+                total = internal.knownElements.length;
+            while (total > counter || (!found && total > 0)) {
+                element = internal.knownElements[counter];
+                elementsComputedStyle = window.getComputedStyle(element);
+
+                if (elementsComputedStyle.display !== 'none' && elementsComputedStyle.visibility !== 'hidden') {
+                    found = element;
+                }
+
+                counter++;
+            }
+
+            found = found || _.first(internal.knownElements);
+
+            setCurrent(found);
         }
     }
 
