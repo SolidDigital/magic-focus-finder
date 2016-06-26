@@ -314,29 +314,20 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
     }
 
     function _setDefaultFocus() {
-        if(internal.config.defaultFocusedElement) {
-            setCurrent(internal.config.defaultFocusedElement);
-        } else {
-            var element,
-                elementsComputedStyle,
-                found = false,
-                counter = 0,
-                total = internal.knownElements.length;
-            while (total > counter || (!found && total > 0)) {
-                element = internal.knownElements[counter];
+        var focusElement = internal.config.defaultFocusedElement;
+
+        if (!internal.config.defaultFocusedElement) {
+            var elementsComputedStyle;
+            focusElement = _.find(internal.knownElements, function(element) {
                 elementsComputedStyle = window.getComputedStyle(element);
 
-                if (elementsComputedStyle.display !== 'none' && elementsComputedStyle.visibility !== 'hidden') {
-                    found = element;
-                }
+                return elementsComputedStyle.display !== 'none' && elementsComputedStyle.visibility !== 'hidden';
+            });
 
-                counter++;
-            }
-
-            found = found || _.first(internal.knownElements);
-
-            setCurrent(found);
+            focusElement = focusElement || _.first(internal.knownElements);
         }
+
+        setCurrent(focusElement);
     }
 
     function _registerElement(element) {
