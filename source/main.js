@@ -359,10 +359,10 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
         }
 
         internal.knownElements = _.reject(internal.knownElements, function(knownElement) {
-            return knownElement.isEqualNode(element);
+            return knownElement.isSameNode(element);
         });
 
-        if(internal.currentlyFocusedElement && internal.currentlyFocusedElement.isEqualNode(element)) {
+        if(internal.currentlyFocusedElement && internal.currentlyFocusedElement.isSameNode(element)) {
             _setDefaultFocus();
         }
     }
@@ -598,7 +598,7 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
         return _.filter(internal.knownElements, function(element) {
             var isCloseElement = isClose(currentElementsPosition, element.magicFocusFinderPosition);
 
-            return isCloseElement && !internal.currentlyFocusedElement.isEqualNode(element);
+            return isCloseElement && !internal.currentlyFocusedElement.isSameNode(element);
         });
     }
 
