@@ -161,6 +161,7 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
 
     function setCurrent(querySelector, direction, options) {
         var previouslyFocusedElement = internal.currentlyFocusedElement,
+            elementsComputedStyle,
             newlyFocusedElement,
             events;
 
@@ -177,6 +178,10 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
         }
 
         if (!newlyFocusedElement)
+            return false;
+
+        elementsComputedStyle = window.getComputedStyle(newlyFocusedElement);
+        if (elementsComputedStyle.display === 'none' || elementsComputedStyle.visibility === 'hidden')
             return false;
 
         newlyFocusedElement = querySelector && querySelector.nodeName ? querySelector : document.querySelector(querySelector);
