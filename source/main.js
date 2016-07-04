@@ -168,6 +168,17 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
 
         events = false !== options.events;
 
+        //check if element is in the right scope
+        if (querySelector && querySelector.nodeName) {
+            if (internal.config.container.contains(querySelector))
+                newlyFocusedElement = querySelector;
+        } else {
+            newlyFocusedElement = internal.config.container.querySelector(querySelector);
+        }
+
+        if (!newlyFocusedElement)
+            return false;
+
         newlyFocusedElement = querySelector && querySelector.nodeName ? querySelector : document.querySelector(querySelector);
 
         if (newlyFocusedElement) {
