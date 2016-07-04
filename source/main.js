@@ -180,6 +180,7 @@ define(['lodash', 'elementIsVisible'], function (_, elementIsVisible) {
         if (!newlyFocusedElement)
             return false;
 
+        //check if element is visible
         elementsComputedStyle = window.getComputedStyle(newlyFocusedElement);
         if (elementsComputedStyle.display === 'none' || elementsComputedStyle.visibility === 'hidden')
             return false;
