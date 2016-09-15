@@ -3,9 +3,6 @@
 var _ = require('lodash'),
     elementIsRendered = require('element-is-rendered');
 
-// for now mff is a singleton
-module.exports = mff;
-
 var _direction = {
         up: {
             name: 'up',
@@ -81,6 +78,9 @@ var _direction = {
         getPosition : _getPosition,
         overlap : _overlap
     };
+
+// for now mff is a singleton
+module.exports = mff;
 
 function configure() {
     internal.config = _.extend(_.cloneDeep(defaultConfig), _.extend.apply(_, arguments));
