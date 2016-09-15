@@ -1,8 +1,8 @@
 {
   "name": "magic-focus-finder",
-  "version": "2.11.0",
+  "version": "2.12.0",
   "description": "Intended to help keyboard navigation through html nodes.",
-  "main": "index.js",
+  "main": "source/main-browserify.js",
   "scripts": {
     "test": "mocha-phantomjs test/index.html",
     "jshint": "jshint source/main.js"
