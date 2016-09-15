@@ -1,7 +1,10 @@
 'use strict';
 
 var _ = require('lodash'),
-    elementIsVisible = require('element-is-visible');
+    elementIsRendered = require('element-is-rendered');
+
+// for now mff is a singleton
+module.exports = mff;
 
 var _direction = {
         up: {
@@ -78,9 +81,6 @@ var _direction = {
         getPosition : _getPosition,
         overlap : _overlap
     };
-
-// for now mff is a singleton
-return mff;
 
 function configure() {
     internal.config = _.extend(_.cloneDeep(defaultConfig), _.extend.apply(_, arguments));
@@ -392,42 +392,38 @@ function _getAngle(current, other, direction) {
 
     // Can assume no overlap here
     switch (direction) {
-    case _direction.up.name:
-        if (other.orx > current.orx) {
-            // o: bl c: tr
-            return Math.atan2(other.oby - current.oty, other.olx - current.orx) * 180 / Math.PI;
-        } else {
-            // o: br c: tl
-            return Math.atan2(other.oby - current.oty, other.orx - current.olx) * 180 / Math.PI;
-        }
-        break;
-    case _direction.down.name:
-        if (other.orx > current.orx) {
-            // o: tl c: br
-            return Math.atan2(other.oty - current.oby, other.olx - current.orx) * 180 / Math.PI;
-        } else {
-            // o: tr c: bl
-            return Math.atan2(other.oty - current.oby, other.orx - current.olx) * 180 / Math.PI;
-        }
-        break;
-    case _direction.left.name:
-        if (other.oty > current.oty) {
-            // o: tr c: bl
-            return Math.atan2(other.oty - current.oby, other.orx - current.olx) * 180 / Math.PI;
-        } else {
-            // o: br c: tl
-            return Math.atan2(other.oby - current.oty, other.orx - current.olx) * 180 / Math.PI;
-        }
-        break;
-    case _direction.right.name:
-        if (other.oty > current.oty) {
-            // o: tl c: br
-            return Math.atan2(other.oty - current.oby, other.olx - current.orx) * 180 / Math.PI;
-        } else {
-            // o: bl c: tr
-            return Math.atan2(other.oby - current.oty, other.olx - current.orx) * 180 / Math.PI;
-        }
-        break;
+        case _direction.up.name:
+            if (other.orx > current.orx) {
+                // o: bl c: tr
+                return Math.atan2(other.oby - current.oty, other.olx - current.orx) * 180 / Math.PI;
+            } else {
+                // o: br c: tl
+                return Math.atan2(other.oby - current.oty, other.orx - current.olx) * 180 / Math.PI;
+            }
+        case _direction.down.name:
+            if (other.orx > current.orx) {
+                // o: tl c: br
+                return Math.atan2(other.oty - current.oby, other.olx - current.orx) * 180 / Math.PI;
+            } else {
+                // o: tr c: bl
+                return Math.atan2(other.oty - current.oby, other.orx - current.olx) * 180 / Math.PI;
+            }
+        case _direction.left.name:
+            if (other.oty > current.oty) {
+                // o: tr c: bl
+                return Math.atan2(other.oty - current.oby, other.orx - current.olx) * 180 / Math.PI;
+            } else {
+                // o: br c: tl
+                return Math.atan2(other.oby - current.oty, other.orx - current.olx) * 180 / Math.PI;
+            }
+        case _direction.right.name:
+            if (other.oty > current.oty) {
+                // o: tl c: br
+                return Math.atan2(other.oty - current.oby, other.olx - current.orx) * 180 / Math.PI;
+            } else {
+                // o: bl c: tr
+                return Math.atan2(other.oby - current.oty, other.olx - current.orx) * 180 / Math.PI;
+            }
     }
 }
 
@@ -536,7 +532,7 @@ function _activateClosest(closeElements, direction, getDistance, options) {
 
             var result = getDistance(currentElementsPosition, closeElement.magicFocusFinderPosition);
 
-            if(!elementIsVisible(closeElement)) {
+            if(!elementIsRendered(closeElement)) {
                 return;
             }
 
