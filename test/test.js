@@ -42,6 +42,7 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                     distanceWeight : 1,
                     debug : false,
                     useNativeMutationObserver : true,
+                    supportMouse: false
                 };
 
                 mff.configure(options);
@@ -66,7 +67,8 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                         azimuthWeight : 6,
                         distanceWeight : 6,
                         debug : false,
-                        useNativeMutationObserver : true
+                        useNativeMutationObserver : true,
+                        supportMouse: false
                     },
                     options1 = {
                         keymap: {},
@@ -119,6 +121,7 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                     distanceWeight : 1,
                     debug : false,
                     useNativeMutationObserver : true,
+                    supportMouse: false
                 };
 
                 mff.configure(options);
@@ -175,7 +178,8 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                     'azimuthWeight',
                     'distanceWeight',
                     'debug',
-                    'useNativeMutationObserver'
+                    'useNativeMutationObserver',
+                    'supportMouse'
                 ];
 
                 expect(mff.getConfig()).to.have.all.keys(keys);
@@ -200,7 +204,8 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
                     debug : false,
                     attributeWatchInterval : 100,
                     useNativeMutationObserver : true,
-                    watchAttributeMutations : false
+                    watchAttributeMutations : false,
+                    supportMouse: false
                 };
 
                 mff.configure(options);
@@ -1115,6 +1120,7 @@ define(['chai', 'mocha', 'lodash', 'magicFocusFinder', 'sinon', 'sinon-chai'], f
             distanceWeight : 1,
             debug : false,
             useNativeMutationObserver : true,
+            supportMouse: false
         };
     }
 });

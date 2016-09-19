@@ -7,6 +7,7 @@
     require.config({
             'paths' : {
                 'magicFocusFinder'  : '../source/main',
+                'elementIsVisible'  : './bower_components/elementIsVisible/main',
                 'lodash'            : './bower_components/lodash/lodash'
             }
         }
@@ -32,6 +33,9 @@
 
         createRandomNodes(config);
 
+        mff.configure({
+            supportMouse: true
+        });
         mff.start();
     });
 
