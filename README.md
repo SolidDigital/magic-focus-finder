@@ -34,8 +34,6 @@ define(['./vendor/magic-focus-finder/source/main'], function(magicFocusFinder) {
 });
 ```
 
-The configure method can be passed multiple arguments. They will all be extended into each other.
-
 Options Object
 
 ```javascript
