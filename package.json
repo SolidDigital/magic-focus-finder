@@ -1,6 +1,6 @@
 {
   "name": "magic-focus-finder",
-  "version": "2.12.2",
+  "version": "2.13.0",
   "description": "Intended to help keyboard navigation through html nodes.",
   "main": "./source/main-browserify.js",
   "scripts": {
@@ -17,9 +17,9 @@
     "url": "https://github.com/Solid-Interactive/magic-focus-finder/issues"
   },
   "homepage": "https://github.com/Solid-Interactive/magic-focus-finder",
-  "dependencies" : {
-      "element-is-rendered": "^1.0.0",
-      "lodash": "^3.10.1"
+  "dependencies": {
+    "element-is-rendered": "^1.0.0",
+    "lodash": "^4.17.4"
   },
   "devDependencies": {
     "bluebird": "^2.9.13",

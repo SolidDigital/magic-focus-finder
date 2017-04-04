@@ -1,6 +1,15 @@
 'use strict';
 
-var _ = require('lodash'),
+var _extend = require('lodash/extend'),
+    _cloneDeep = require('lodash/cloneDeep'),
+    _once = require('lodash/once'),
+    _first = require('lodash/first'),
+    _reject = require('lodash/reject'),
+    _each = require('lodash/each'),
+    _zipObject = require('lodash/zipObject'),
+    _map = require('lodash/map'),
+    _reduce = require('lodash/reduce'),
+    _filter = require('lodash/filter'), 
     elementIsRendered = require('element-is-rendered');
 
 var _direction = {
@@ -82,8 +91,8 @@ var _direction = {
 // for now mff is a singleton
 module.exports = mff;
 
-function configure() {
-    internal.config = _.extend(_.cloneDeep(defaultConfig), _.extend.apply(_, arguments));
+function configure(options) {
+    internal.config = _extend(_cloneDeep(defaultConfig), options);
     internal.configured = true;
     return mff;
 }
@@ -98,7 +107,7 @@ function getContainer() {
 
 function start() {
     if (!internal.configured) {
-        internal.config = _.cloneDeep(defaultConfig);
+        internal.config = _cloneDeep(defaultConfig);
     } else {
         // TODO: why is configured set to false?
         internal.configured = false;
@@ -183,7 +192,7 @@ function refresh() {
         internal.config.container = document.querySelector(internal.config.container);
     }
 
-    _.once(_setupBodyKeypressListener)();
+    _once(_setupBodyKeypressListener)();
 
     internal.knownElements = [];
 
@@ -240,7 +249,7 @@ function _setDefaultFocus() {
     if(internal.config.defaultFocusedElement) {
         setCurrent(internal.config.defaultFocusedElement);
     } else {
-        setCurrent(_.first(internal.knownElements));
+        setCurrent(_first(internal.knownElements));
     }
 }
 
@@ -263,7 +272,7 @@ function _registerElement(element) {
 }
 
 function _unregisterElement(element) {
-    internal.knownElements = _.reject(internal.knownElements, function(knownElement) {
+    internal.knownElements = _reject(internal.knownElements, function(knownElement) {
         return knownElement.isEqualNode(element);
     });
 
@@ -299,7 +308,7 @@ function _getPosition(element, boundingRectIn) {
 }
 
 function _recalculateDynamicElementPositions() {
-    _.each(internal.knownElements, function(knownElement) {
+    _each(internal.knownElements, function(knownElement) {
         if(knownElement.hasAttribute(internal.config.dynamicPositionAttribute)) {
             knownElement.magicFocusFinderPosition = _getPosition(knownElement);
         }
@@ -469,7 +478,7 @@ function _fireEnter() {
 
 function _getDirectionOverrides(element) {
     if(element.hasAttribute(internal.config.overrideDirectionAttribute)) {
-        return _.zipObject([_direction.up.name, _direction.right.name, _direction.down.name, _direction.left.name], _.map(element.getAttribute(internal.config.overrideDirectionAttribute).split(' '), function(direction) {
+        return _zipObject([_direction.up.name, _direction.right.name, _direction.down.name, _direction.left.name], _map(element.getAttribute(internal.config.overrideDirectionAttribute).split(' '), function(direction) {
             return direction !== 'null' ? direction : null;
         }));
     } else {
@@ -478,7 +487,7 @@ function _getDirectionOverrides(element) {
 }
 
 function _getPreferedOverrides(element) {
-    return _.reduce([_direction.up.name, _direction.down.name, _direction.left.name, _direction.right.name], function(attributes, direction) {
+    return _reduce([_direction.up.name, _direction.down.name, _direction.left.name, _direction.right.name], function(attributes, direction) {
         var attribute = internal.config.weightOverrideAttribute + '-' + direction;
 
         if (element.hasAttribute(attribute)) {
@@ -496,7 +505,7 @@ function _findCloseElements(isClose) {
 
     currentElementsPosition = internal.currentlyFocusedElement.magicFocusFinderPosition;
 
-    return _.filter(internal.knownElements, function(element) {
+    return _filter(internal.knownElements, function(element) {
         var isCloseElement = isClose(currentElementsPosition, element.magicFocusFinderPosition);
 
         return isCloseElement && !internal.currentlyFocusedElement.isEqualNode(element);
@@ -527,7 +536,7 @@ function _activateClosest(closeElements, direction, getDistance, options) {
     }
 
     // Find closest element within the close elements
-    closestElement = _.chain(closeElements)
+    closestElement = closeElements
         .map(function(closeElement) {
 
             var result = getDistance(currentElementsPosition, closeElement.magicFocusFinderPosition);
@@ -541,7 +550,9 @@ function _activateClosest(closeElements, direction, getDistance, options) {
             result.closeElement = closeElement;
             return result;
         })
-        .compact()
+        .filter(function(i) {
+            return !!i;
+        })
         .reduce(function(stored, current) {
 
             var result = {
@@ -567,9 +578,8 @@ function _activateClosest(closeElements, direction, getDistance, options) {
             return stored.computed < result.computed ? stored : result;
         }, {
             azimuth: Infinity,
-            computed:Infinity
+            computed: Infinity
         })
-        .value()
         .closeElement;
 
     if(closestElement){
@@ -591,11 +601,11 @@ function _setupAndStartWatchingMutations() {
         internal.domObserver = new MutationObserver(function(mutations) {
             mutations.forEach(function(mutation) {
                 if (mutation.addedNodes.length) {
-                    _.each(mutation.addedNodes, _addNodeFromMutationEvent);
+                    _each(mutation.addedNodes, _addNodeFromMutationEvent);
                 }
 
                 if (mutation.removedNodes.length) {
-                    _.each(mutation.removedNodes, _removeNodeFromMutationEvent);
+                    _each(mutation.removedNodes, _removeNodeFromMutationEvent);
                 }
             });
         });
